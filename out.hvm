@@ -1,11 +1,11 @@
-(Id) = (@param0 (param0))
+(pippo) = (@param0 (param0))
 
-(Id2) = (@param2 (@param1 (@param0 (param2))))
+(pippo) = (@param0 (@param0 (@param0 (param2))))
 
-(Matteo) = (@param1 (@param0 ((param1) (param0))))
+(pippo) = (@param0 (@param0 ((param1) (param0))))
 
-(Luca) = ((Matteo) (@param0 (param0)))
+(pippo) = ((pippo2) (@param0 (param0)))
 
-(Nikos) = ((Luca) (True))
+(pippo) = ((pippo2) (pippo3))
 
-(Main) = (Nikos)
+(pippo) = (pippo2)

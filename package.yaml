@@ -55,3 +55,6 @@ tests:
 default-extensions:
   - DeriveAnyClass
   - DeriveGeneric
+  - FlexibleInstances
+  - MultiParamTypeClasses
+  - TypeSynonymInstances

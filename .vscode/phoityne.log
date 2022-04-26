@@ -11,3 +11,6 @@
 2022-04-26 12:09:13 [ThreadId 15] ERROR phoityne - "error: Variable not in scope: opts"
 2022-04-26 12:09:17 [ThreadId 15] ERROR phoityne - "error: Variable not in scope: def"
 2022-04-26 12:09:59 [ThreadId 15] ERROR phoityne - "error: Variable not in scope: body"
+2022-04-26 14:57:19 [ThreadId 15] ERROR phoityne - "error: Variable not in scope: body"
+2022-04-26 14:57:29 [ThreadId 15] ERROR phoityne - "error: Variable not in scope: body"
+2022-04-26 14:59:36 [ThreadId 15] ERROR phoityne - "\"extractSourcePosition\" (line 2, column 6):\nunexpected end of input\nexpecting \"Stopped at \" or \"Stopped in \" [INPUT]*** Exception: ExitSuccess\nH>>= "

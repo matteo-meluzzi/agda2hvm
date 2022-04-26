@@ -1,17 +1,33 @@
 module Main where
 
 import Agda.Compiler.Backend
+import Agda.Compiler.Common
+import Agda.Compiler.ToTreeless
+
+import Agda.Main (runAgda)
+
+import Agda.Syntax.Abstract.Name
+import Agda.Syntax.Common
+import Agda.Syntax.Internal ( conName, Clause, Telescope )
+import Agda.Syntax.Literal
+import Agda.Syntax.Treeless
+
+import Agda.TypeChecking.Monad
+import Agda.TypeChecking.Pretty
 
 import Agda.Utils.Impossible
 import Agda.Utils.Lens
+import Agda.Utils.List
+import Agda.Utils.Maybe
+import Agda.Utils.Monad
+import Agda.Utils.Null
 import Agda.Utils.Pretty
+import Agda.Utils.Singleton
 
 import Control.DeepSeq ( NFData )
 import GHC.Generics ( Generic )
 
-import qualified Data.Text as T
-import qualified Data.Text.IO as T
-
+import Control.Monad.Except
 import Control.Monad.Reader
 import Control.Monad.State
 import Control.Monad.Writer
@@ -19,8 +35,19 @@ import Control.Monad.Writer
 import Data.Maybe
 import Data.List
 
+import Data.Char
+import Data.Function
+import Data.Map (Map)
+import qualified Data.Map as Map
+import Data.Set (Set)
+import qualified Data.Set as Set
+import Data.Text (Text)
+import qualified Data.Text as T
+import qualified Data.Text.IO as T
+
+import GHC.Generics ( Generic )
+
 import Lib
-import Agda.Main (runAgda)
 
 data HvmOptions = Options deriving (Generic, NFData)
 
@@ -44,16 +71,15 @@ backend' = Backend'
 backend :: Backend
 backend = Backend backend'
 
-type HvmCtr = String
-type HvmVar = String
-type HvmOp2 = String
+type HvmAtom = String
+type HvmOp2 = Char
 type HvmNum = Int
-data HvmTerm =  Lam HvmVar HvmTerm |
+data HvmTerm =  Lam HvmAtom HvmTerm |
                 App HvmTerm [HvmTerm] |
-                Ctr HvmCtr [HvmTerm] |
+                Ctr HvmAtom [HvmTerm] |
                 Op2 HvmOp2 HvmTerm HvmTerm |
-                Let HvmVar HvmTerm HvmTerm |
-                Var HvmVar |
+                Let HvmAtom HvmTerm HvmTerm |
+                Var HvmAtom |
                 Num HvmNum |
                 Parenthesis HvmTerm |
                 Rule HvmTerm HvmTerm
@@ -67,69 +93,208 @@ instance Show HvmTerm where
     show (Lam v t) = showSExpr (Just $ "@" ++ v ++ " " ++ show t) []
     show (App t1 t2) = showSExpr Nothing (t1:t2)
     show (Ctr n xs) = showSExpr (Just n) xs
-    show (Op2 op t1 t2) = showSExpr (Just op) [t1, t2]
+    show (Op2 op t1 t2) = showSExpr (Just (op:"")) [t1, t2]
     show (Let n t1 t2) = "let " ++ n ++ " = " ++ show t1 ++ "; " ++ show t2
     show (Var n) = n
     show (Num i) = show i
     show (Parenthesis t) = showSExpr Nothing [t]
     show (Rule t1 t2) = show t1 ++ " = " ++ show t2
 
-hvmName :: QName -> String
-hvmName = prettyShow . qnameName
+data ToHvmEnv = ToHvmEnv
+  { toHvmOptions :: HvmOptions
+  , toHvmVars    :: [HvmAtom]
+  }
 
--- Args = [TTerm]
+initToHvmEnv :: HvmOptions -> ToHvmEnv
+initToHvmEnv opts = ToHvmEnv opts []
 
-toHvm :: TTerm -> HvmTerm
-toHvm v = case v of
-    TVar i  -> Parenthesis $ Var $ "param" ++ show i
-    TPrim p -> undefined
-    TDef d  -> Parenthesis $ Var $ hvmName d
-    TApp f args -> App (toHvm f) (map toHvm args)
-    TLam v   -> Lam "param0" $ toHvm v
-    TCon c   -> Parenthesis $ Var $ hvmName c
-    TLet u v -> undefined
-    TCase i info v bs -> undefined
-    TUnit -> undefined
-    TSort -> undefined
-    TErased    -> undefined
-    TCoerce u  -> undefined
-    TError err -> undefined
-    TLit l     -> undefined
+addVarBinding :: HvmAtom -> ToHvmEnv -> ToHvmEnv
+addVarBinding x env = env { toHvmVars = x : toHvmVars env }
 
-paramsNumber :: Num a => TTerm -> a
-paramsNumber (TLam v) = 1 + paramsNumber v
-paramsNumber _ = 0
+data ToHvmState = ToHvmState
+  { toHvmFresh     :: [HvmAtom]          -- Used for locally bound named variables
+  , toHvmDefs      :: Map QName HvmAtom  -- Used for global definitions
+  , toHvmUsedNames :: Set HvmAtom        -- Names that are already in use (both variables and definitions)
+  }
 
-traverseLams :: TTerm -> TTerm
-traverseLams (TLam v) = traverseLams v
-traverseLams t = t
+-- This is an infinite supply of variable names
+-- a, b, c, ..., z, a1, b1, ..., z1, a2, b2, ...
+-- We never reuse variable names to make the code easier to
+-- understand.
+freshVars :: [HvmAtom]
+freshVars = concat [ map (<> i) xs | i <- "": map show [1..] ]
+  where
+    xs = map (:"") ['a'..'z']
+
+-- These are names that should not be used by the code we generate
+reservedNames :: Set HvmAtom
+reservedNames = Set.fromList
+  [ 
+  -- TODO: add more
+  ]
+
+initToHvmState :: ToHvmState
+initToHvmState = ToHvmState
+  { toHvmFresh     = freshVars
+  , toHvmDefs      = Map.empty
+  , toHvmUsedNames = reservedNames
+  }
+
+type ToHvmM a = StateT ToHvmState (ReaderT ToHvmEnv TCM) a
+
+freshHvmAtom = do
+  names <- gets toHvmFresh
+  case names of
+    [] -> fail "No more variables!"
+    (x:names') -> do
+      modify $ \st -> st { toHvmFresh = names' }
+      ifM (isNameUsed x) freshHvmAtom $ {-otherwise-} do
+        setNameUsed x
+        return x
+
+getEvaluationStrategy :: ToHvmM EvaluationStrategy
+getEvaluationStrategy = return LazyEvaluation 
+
+getVarName :: Int -> ToHvmM HvmAtom
+getVarName i = reader $ (!! i) . toHvmVars
+
+withFreshVar :: (HvmAtom -> ToHvmM a) -> ToHvmM a
+withFreshVar f = do
+  x <- freshHvmAtom
+  local (addVarBinding x) $ f x
+
+withFreshVars :: Int -> ([HvmAtom] -> ToHvmM a) -> ToHvmM a
+withFreshVars i f
+  | i <= 0    = f []
+  | otherwise = withFreshVar $ \x -> withFreshVars (i-1) (f . (x:))
+
+saveDefName :: QName -> HvmAtom -> ToHvmM ()
+saveDefName n a = modify $ \s -> s { toHvmDefs = Map.insert n a (toHvmDefs s) }
+
+isNameUsed :: HvmAtom -> ToHvmM Bool
+isNameUsed x = Set.member x <$> gets toHvmUsedNames
+
+setNameUsed :: HvmAtom -> ToHvmM ()
+setNameUsed x = modify $ \s ->
+  s { toHvmUsedNames = Set.insert x (toHvmUsedNames s) }
+
+-- Extended alphabetic characters that are allowed to appear in
+-- a Hvm identifier
+hvmExtendedAlphaChars :: Set Char
+hvmExtendedAlphaChars = Set.fromList
+  [ '!' , '$' , '%' , '&' , '*' , '+' , '-' , '.' , '/' , ':' , '<' , '=' , '>'
+  , '?' , '@' , '^' , '_' , '~'
+  ]
+
+-- Categories of unicode characters that are allowed to appear in
+-- a Hvm identifier
+hvmAllowedUnicodeCats :: Set GeneralCategory
+hvmAllowedUnicodeCats = Set.fromList
+  [ UppercaseLetter , LowercaseLetter , TitlecaseLetter , ModifierLetter
+  , OtherLetter , NonSpacingMark , SpacingCombiningMark , EnclosingMark
+  , DecimalNumber , LetterNumber , OtherNumber , ConnectorPunctuation
+  , DashPunctuation , OtherPunctuation , CurrencySymbol , MathSymbol
+  , ModifierSymbol , OtherSymbol , PrivateUse
+  ]
+
+-- True if the character is allowed to be used in a Hvm identifier
+isValidHvmChar :: Char -> Bool
+isValidHvmChar x
+  | isAscii x = isAlphaNum x || x `Set.member` hvmExtendedAlphaChars
+  | otherwise = generalCategory x `Set.member` hvmAllowedUnicodeCats
+
+-- Creates a valid Hvm name from a (qualified) Agda name.
+-- Precondition: the given name is not already in toHvmDefs.
+makeHvmName :: QName -> ToHvmM HvmAtom
+makeHvmName n = do
+  a <- go $ fixName $ prettyShow $ qnameName n
+  saveDefName n a
+  setNameUsed a
+  return a
+  where
+    nextName = ('z':) -- TODO: do something smarter
+     
+    go s     = ifM (isNameUsed s) (go $ nextName s) (return s)
+
+    fixName s =
+      let s' = concat (map fixChar s) in
+      if isNumber (head s') then "z" ++ s' else s'
+
+    fixChar c
+      | isValidHvmChar c = [c]
+      | otherwise           = "\\x" ++ toHex (ord c) ++ ";"
+
+    toHex 0 = ""
+    toHex i = toHex (i `div` 16) ++ [fourBitsToChar (i `mod` 16)]
+
+fourBitsToChar :: Int -> Char
+fourBitsToChar i = "0123456789ABCDEF" !! i
+{-# INLINE fourBitsToChar #-}
+
+class ToHvm a b where
+    toHvm :: a -> ToHvmM b
+
+instance ToHvm QName HvmAtom where
+    toHvm n = do
+        r <- Map.lookup n <$> gets toHvmDefs
+        case r of
+            Nothing -> makeHvmName n
+            Just a  -> return a
+
+instance ToHvm Definition (Maybe HvmTerm) where
+    toHvm def
+        | defNoCompilation def ||
+          not (usableModality $ getModality def) = return Nothing
+    toHvm def = do
+        let f = defName def
+        case theDef def of
+            Axiom {}         -> return Nothing
+            GeneralizableVar -> return Nothing
+            d@Function{} | d ^. funInline -> return Nothing
+            Function {}      -> do
+                let f' = "pippo"
+                maybeCompiled <- liftTCM $ toTreeless LazyEvaluation f
+                case maybeCompiled of
+                    Just t -> do
+                        body <- toHvm t
+                        return $ Just $ Rule (Ctr f' []) body
+                    Nothing   -> error $ "Could not compile Function " ++ f' ++ ": treeless transformation returned Nothing"
+            Primitive {}     -> return Nothing
+            PrimitiveSort {} -> return Nothing
+            Datatype {}      -> return Nothing
+            Record {}        -> undefined
+            Constructor { conSrcCon=chead, conArity=nargs } -> return Nothing
+            AbstractDefn {}  -> __IMPOSSIBLE__
+            DataOrRecSig {}  -> __IMPOSSIBLE__
+
+instance ToHvm TTerm HvmTerm where
+    toHvm v = case v of
+        TVar i  -> return $ Parenthesis $ Var $ "param" ++ show i
+        TPrim p -> undefined
+        TDef d  -> return $ Parenthesis $ Var $ "pippo2"
+        TApp f args -> do
+            f'    <- toHvm f
+            args' <- sequence $ map toHvm args
+            return $ App f' args'
+        TLam v  -> do
+            v' <- toHvm v
+            return $ Lam "param0" v'
+        TCon c   -> return $ Parenthesis $ Var $ "pippo3"
+        TLet u v -> undefined
+        TCase i info v bs -> undefined
+        TUnit -> undefined
+        TSort -> undefined
+        TErased    -> undefined
+        TCoerce u  -> undefined
+        TError err -> undefined
+        TLit l     -> undefined
+
 
 hvmCompile :: HvmOptions -> () -> IsMain -> Definition -> TCM (Maybe HvmTerm)
--- hvmCompile opts _ isMain def = return Nothing
-hvmCompile opts _ isMain def = do
-    let f = defName def
-    case theDef def of
-        Axiom {}         -> return Nothing
-        GeneralizableVar -> return Nothing
-        d@Function{} | d ^. funInline -> return Nothing
-        Function {}      -> do
-            let f' = hvmName f
-            maybeCompiled <- liftTCM $ toTreeless LazyEvaluation f
-            case maybeCompiled of
-                -- Just (TLam l) -> do
-                --     let nparams = paramsNumber l
-                --     let params = map (\i -> Var $ "param" ++ show i) [nparams, nparams-1 .. 0]
-                --     let body = traverseLams l
-                --     return $ Just $ Rule (Ctr f' params) (toHvm body)
-                Just t -> return $ Just $ Rule (Ctr f' []) (toHvm t)
-                Nothing   -> error $ "Could not compile Function " ++ f' ++ ": treeless transformation returned Nothing"
-        Primitive {}     -> return Nothing
-        PrimitiveSort {} -> return Nothing
-        Datatype {}      -> return Nothing
-        Record {}        -> undefined
-        Constructor { conSrcCon=chead, conArity=nargs } -> return Nothing
-        AbstractDefn {}  -> __IMPOSSIBLE__
-        DataOrRecSig {}  -> __IMPOSSIBLE__
+hvmCompile opts _ isMain def = 
+    toHvm def 
+    & (`evalStateT` initToHvmState)  
+    & (`runReaderT` initToHvmEnv opts)
 
 hvmPostModule :: HvmOptions -> () -> IsMain -> ModuleName -> [Maybe HvmTerm] -> TCM ()
 hvmPostModule options _ isMain moduleName sexprs = do
@@ -137,156 +302,3 @@ hvmPostModule options _ isMain moduleName sexprs = do
 
 main :: IO ()
 main = runAgda [backend]
-
--- -- | The type checking monad transformer.
--- -- Adds readonly 'TCEnv' and mutable 'TCState'.
--- newtype TCMT m a = TCM { unTCM :: IORef TCState -> TCEnv -> m a }
-
--- -- | Type checking monad.
--- type TCM = TCMT IO
-
--- data Defn = Axiom -- ^ Postulate
---             { axiomConstTransp :: Bool
---               -- ^ Can transp for this postulate be constant?
---               --   Set to @True@ for bultins like String.
---             }
---           | DataOrRecSig
---             { datarecPars :: Int }
---             -- ^ Data or record type signature that doesn't yet have a definition
---           | GeneralizableVar -- ^ Generalizable variable (introduced in `generalize` block)
---           | AbstractDefn Defn
---             -- ^ Returned by 'getConstInfo' if definition is abstract.
---           | Function
---             { funClauses        :: [Clause]
---             , funCompiled       :: Maybe CompiledClauses
---               -- ^ 'Nothing' while function is still type-checked.
---               --   @Just cc@ after type and coverage checking and
---               --   translation to case trees.
---             , funSplitTree      :: Maybe SplitTree
---               -- ^ The split tree constructed by the coverage
---               --   checker. Needed to re-compile the clauses after
---               --   forcing translation.
---             , funTreeless       :: Maybe Compiled
---               -- ^ Intermediate representation for compiler backends.
---             , funCovering       :: [Clause]
---               -- ^ Covering clauses computed by coverage checking.
---               --   Erased by (IApply) confluence checking(?)
---             , funInv            :: FunctionInverse
---             , funMutual         :: Maybe [QName]
---               -- ^ Mutually recursive functions, @data@s and @record@s.
---               --   Does include this function.
---               --   Empty list if not recursive.
---               --   @Nothing@ if not yet computed (by positivity checker).
---             , funAbstr          :: IsAbstract
---             , funDelayed        :: Delayed
---               -- ^ Are the clauses of this definition delayed?
---             , funProjection     :: Maybe Projection
---               -- ^ Is it a record projection?
---               --   If yes, then return the name of the record type and index of
---               --   the record argument.  Start counting with 1, because 0 means that
---               --   it is already applied to the record. (Can happen in module
---               --   instantiation.) This information is used in the termination
---               --   checker.
---             , funFlags          :: Set FunctionFlag
---             , funTerminates     :: Maybe Bool
---               -- ^ Has this function been termination checked?  Did it pass?
---             , funExtLam         :: Maybe ExtLamInfo
---               -- ^ Is this function generated from an extended lambda?
---               --   If yes, then return the number of hidden and non-hidden lambda-lifted arguments
---             , funWith           :: Maybe QName
---               -- ^ Is this a generated with-function? If yes, then what's the
---               --   name of the parent function.
---             }
---           | Datatype
---             { dataPars           :: Nat            -- ^ Number of parameters.
---             , dataIxs            :: Nat            -- ^ Number of indices.
---             , dataClause         :: (Maybe Clause) -- ^ This might be in an instantiated module.
---             , dataCons           :: [QName]
---               -- ^ Constructor names , ordered according to the order of their definition.
---             , dataSort           :: Sort
---             , dataMutual         :: Maybe [QName]
---               -- ^ Mutually recursive functions, @data@s and @record@s.
---               --   Does include this data type.
---               --   Empty if not recursive.
---               --   @Nothing@ if not yet computed (by positivity checker).
---             , dataAbstr          :: IsAbstract
---             , dataPathCons       :: [QName]        -- ^ Path constructor names (subset of dataCons)
---             , dataTranspIx       :: Maybe QName    -- ^ if indexed datatype, name of the "index transport" function.
---             , dataTransp         :: Maybe QName
---               -- ^ transport function, should be available for all datatypes in supported sorts.
---             }
---           | Record
---             { recPars           :: Nat
---               -- ^ Number of parameters.
---             , recClause         :: Maybe Clause
---               -- ^ Was this record type created by a module application?
---               --   If yes, the clause is its definition (linking back to the original record type).
---             , recConHead        :: ConHead
---               -- ^ Constructor name and fields.
---             , recNamedCon       :: Bool
---               -- ^ Does this record have a @constructor@?
---             , recFields         :: [Dom QName]
---               -- ^ The record field names.
---             , recTel            :: Telescope
---               -- ^ The record field telescope. (Includes record parameters.)
---               --   Note: @TelV recTel _ == telView' recConType@.
---               --   Thus, @recTel@ is redundant.
---             , recMutual         :: Maybe [QName]
---               -- ^ Mutually recursive functions, @data@s and @record@s.
---               --   Does include this record.
---               --   Empty if not recursive.
---               --   @Nothing@ if not yet computed (by positivity checker).
---             , recEtaEquality'    :: EtaEquality
---               -- ^ Eta-expand at this record type?
---               --   @False@ for unguarded recursive records and coinductive records
---               --   unless the user specifies otherwise.
---             , recPatternMatching :: PatternOrCopattern
---               -- ^ In case eta-equality is off, do we allow pattern matching on the
---               --   constructor or construction by copattern matching?
---               --   Having both loses subject reduction, see issue #4560.
---               --   After positivity checking, this field is obsolete, part of 'EtaEquality'.
---             , recInduction      :: Maybe Induction
---               -- ^ 'Inductive' or 'CoInductive'?  Matters only for recursive records.
---               --   'Nothing' means that the user did not specify it, which is an error
---               --   for recursive records.
---             , recTerminates     :: Maybe Bool
---               -- ^ 'Just True' means that unfolding of the recursive record terminates,
---               --   'Just False' means that we have no evidence for termination,
---               --   and 'Nothing' means we have not run the termination checker yet.
---             , recAbstr          :: IsAbstract
---             , recComp           :: CompKit
---             }
---           | Constructor
---             { conPars   :: Int         -- ^ Number of parameters.
---             , conArity  :: Int         -- ^ Number of arguments (excluding parameters).
---             , conSrcCon :: ConHead     -- ^ Name of (original) constructor and fields. (This might be in a module instance.)
---             , conData   :: QName       -- ^ Name of datatype or record type.
---             , conAbstr  :: IsAbstract
---             , conInd    :: Induction   -- ^ Inductive or coinductive?
---             , conComp   :: CompKit     -- ^ Cubical composition.
---             , conProj   :: Maybe [QName] -- ^ Projections. 'Nothing' if not yet computed.
---             , conForced :: [IsForced]
---               -- ^ Which arguments are forced (i.e. determined by the type of the constructor)?
---               --   Either this list is empty (if the forcing analysis isn't run), or its length is @conArity@.
---             , conErased :: Maybe [Bool]
---               -- ^ Which arguments are erased at runtime (computed during compilation to treeless)?
---               --   'True' means erased, 'False' means retained.
---               --   'Nothing' if no erasure analysis has been performed yet.
---               --   The length of the list is @conArity@.
---             }
---           | Primitive  -- ^ Primitive or builtin functions.
---             { primAbstr :: IsAbstract
---             , primName  :: String
---             , primClauses :: [Clause]
---               -- ^ 'null' for primitive functions, @not null@ for builtin functions.
---             , primInv      :: FunctionInverse
---               -- ^ Builtin functions can have inverses. For instance, natural number addition.
---             , primCompiled :: Maybe CompiledClauses
---               -- ^ 'Nothing' for primitive functions,
---               --   @'Just' something@ for builtin functions.
---             }
---           | PrimitiveSort
---             { primName :: String
---             , primSort :: Sort
---             }
---     deriving (Data, Show, Generic)
