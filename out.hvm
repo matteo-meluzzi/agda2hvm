@@ -1,6 +1,11 @@
-(Matteo3 a b c) = 42
-(Matteo2 a b) = @c (42)
-(Matteo1 a) = @b @c (42)
-(Matteo0) = @a @b @c (42)
+(Id) = (@param0 (param0))
 
-(Main) = ((Matteo0) 1 3 2)
+(Id2) = (@param2 (@param1 (@param0 (param2))))
+
+(Matteo) = (@param1 (@param0 ((param1) (param0))))
+
+(Luca) = ((Matteo) (@param0 (param0)))
+
+(Nikos) = ((Luca) (True))
+
+(Main) = (Nikos)

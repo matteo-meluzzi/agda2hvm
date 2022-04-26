@@ -81,12 +81,12 @@ hvmName = prettyShow . qnameName
 
 toHvm :: TTerm -> HvmTerm
 toHvm v = case v of
-    TVar i  -> Var $ "param" ++ show i
+    TVar i  -> Parenthesis $ Var $ "param" ++ show i
     TPrim p -> undefined
-    TDef d  -> Var $ hvmName d 
+    TDef d  -> Parenthesis $ Var $ hvmName d
     TApp f args -> App (toHvm f) (map toHvm args)
-    TLam v   -> Lam "x" $ Parenthesis (toHvm v)
-    TCon c   -> Var $ hvmName c
+    TLam v   -> Lam "param0" $ toHvm v
+    TCon c   -> Parenthesis $ Var $ hvmName c
     TLet u v -> undefined
     TCase i info v bs -> undefined
     TUnit -> undefined
@@ -116,8 +116,13 @@ hvmCompile opts _ isMain def = do
             let f' = hvmName f
             maybeCompiled <- liftTCM $ toTreeless LazyEvaluation f
             case maybeCompiled of
-                Just body -> return $ Just $ Rule (Ctr f' []) (toHvm body)
-                Nothing       -> error $ "Could not compile Function " ++ f' ++ ": treeless transformation returned Nothing"
+                -- Just (TLam l) -> do
+                --     let nparams = paramsNumber l
+                --     let params = map (\i -> Var $ "param" ++ show i) [nparams, nparams-1 .. 0]
+                --     let body = traverseLams l
+                --     return $ Just $ Rule (Ctr f' params) (toHvm body)
+                Just t -> return $ Just $ Rule (Ctr f' []) (toHvm t)
+                Nothing   -> error $ "Could not compile Function " ++ f' ++ ": treeless transformation returned Nothing"
         Primitive {}     -> return Nothing
         PrimitiveSort {} -> return Nothing
         Datatype {}      -> return Nothing

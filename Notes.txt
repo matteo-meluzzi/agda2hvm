@@ -1,3 +1,6 @@
+
+-- TUESDAY 26 APRIL -- 
+
 HVM does not support currying of Rules
 (Matteo a b) = 42
 
@@ -14,4 +17,23 @@ a possible solution is creating a number of rules equal to to number of argument
 ->
 42
 
-The unused definitions can be removed at the end
+Problem:
+(Matteo2 param1 param0) = (param1 param0)
+(Matteo1 param1) = @param0 (param1 param0)
+(Matteo0) = @param1 @param0 (param1 param0)
+
+(Luca0) = (Matteo1 (@param0 (param0)))
+(Luca1 param1) = (Matteo2 (@param0 (param0)) param1) -- Had to add Luca1 from Luca0, so sometimes the index has to increase too.. very complex
+
+(Nikos) = (Luca1 True)
+
+(Main) = Nikos
+
+final solution: always use rules with 0 arguments and call always App with 0 arguments first on that rule
+(Matteo) = @x @y (x y)
+
+(Luca) = ((Matteo) (@x (x)))
+
+(Main) = ((Luca) True)
+
+Remarks: This will probably affect performance negatively, but it's the simplest implementation. In the future it may be worth changing this to use rules with many arguments.
