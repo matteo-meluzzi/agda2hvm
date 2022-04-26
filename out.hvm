@@ -1,0 +1,6 @@
+(Matteo3 a b c) = 42
+(Matteo2 a b) = @c (42)
+(Matteo1 a) = @b @c (42)
+(Matteo0) = @a @b @c (42)
+
+(Main) = ((Matteo0) 1 3 2)

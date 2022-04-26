@@ -1,0 +1,13 @@
+2022-04-26 11:59:20 [ThreadId 15] ERROR phoityne - ghci launch error. <file descriptor: 69>: hPutChar: resource vanished (Broken pipe)
+
+2022-04-26 11:59:20 [ThreadId 15] ERROR phoityne - [disconnectRequestHandler] ghci not started.
+2022-04-26 11:59:34 [ThreadId 15] ERROR phoityne - ghci launch error. <file descriptor: 69>: hPutChar: resource vanished (Broken pipe)
+
+2022-04-26 11:59:34 [ThreadId 15] ERROR phoityne - [disconnectRequestHandler] ghci not started.
+2022-04-26 12:08:54 [ThreadId 15] ERROR phoityne - "error: Variable not in scope: body"
+2022-04-26 12:09:00 [ThreadId 15] ERROR phoityne - "error: Variable not in scope: def"
+2022-04-26 12:09:04 [ThreadId 15] ERROR phoityne - "error: Variable not in scope: def"
+2022-04-26 12:09:10 [ThreadId 15] ERROR phoityne - "error: \8226 Variable not in scope: isMain \8226 Perhaps you meant data constructor \8216IsMain\8217 (imported from Agda.Compiler.Backend)"
+2022-04-26 12:09:13 [ThreadId 15] ERROR phoityne - "error: Variable not in scope: opts"
+2022-04-26 12:09:17 [ThreadId 15] ERROR phoityne - "error: Variable not in scope: def"
+2022-04-26 12:09:59 [ThreadId 15] ERROR phoityne - "error: Variable not in scope: body"

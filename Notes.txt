@@ -1,0 +1,17 @@
+HVM does not support currying of Rules
+(Matteo a b) = 42
+
+(Main) = ((Matteo 1) 2)
+->
+((Matteo 1) 2)
+
+a possible solution is creating a number of rules equal to to number of arguments each with different number of arguments
+(Matteo2 a b) = 42
+(Matteo1 a) = @b (42)
+(Matteo0) = @a @b (42)
+
+(Main) = ((Matteo1 1) 2)
+->
+42
+
+The unused definitions can be removed at the end
