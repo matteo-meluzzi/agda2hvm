@@ -25,7 +25,8 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Syntax
+      ToHvm
   other-modules:
       Paths_agda2HVM
   hs-source-dirs:
