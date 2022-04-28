@@ -1,0 +1,16 @@
+(Id_0) = (@a (Id_1 a))
+(Id_1 a) = (a)
+
+(Id2_0) = (@a (@b (@c (Id2_3 a b c))))
+(Id2_1 a) = (@b (@c (Id2_3 a b c)))
+(Id2_2 a b) = (@c (Id2_3 a b c))
+(Id2_3 a b c) = (a)
+
+(Matteo_0) = (@a (@b (Matteo_2 a b)))
+(Matteo_1 a) = (@b (Matteo_2 a b))
+(Matteo_2 a b) = ((a) (b))
+
+(Luca_0) = (@a (Luca_1 a))
+(Luca_1 a) = app with Matteo_0
+
+(Main_0) = app with Matteo_0

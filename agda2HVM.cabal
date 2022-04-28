@@ -27,6 +27,7 @@ library
   exposed-modules:
       Syntax
       ToHvm
+      Utils
   other-modules:
       Paths_agda2HVM
   hs-source-dirs:

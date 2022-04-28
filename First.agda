@@ -14,21 +14,21 @@ matteo : (Bool -> Bool) -> Bool -> Bool
 matteo f b = f b
 
 luca : Bool -> Bool
-luca = (matteo id)
+luca a = (matteo id) a
 
-nikos : Bool
-nikos = luca true
-
-xor : Bool → Bool → Bool
-xor = λ { true  true  → false
-        ; false false → false
-        ; true false  → true
-        ; false true  → true
-        }
+-- nikos : Bool
+-- nikos = luca true
 
 -- not : Bool -> Bool
 -- not true = false
 -- not false = true
+
+-- xor : Bool → Bool → Bool
+-- xor = λ { true  true  → false
+--         ; false false → false
+--         ; true false  → true
+--         ; false true  → true
+--         }
 
 -- data Prova : Set where
 --   p1 p2 p3 p4 : Prova
@@ -39,4 +39,4 @@ xor = λ { true  true  → false
 -- pippo p3 = true
 -- pippo p4 = false
 
-main = nikos
+main = (matteo id) true

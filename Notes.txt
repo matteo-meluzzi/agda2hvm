@@ -1,4 +1,33 @@
 
+-- THURSDAY 28 APRIL --
+
+The solution of always using rules with 0 arguments will not work when implementing pattern matching.
+Another solution to solve:
+ - implementing pattern matching easily
+ - currying function
+ - supporting eta reduced functions
+is a blend of the two previous solutions:
+    1) create all curried-functions with less parameters
+    2) always use App with 0 arguments first
+    3) pattern matching happens only in the rule with the most arguments
+Example:
+    (Id2_0) = (@a (@b (@c (Id2_3 a b c))))
+    (Id2_1 a) = (@b (@c (Id2_3 a b c)))
+    (Id2_2 a b) = (@c (Id2_3 a b c))
+    (Id2_3 True b c) = (b)
+    (Id2_3 False b c) = (c) 
+
+    (Main) = ((Id2_0) True 1 0)
+    ->
+    1
+TODO:
+Check if intermidiate sub-functions
+    (Id2_1 a) = (@b (@c (Id2_3 a b c)))
+    (Id2_2 a b) = (@c (Id2_3 a b c))
+are actually needed or not, probably not since App is called always with _0
+
+ETA-reduced functions don't have pattern matching so there's no need to create functions with more parameters
+
 -- TUESDAY 26 APRIL -- 
 
 HVM does not support currying of Rules
@@ -23,7 +52,7 @@ Problem:
 (Matteo0) = @param1 @param0 (param1 param0)
 
 (Luca0) = (Matteo1 (@param0 (param0)))
-(Luca1 param1) = (Matteo2 (@param0 (param0)) param1) -- Had to add Luca1 from Luca0, so sometimes the index has to increase too.. very complex
+(Luca1 param1) = (Matteo2 (@param0 (param0)) param1) -- Had to add Luca1 from Luca0, so sometimes the index has to increase too.. very complex because Luca0 is eta reduced in agda
 
 (Nikos) = (Luca1 True)
 

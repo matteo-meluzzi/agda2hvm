@@ -41,6 +41,7 @@ import qualified Data.Text as T
 import GHC.Generics ( Generic )
 
 import Syntax
+import Utils (safeTail, safeInit)
 
 data HvmOptions = Options deriving (Generic, NFData)
 
@@ -73,7 +74,7 @@ freshVars = concat [ map (<> i) xs | i <- "": map show [1..] ]
 -- These are names that should not be used by the code we generate
 reservedNames :: Set HvmAtom
 reservedNames = Set.fromList
-  [ 
+  [
   -- TODO: add more
   ]
 
@@ -97,7 +98,7 @@ freshHvmAtom = do
         return x
 
 getEvaluationStrategy :: ToHvmM EvaluationStrategy
-getEvaluationStrategy = return LazyEvaluation 
+getEvaluationStrategy = return LazyEvaluation
 
 getVarName :: Int -> ToHvmM HvmAtom
 getVarName i = reader $ (!! i) . toHvmVars
@@ -157,7 +158,7 @@ makeHvmName n = do
   return a
   where
     nextName = ('z':) -- TODO: do something smarter
-     
+
     go s     = ifM (isNameUsed s) (go $ nextName s) (return s)
 
     fixName s = do
@@ -186,30 +187,66 @@ instance ToHvm QName HvmAtom where
             Nothing -> makeHvmName n
             Just a  -> return a
 
-instance ToHvm Definition (Maybe HvmTerm) where
+paramsNumber :: Num a => TTerm -> a
+paramsNumber (TLam v) = 1 + paramsNumber v
+paramsNumber _ = 0
+
+traverseLams :: TTerm -> TTerm
+traverseLams (TLam v) = traverseLams v
+traverseLams t = t
+
+makeLamFromParams :: [HvmAtom] -> HvmTerm -> HvmTerm
+makeLamFromParams xs body = foldr Lam body xs
+
+curryRuleName :: String -> Int -> String
+curryRuleName f i = f ++ "_" ++ show i
+
+{-
+  (Id_0) = @a @b @c (Id_3 a b c)
+  (Id_1 a) = @b @c (Id_3 a b c)
+  (Id_2 a b) =  @c (Id_3 a b c)
+  (Id_3 a b c)= c
+-}
+curryRule :: [HvmAtom] -> HvmAtom -> [HvmAtom] -> HvmTerm
+curryRule cparams f lparams = Rule (Ctr (curryRuleName f cparamsLen) $ map Var cparams) (makeLamFromParams lparams (App (Var $ curryRuleName f paramsLen) (map Var cparams ++ map Var lparams)))
+  where 
+    cparamsLen = length cparams
+    lparamsLen = length lparams
+    paramsLen = cparamsLen + lparamsLen
+
+instance ToHvm Definition [HvmTerm] where
     toHvm def
         | defNoCompilation def ||
-          not (usableModality $ getModality def) = return Nothing
+          not (usableModality $ getModality def) = return []
     toHvm def = do
         let f = defName def
         case theDef def of
-            Axiom {}         -> return Nothing
-            GeneralizableVar -> return Nothing
-            d@Function{} | d ^. funInline -> return Nothing
+            Axiom {}         -> return []
+            GeneralizableVar -> return []
+            d@Function{} | d ^. funInline -> return []
             Function {}      -> do
                 f' <- toHvm f
                 strat <- getEvaluationStrategy
                 maybeCompiled <- liftTCM $ toTreeless strat f
                 case maybeCompiled of
+                    Just l@(TLam _) -> do
+                        let nparams = paramsNumber l
+                        let body = traverseLams l
+                        withFreshVars nparams $ \params -> do
+                            body' <- toHvm body
+                            let firstDefName = curryRuleName f' nparams
+                            let d = Rule (Ctr firstDefName (map Var params)) body'
+                            let ds = zipWith3 (\cparams lparams i -> curryRule cparams f' lparams) (inits params) (tails params) [0..(max 0 $ length params - 1)]
+                            return $ ds ++ [d]
                     Just t -> do
                         body <- toHvm t
-                        return $ Just $ Rule (Ctr f' []) body
+                        return [Rule (Ctr (curryRuleName f' 0) []) body]
                     Nothing   -> error $ "Could not compile Function " ++ f' ++ ": treeless transformation returned Nothing"
-            Primitive {}     -> return Nothing
-            PrimitiveSort {} -> return Nothing
-            Datatype {}      -> return Nothing
+            Primitive {}     -> return []
+            PrimitiveSort {} -> return []
+            Datatype {}      -> return []
             Record {}        -> undefined
-            Constructor { conSrcCon=chead, conArity=nargs } -> return Nothing
+            Constructor { conSrcCon=chead, conArity=nargs } -> return []
             AbstractDefn {}  -> __IMPOSSIBLE__
             DataOrRecSig {}  -> __IMPOSSIBLE__
 
@@ -222,11 +259,14 @@ instance ToHvm TTerm HvmTerm where
         TPrim p -> undefined
         TDef d  -> do
             d' <- toHvm d
-            return $ Parenthesis $ Var d'
+            -- Always evaluate Def first with 0 arguments (see Notes Thu 28 Apr)
+            return $ App (Var $ curryRuleName d' 0) []
         TApp f args -> do
             f'    <- toHvm f
             args' <- traverse toHvm args
-            return $ App f' args'
+            case f' of
+              Var ruleName -> return $ App (Var $ curryRuleName ruleName $ length args') args'
+              _ -> return $ App f' args'
         TLam v  -> withFreshVar $ \x -> do
             body <- toHvm v
             return $ Lam x body

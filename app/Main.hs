@@ -38,7 +38,7 @@ import GHC.Generics ( Generic )
 import ToHvm
 import Syntax
 
-backend' :: Backend' HvmOptions HvmOptions () () (Maybe HvmTerm)
+backend' :: Backend' HvmOptions HvmOptions () () [HvmTerm]
 backend' = Backend'
     {
         backendName             = "agda2HVM"
@@ -58,15 +58,16 @@ backend' = Backend'
 backend :: Backend
 backend = Backend backend'
 
-hvmCompile :: HvmOptions -> () -> IsMain -> Definition -> TCM (Maybe HvmTerm)
-hvmCompile opts _ isMain def = 
-    toHvm def 
-    & (`evalStateT` initToHvmState)  
+hvmCompile :: HvmOptions -> () -> IsMain -> Definition -> TCM [HvmTerm]
+hvmCompile opts _ isMain def =
+    toHvm def
+    & (`evalStateT` initToHvmState)
     & (`runReaderT` initToHvmEnv opts)
 
-hvmPostModule :: HvmOptions -> () -> IsMain -> ModuleName -> [Maybe HvmTerm] -> TCM ()
-hvmPostModule options _ isMain moduleName sexprs = do
-    liftIO $ T.writeFile "out.hvm" (T.pack $ intercalate "\n\n" (map show $ catMaybes sexprs))
+hvmPostModule :: HvmOptions -> () -> IsMain -> ModuleName -> [[HvmTerm]] -> TCM ()
+hvmPostModule options _ isMain moduleName sexprss = do
+    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) sexprss)
+    liftIO $ T.writeFile "out.hvm" (T.pack t)
 
 main :: IO ()
 main = runAgda [backend]
