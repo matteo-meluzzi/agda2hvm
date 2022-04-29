@@ -106,10 +106,10 @@ getEvaluationStrategy :: ToHvmM EvaluationStrategy
 getEvaluationStrategy = return LazyEvaluation
 
 getBindinds :: ToHvmM [HvmAtom]
-getBindinds = reader (reverse . toHvmVars)
+getBindinds = reader toHvmVars
 
 getVarName :: Int -> ToHvmM HvmAtom
-getVarName i = reader $ (!! i) . toHvmVars
+getVarName i = reader $ (\vars -> if i < length vars then vars !! i else error $ "cannot get index " ++ show i ++ " in " ++ show vars) . toHvmVars
 
 getCurrentDef :: ToHvmM HvmAtom
 getCurrentDef = reader currentDef
@@ -295,6 +295,13 @@ orElse :: Maybe a -> a -> a
 orElse (Just x) _ = x
 orElse _ y = y
 
+argRanges' :: (Enum a, Num a) => [a] -> a -> [[a]]
+argRanges' []     _ = []
+argRanges' (x:xs) last = let nss = argRanges' xs (last+x) in [last..(last+x-1)]:nss
+
+getAtIndices xs [] = []
+getAtIndices xs (i:is) = xs!!i:(getAtIndices xs is)
+
 instance ToHvm TTerm HvmTerm where
     toHvm v = case v of
         TVar i  -> do
@@ -331,20 +338,36 @@ instance ToHvm TTerm HvmTerm where
           let body = App (Var splitRuleName) (map Var bindings)
 
           rules <- traverse (\ctrs -> do
-            constructors <- traverse (\((name, nargs), _) -> do
-              args <- traverse getVarName (take nargs [0..])
-              return $ Ctr name (map Var args)
-              ) ctrs
-            let infctrs = map Just constructors ++ repeat Nothing
-            let all = zipWith orElse infctrs (map Var bindings)
-            body <- toHvm $ (snd . last) ctrs
-            return $ Rule (Ctr splitRuleName all) body
-            ) ctrss
-          return $ Cases body rules
+            let nargs = map (\((_, nargs), _) -> nargs) ctrs
+            let totalArgs = sum nargs
+            let argRanges = argRanges' nargs 0
+
+            withFreshVars totalArgs $ \args -> do
+              constructors <- traverse (\(((name, nargs), _), argIndices) -> do
+                  let cargs = getAtIndices args argIndices
+                  return $ Ctr name (map Var args)
+                ) (zip ctrs argRanges)
+
+              let infctrs = map Just constructors ++ repeat Nothing
+              let all = zipWith orElse infctrs (map Var bindings)
+              body <- toHvm $ (snd . last) ctrs
+              let bigLet = foldr1 (.) (zipWith Let bindings constructors)
+              return $ Rule (Ctr splitRuleName all) (bigLet body)
+              ) ctrss
+
+          if isUnreachable v then
+              return $ Cases body rules
+          else (do
+            fallback <- toHvm v
+            let fallbackRule = Rule (Ctr splitRuleName (map Var bindings)) fallback
+            return $ Cases body (rules ++ [fallbackRule])
+            )
+
+
 
         TUnit -> undefined
         TSort -> undefined
-        TErased    -> undefined
+        TErased    -> return $ Var ""
         TCoerce u  -> undefined
         TError err -> return $ Var "error\n"
         TLit l     -> undefined
@@ -379,14 +402,14 @@ getCtrs t = case t of
       (And_split_2 a True) = True
       (And_split_2 a b) = False
 -}
-instance ToHvm TAlt (HvmTerm, HvmTerm) where
-  toHvm alt = case alt of
-    TACon c nargs v -> withFreshVars nargs $ \xs -> do
-      body <- toHvm v
-      let name = prettyShow $ qnameName c
-      return (Ctr name (map Var xs), body)
-    -- ^ Matches on the given constructor. If the match succeeds,
-    -- the pattern variables are prepended to the current environment
-    -- (pushes all existing variables aArity steps further away)
-    TAGuard{} -> __IMPOSSIBLE__ -- TODO
-    TALit{} -> __IMPOSSIBLE__ -- TODO
+-- instance ToHvm TAlt (HvmTerm, HvmTerm) where
+--   toHvm alt = case alt of
+--     TACon c nargs v -> withFreshVars nargs $ \xs -> do
+--       body <- toHvm v
+--       let name = prettyShow $ qnameName c
+--       return (Ctr name (map Var xs), body)
+--     -- ^ Matches on the given constructor. If the match succeeds,
+--     -- the pattern variables are prepended to the current environment
+--     -- (pushes all existing variables aArity steps further away)
+--     TAGuard{} -> __IMPOSSIBLE__ -- TODO
+--     TALit{} -> __IMPOSSIBLE__ -- TODO

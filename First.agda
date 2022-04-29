@@ -28,6 +28,15 @@ data List (A : Set) : Set where
   Nil   : List A
   Cons  : A -> List A -> List A
 
+-- map : {A B : Set} -> (A -> B) -> List A -> List B
+-- map f Nil = Nil
+-- map f (Cons x xs) = Cons (f x) (map f xs)
+
+map : (Bool -> Bool) -> List Bool -> List Bool
+map f Nil = Nil
+map f (Cons x xs) = Cons (f x) (map f xs)
+
+
 data Pair (A B : Set) : Set where
   P  : A -> B -> Pair A B
 
@@ -75,7 +84,7 @@ and _ _ = False
 -- pippo p3 = True
 -- pippo p4 = False
 
-main = friend Luca Matteo
+main = map not (Cons True (Cons False Nil))
 
 
 -- (Nil_0) = Nil
