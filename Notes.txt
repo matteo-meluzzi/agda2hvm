@@ -1,4 +1,8 @@
 
+-- FRIDAY 29 APRIL --
+
+
+
 -- THURSDAY 28 APRIL --
 
 The solution of always using rules with 0 arguments will not work when implementing pattern matching.
@@ -27,6 +31,13 @@ Check if intermidiate sub-functions
 are actually needed or not, probably not since App is called always with _0
 
 ETA-reduced functions don't have pattern matching so there's no need to create functions with more parameters
+
+
+
+
+Agda is case sensitive, so naming collisions may arise if simply uppercase the first letter of a definition
+possible solution: add underscore and a number after the uppercased defintion because agda does not allow it but HVM does
+
 
 -- TUESDAY 26 APRIL -- 
 

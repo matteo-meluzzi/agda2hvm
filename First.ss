@@ -1,29 +1,12 @@
 (import (only (chezscheme) record-case))
 
-(define (A) (begin (display "encountered axiom: A\n") (exit 1)))
+(define (True) (list 'True))
 
-(define (true) (list 'true))
+(define (False) (list 'False))
 
-(define (false) (list 'false))
+(define (Nil) (list 'Nil))
 
-(define (id) (lambda (a) a))
+(define (Cons) (lambda (a) (lambda (b) (list 'Cons a
+b))))
 
-(define (id2) (lambda (a) (lambda (b) (lambda (c) a))))
-
-(define (matteo) (lambda (a) (lambda (b) (a b))))
-
-(define (luca) ((matteo) (lambda (a) a)))
-
-(define (nikos) ((luca) (true)))
-
-(define 
-  (xor)
-  (lambda 
-    (a)
-    (lambda 
-      (b)
-      (record-case a ((true) () (record-case b ((true) () (false))
-((false) () a)))
-((false) () b)))))
-
-(define (main) (nikos))
+(define (main) (((Cons) (True)) (((Cons) (False)) (Nil))))

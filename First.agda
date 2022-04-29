@@ -1,20 +1,24 @@
 
-postulate A : Set
+-- postulate A : Set
 
 data Bool : Set where
-  true false : Bool
+  True False : Bool
 
-id : Bool -> Bool
-id x = x
+-- id : Bool -> Bool
+-- id x = x
 
-id2 : Bool -> Bool -> Bool -> Bool
-id2 x = \y -> \z -> x
+-- id2 : Bool -> Bool -> Bool -> Bool
+-- id2 x = \y -> \z -> x
 
-matteo : (Bool -> Bool) -> Bool -> Bool
-matteo f b = f b
+-- matteo : (Bool -> Bool) -> Bool -> Bool
+-- matteo f b = f b
 
-luca : Bool -> Bool
-luca a = (matteo id) a
+-- luca : Bool -> Bool
+-- luca a = (matteo id) a
+
+data List (A : Set) : Set where
+  Nil   : List A
+  Cons  : A -> List A -> List A
 
 -- nikos : Bool
 -- nikos = luca true
@@ -39,4 +43,12 @@ luca a = (matteo id) a
 -- pippo p3 = true
 -- pippo p4 = false
 
-main = (matteo id) true
+main = {!   !}
+
+
+-- (Nil_0) = Nil
+
+-- (Cons_0) = @a @b (Cons_2 a b)
+-- (Cons_2 a b) = (Cons a b)
+
+-- (Main) = ((Cons_0) True ((Cons_0) False Nil))

@@ -66,7 +66,8 @@ hvmCompile opts _ isMain def =
 
 hvmPostModule :: HvmOptions -> () -> IsMain -> ModuleName -> [[HvmTerm]] -> TCM ()
 hvmPostModule options _ isMain moduleName sexprss = do
-    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) sexprss)
+    let callMain = Rule (Ctr "Main" []) (App (Var "Umain_0") [])
+    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (sexprss ++ [[callMain]]))
     liftIO $ T.writeFile "out.hvm" (T.pack t)
 
 main :: IO ()

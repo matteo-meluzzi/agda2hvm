@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use lambda-case" #-}
 module ToHvm where
 
 import Prelude hiding ( null , empty )
@@ -162,9 +164,10 @@ makeHvmName n = do
     go s     = ifM (isNameUsed s) (go $ nextName s) (return s)
 
     fixName s = do
-      let s'  = concat (map fixChar s)
+      let s'  = concatMap fixChar s
       let (x:xs) = if isNumber (head s') then "z" ++ s' else s'
-      (toUpper x):xs
+      -- 'U':x:xs -- TODO: do something smarter
+      toUpper x:xs
 
     fixChar c
       | isValidHvmChar c = [c]
@@ -201,6 +204,18 @@ makeLamFromParams xs body = foldr Lam body xs
 curryRuleName :: String -> Int -> String
 curryRuleName f i = f ++ "_" ++ show i
 
+makeRule :: String -> Int -> ([HvmAtom] -> ToHvmM HvmTerm) -> ToHvmM [HvmTerm]
+makeRule name nparams lbody = withFreshVars nparams $ \params -> do
+  let name' = curryRuleName name nparams
+  body' <- lbody params
+  let dn = Rule (Ctr name' (map Var params)) body'
+  case params of
+    [] -> do
+      return [dn]
+    params -> do
+      let d0 = curryRule [] name params
+      return [d0, dn]
+
 {-
   (Id_0) = @a @b @c (Id_3 a b c)
   (Id_1 a) = @b @c (Id_3 a b c)
@@ -209,7 +224,7 @@ curryRuleName f i = f ++ "_" ++ show i
 -}
 curryRule :: [HvmAtom] -> HvmAtom -> [HvmAtom] -> HvmTerm
 curryRule cparams f lparams = Rule (Ctr (curryRuleName f cparamsLen) $ map Var cparams) (makeLamFromParams lparams (App (Var $ curryRuleName f paramsLen) (map Var cparams ++ map Var lparams)))
-  where 
+  where
     cparamsLen = length cparams
     lparamsLen = length lparams
     paramsLen = cparamsLen + lparamsLen
@@ -232,12 +247,7 @@ instance ToHvm Definition [HvmTerm] where
                     Just l@(TLam _) -> do
                         let nparams = paramsNumber l
                         let body = traverseLams l
-                        withFreshVars nparams $ \params -> do
-                            body' <- toHvm body
-                            let firstDefName = curryRuleName f' nparams
-                            let d = Rule (Ctr firstDefName (map Var params)) body'
-                            let ds = zipWith3 (\cparams lparams i -> curryRule cparams f' lparams) (inits params) (tails params) [0..(max 0 $ length params - 1)]
-                            return $ ds ++ [d]
+                        makeRule f' nparams (\_ -> toHvm body)
                     Just t -> do
                         body <- toHvm t
                         return [Rule (Ctr (curryRuleName f' 0) []) body]
@@ -246,7 +256,11 @@ instance ToHvm Definition [HvmTerm] where
             PrimitiveSort {} -> return []
             Datatype {}      -> return []
             Record {}        -> undefined
-            Constructor { conSrcCon=chead, conArity=nargs } -> return []
+            Constructor { conSrcCon=chead, conArity=nparams } -> do
+              let c = conName chead
+              c' <- toHvm c
+              makeRule c' nparams (return . Ctr c' . map Var)
+
             AbstractDefn {}  -> __IMPOSSIBLE__
             DataOrRecSig {}  -> __IMPOSSIBLE__
 
@@ -272,7 +286,7 @@ instance ToHvm TTerm HvmTerm where
             return $ Lam x body
         TCon c -> do
             c' <- toHvm c
-            return $ Parenthesis $ Var c'
+            return $ App (Var $ curryRuleName c' 0) []
         TLet u v -> undefined
         TCase i info v bs -> undefined
         TUnit -> undefined
