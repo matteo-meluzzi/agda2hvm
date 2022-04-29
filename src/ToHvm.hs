@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use lambda-case" #-}
+{-# LANGUAGE FlexibleContexts #-}
 module ToHvm where
 
 import Prelude hiding ( null , empty )
@@ -50,10 +51,11 @@ data HvmOptions = Options deriving (Generic, NFData)
 data ToHvmEnv = ToHvmEnv
   { toHvmOptions :: HvmOptions
   , toHvmVars    :: [HvmAtom]
+  , currentDef   :: HvmAtom
   }
 
 initToHvmEnv :: HvmOptions -> ToHvmEnv
-initToHvmEnv opts = ToHvmEnv opts []
+initToHvmEnv opts = ToHvmEnv opts [] ""
 
 addVarBinding :: HvmAtom -> ToHvmEnv -> ToHvmEnv
 addVarBinding x env = env { toHvmVars = x : toHvmVars env }
@@ -89,6 +91,7 @@ initToHvmState = ToHvmState
 
 type ToHvmM a = StateT ToHvmState (ReaderT ToHvmEnv TCM) a
 
+freshHvmAtom :: ToHvmM HvmAtom
 freshHvmAtom = do
   names <- gets toHvmFresh
   case names of
@@ -102,8 +105,17 @@ freshHvmAtom = do
 getEvaluationStrategy :: ToHvmM EvaluationStrategy
 getEvaluationStrategy = return LazyEvaluation
 
+getBindinds :: ToHvmM [HvmAtom]
+getBindinds = reader (reverse . toHvmVars)
+
 getVarName :: Int -> ToHvmM HvmAtom
 getVarName i = reader $ (!! i) . toHvmVars
+
+getCurrentDef :: ToHvmM HvmAtom
+getCurrentDef = reader currentDef
+
+withCurrentDef :: HvmAtom -> ToHvmM a -> ToHvmM a
+withCurrentDef a = local (\env -> env { currentDef = a })
 
 withFreshVar :: (HvmAtom -> ToHvmM a) -> ToHvmM a
 withFreshVar f = do
@@ -198,6 +210,10 @@ traverseLams :: TTerm -> TTerm
 traverseLams (TLam v) = traverseLams v
 traverseLams t = t
 
+traverseCases :: TTerm -> TTerm
+traverseCases (TCase i info v bs) = traverseCases v
+traverseCases t = t
+
 makeLamFromParams :: [HvmAtom] -> HvmTerm -> HvmTerm
 makeLamFromParams xs body = foldr Lam body xs
 
@@ -235,34 +251,49 @@ instance ToHvm Definition [HvmTerm] where
           not (usableModality $ getModality def) = return []
     toHvm def = do
         let f = defName def
-        case theDef def of
-            Axiom {}         -> return []
-            GeneralizableVar -> return []
-            d@Function{} | d ^. funInline -> return []
-            Function {}      -> do
-                f' <- toHvm f
-                strat <- getEvaluationStrategy
-                maybeCompiled <- liftTCM $ toTreeless strat f
-                case maybeCompiled of
-                    Just l@(TLam _) -> do
-                        let nparams = paramsNumber l
-                        let body = traverseLams l
-                        makeRule f' nparams (\_ -> toHvm body)
-                    Just t -> do
-                        body <- toHvm t
-                        return [Rule (Ctr (curryRuleName f' 0) []) body]
-                    Nothing   -> error $ "Could not compile Function " ++ f' ++ ": treeless transformation returned Nothing"
-            Primitive {}     -> return []
-            PrimitiveSort {} -> return []
-            Datatype {}      -> return []
-            Record {}        -> undefined
-            Constructor { conSrcCon=chead, conArity=nparams } -> do
-              let c = conName chead
-              c' <- toHvm c
-              makeRule c' nparams (return . Ctr c' . map Var)
+        f' <- toHvm f
+        withCurrentDef f' $ do
+          case theDef def of
+              Axiom {}         -> return []
+              GeneralizableVar -> return []
+              d@Function{} | d ^. funInline -> return []
+              Function {}      -> do
+                  strat <- getEvaluationStrategy
+                  maybeCompiled <- liftTCM $ toTreeless strat f
+                  case maybeCompiled of
+                      Just l@(TLam _) -> do
+                          let nparams = paramsNumber l
+                          let body = traverseLams l
+                          makeRule f' nparams (\_ -> toHvm body)
+                          -- case body of
+                          --   -- TLet _ c@TCase{} -> do
+                          --   --   let ctrss = getCtrs c
+                          --   --   -- body <- toHvm c
+                          --   --   return $ map (\ctrs -> Rule (Ctr (curryRuleName f' nparams) (map Var ctrs)) (Var "body")) ctrss
+                          --   c@TCase{} -> do
+                          --     let ctrss = getCtrs c
+                          --     -- body <- toHvm c
+                          --     return $ map (\ctrs -> Rule (Ctr (curryRuleName f' nparams) (map Var ctrs)) (Var "body")) ctrss
+                          --   _ -> makeRule f' nparams (\_ -> toHvm body)
+                      Just t -> do
+                          body <- toHvm t
+                          return [Rule (Ctr (curryRuleName f' 0) []) body]
+                      Nothing   -> error $ "Could not compile Function " ++ f' ++ ": treeless transformation returned Nothing"
+              Primitive {}     -> return []
+              PrimitiveSort {} -> return []
+              Datatype {}      -> return []
+              Record {}        -> undefined
+              Constructor { conSrcCon=chead, conArity=nparams } -> do
+                let c = conName chead
+                c' <- toHvm c
+                makeRule c' nparams (return . Ctr c' . map Var)
 
-            AbstractDefn {}  -> __IMPOSSIBLE__
-            DataOrRecSig {}  -> __IMPOSSIBLE__
+              AbstractDefn {}  -> __IMPOSSIBLE__
+              DataOrRecSig {}  -> __IMPOSSIBLE__
+
+orElse :: Maybe a -> a -> a
+orElse (Just x) _ = x
+orElse _ y = y
 
 instance ToHvm TTerm HvmTerm where
     toHvm v = case v of
@@ -287,11 +318,75 @@ instance ToHvm TTerm HvmTerm where
         TCon c -> do
             c' <- toHvm c
             return $ App (Var $ curryRuleName c' 0) []
-        TLet u v -> undefined
-        TCase i info v bs -> undefined
+        TLet u v -> do
+          expr <- toHvm u
+          withFreshVar $ \x -> do
+            body <- toHvm v
+            return $ Let x expr body
+        c@(TCase i info v bs) -> do
+          let ctrss = getCtrs c
+          defName <- getCurrentDef
+          let splitRuleName = defName ++ "_split"
+          bindings <- getBindinds
+          let body = App (Var splitRuleName) (map Var bindings)
+
+          rules <- traverse (\ctrs -> do
+            constructors <- traverse (\((name, nargs), _) -> do
+              args <- traverse getVarName (take nargs [0..])
+              return $ Ctr name (map Var args)
+              ) ctrs
+            let infctrs = map Just constructors ++ repeat Nothing
+            let all = zipWith orElse infctrs (map Var bindings)
+            body <- toHvm $ (snd . last) ctrs
+            return $ Rule (Ctr splitRuleName all) body
+            ) ctrss
+          return $ Cases body rules
+
         TUnit -> undefined
         TSort -> undefined
         TErased    -> undefined
         TCoerce u  -> undefined
-        TError err -> undefined
+        TError err -> return $ Var "error\n"
         TLit l     -> undefined
+
+toHvmAltDef :: TTerm -> ToHvmM HvmTerm
+toHvmAltDef v = case v of
+  TDef d -> do
+    d' <- toHvm d
+    return $ Var d'
+  t -> toHvm t
+
+getCtr :: TAlt -> ((HvmAtom, Int), TTerm)
+getCtr alt = case alt of
+  TACon c nargs v -> ((prettyShow $ qnameName c, nargs), v)
+  TAGuard{} -> __IMPOSSIBLE__ -- TODO
+  TALit{} -> __IMPOSSIBLE__ -- TODO
+
+getCtrs :: TTerm -> [[((HvmAtom, Int), TTerm)]]
+getCtrs t = case t of
+  TCase i info v bs -> do
+    let calts = map getCtr bs
+    concatMap (\t@(_, n) -> do
+      let nss = getCtrs n
+      map (t :) nss
+      ) calts
+  _ -> [[]]
+
+{-
+  (And a b) = (And_split_1 a b)
+      (And_split_1 True b) = (And_split_2 True b)
+      (And_split_1 a b) = False
+      (And_split_2 a True) = True
+      (And_split_2 a b) = False
+-}
+instance ToHvm TAlt (HvmTerm, HvmTerm) where
+  toHvm alt = case alt of
+    TACon c nargs v -> withFreshVars nargs $ \xs -> do
+      body <- toHvm v
+      let name = prettyShow $ qnameName c
+      return (Ctr name (map Var xs), body)
+    -- ^ Matches on the given constructor. If the match succeeds,
+    -- the pattern variables are prepended to the current environment
+    -- (pushes all existing variables aArity steps further away)
+    TAGuard{} -> __IMPOSSIBLE__ -- TODO
+    TALit{} -> __IMPOSSIBLE__ -- TODO

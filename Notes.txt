@@ -1,7 +1,9 @@
 
 -- FRIDAY 29 APRIL --
 
-
+TODO: 
+ - let contructor (desugar to a lambda)
+ - pattern patching (use helper rule)
 
 -- THURSDAY 28 APRIL --
 

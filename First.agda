@@ -4,6 +4,14 @@
 data Bool : Set where
   True False : Bool
 
+data Nat : Set where
+  Z : Nat
+  S : Nat -> Nat
+
+-- _+_ : Nat -> Nat -> Nat
+-- Z + b = b
+-- (S a) + b = S (a + b) 
+
 -- id : Bool -> Bool
 -- id x = x
 
@@ -20,12 +28,36 @@ data List (A : Set) : Set where
   Nil   : List A
   Cons  : A -> List A -> List A
 
+data Pair (A B : Set) : Set where
+  P  : A -> B -> Pair A B
+
 -- nikos : Bool
 -- nikos = luca true
 
--- not : Bool -> Bool
--- not true = false
--- not false = true
+data Friends : Set where
+  Matteo Nikos Luca Andrei : Friends
+
+-- friend : Friends -> Bool
+-- friend Matteo = False
+-- friend Luca = True
+-- friend Nikos = True
+-- friend Andrei = True
+
+friend : Friends -> Friends -> Bool
+friend Matteo Matteo = False
+friend Luca Matteo = True
+friend Nikos Matteo = True
+friend Andrei Matteo = True
+friend _ _ = False
+
+
+not : Bool -> Bool
+not True = False
+not False = True
+
+and : Bool -> Bool -> Bool
+and True True = True
+and _ _ = False
 
 -- xor : Bool → Bool → Bool
 -- xor = λ { true  true  → false
@@ -38,12 +70,12 @@ data List (A : Set) : Set where
 --   p1 p2 p3 p4 : Prova
 
 -- pippo : Prova -> Bool
--- pippo p1 = true
--- pippo p2 = false
--- pippo p3 = true
--- pippo p4 = false
+-- pippo p1 = True
+-- pippo p2 = False
+-- pippo p3 = True
+-- pippo p4 = False
 
-main = {!   !}
+main = friend Luca Matteo
 
 
 -- (Nil_0) = Nil

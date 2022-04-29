@@ -2,13 +2,39 @@
 
 (False_0) = (False)
 
+(Z_0) = (Z)
+
+(S_0) = (@a (S_1 a))
+(S_1 a) = (S a)
+
 (Nil_0) = (Nil)
 
 (Cons_0) = (@a (@b (Cons_2 a b)))
 (Cons_2 a b) = (Cons a b)
 
-(Cons_0) = (True_0)
+(P_0) = (@a (@b (P_2 a b)))
+(P_2 a b) = (P a b)
 
-(Main_0) = (Cons_0)
+(Matteo_0) = (Matteo)
 
-(Main) = (Umain_0)
+(Nikos_0) = (Nikos)
+
+(Luca_0) = (Luca)
+
+(Andrei_0) = (Andrei)
+
+(Friend_0) = (@a (@b (Friend_2 a b)))
+(Friend_2 a b) = let c = (False_0);(Friend_split a b c)
+	(Friend_split (Matteo) (Matteo) c) = (False_0)
+	(Friend_split (Nikos) (Matteo) c) = (True_0)
+	(Friend_split (Luca) (Matteo) c) = (True_0)
+	(Friend_split (Andrei) (Matteo) c) = (True_0)
+
+(Not_0) = (@a (Not_1 a))
+(Not_1 a) = (Not_split a)
+	(Not_split (True)) = (False_0)
+	(Not_split (False)) = (True_0)
+
+(Main_0) = ((Friend_0) (Luca_0) (Matteo_0))
+
+(Main) = (Main_0)
