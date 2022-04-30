@@ -53,7 +53,7 @@ data Friends : Set where
 -- friend Andrei = True
 
 friend : Friends -> Friends -> Bool
-friend Matteo Matteo = False
+friend a Matteo = False
 friend Luca Matteo = True
 friend Nikos Matteo = True
 friend Andrei Matteo = True
@@ -67,6 +67,11 @@ not False = True
 and : Bool -> Bool -> Bool
 and True True = True
 and _ _ = False
+
+and3 : Bool -> Bool -> Bool -> Bool
+and3 True a True = True
+and3 a b True = True
+and3 _ _ _ = False
 
 -- xor : Bool → Bool → Bool
 -- xor = λ { true  true  → false

@@ -1,9 +1,19 @@
+-- SATURDAY 30 APRIL --
+
+Instead of pattern matching on the whole rule I will try to pattern match varibale by variable
+For each definition X create a Match function which determines if X and Y are equal
+
 
 -- FRIDAY 29 APRIL --
 
 TODO: 
  - let contructor (desugar to a lambda)
  - pattern patching (use helper rule)
+
+ PROBLEMS:
+ - friend function has no catchall rule
+ - the order of the variables is messed up 
+ - rn it's not possible to mix Constructors and variables, the constructors will go first always
 
 -- THURSDAY 28 APRIL --
 

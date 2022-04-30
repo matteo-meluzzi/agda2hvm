@@ -220,17 +220,29 @@ makeLamFromParams xs body = foldr Lam body xs
 curryRuleName :: String -> Int -> String
 curryRuleName f i = f ++ "_" ++ show i
 
-makeRule :: String -> Int -> ([HvmAtom] -> ToHvmM HvmTerm) -> ToHvmM [HvmTerm]
-makeRule name nparams lbody = withFreshVars nparams $ \params -> do
+makeRule :: String -> [HvmAtom] -> HvmTerm -> ToHvmM [HvmTerm]
+makeRule name params body = do
   let name' = curryRuleName name nparams
-  body' <- lbody params
-  let dn = Rule (Ctr name' (map Var params)) body'
+  let dn = Rule (Ctr name' (map Var params)) body
   case params of
     [] -> do
       return [dn]
     params -> do
       let d0 = curryRule [] name params
       return [d0, dn]
+  where
+    nparams = length params
+
+-- makeRule name nparams lbody = withFreshVars nparams $ \params -> do
+--   let name' = curryRuleName name nparams
+--   body' <- lbody params
+--   let dn = Rule (Ctr name' (map Var params)) body'
+--   case params of
+--     [] -> do
+--       return [dn]
+--     params -> do
+--       let d0 = curryRule [] name params
+--       return [d0, dn]
 
 {-
   (Id_0) = @a @b @c (Id_3 a b c)
@@ -263,18 +275,9 @@ instance ToHvm Definition [HvmTerm] where
                   case maybeCompiled of
                       Just l@(TLam _) -> do
                           let nparams = paramsNumber l
-                          let body = traverseLams l
-                          makeRule f' nparams (\_ -> toHvm body)
-                          -- case body of
-                          --   -- TLet _ c@TCase{} -> do
-                          --   --   let ctrss = getCtrs c
-                          --   --   -- body <- toHvm c
-                          --   --   return $ map (\ctrs -> Rule (Ctr (curryRuleName f' nparams) (map Var ctrs)) (Var "body")) ctrss
-                          --   c@TCase{} -> do
-                          --     let ctrss = getCtrs c
-                          --     -- body <- toHvm c
-                          --     return $ map (\ctrs -> Rule (Ctr (curryRuleName f' nparams) (map Var ctrs)) (Var "body")) ctrss
-                          --   _ -> makeRule f' nparams (\_ -> toHvm body)
+                          withFreshVars nparams $ \params -> do
+                            body <- toHvm $ traverseLams l
+                            makeRule f' params body
                       Just t -> do
                           body <- toHvm t
                           return [Rule (Ctr (curryRuleName f' 0) []) body]
@@ -286,7 +289,15 @@ instance ToHvm Definition [HvmTerm] where
               Constructor { conSrcCon=chead, conArity=nparams } -> do
                 let c = conName chead
                 c' <- toHvm c
-                makeRule c' nparams (return . Ctr c' . map Var)
+                withFreshVars nparams $ \params -> do
+                  let ctr = Ctr c' (map Var params)
+                  rules <- makeRule c' params ctr
+                  withFreshVars nparams $ \params2 -> do
+                    let ctr2 = Ctr c' (map Var params2)
+                    let matches = zipWith (\p1 p2 ->  Op2 Or (Ctr "Match" [Var p1, Var p2]) (Op2 Eq (Var p1) (Var p2))) params params2
+                    let and = foldr (Op2 And) (Num 1) matches
+                    let match = Rule (Ctr "Match" [ctr, ctr2]) and
+                    return $ rules ++ [match]
 
               AbstractDefn {}  -> __IMPOSSIBLE__
               DataOrRecSig {}  -> __IMPOSSIBLE__
@@ -299,8 +310,8 @@ argRanges' :: (Enum a, Num a) => [a] -> a -> [[a]]
 argRanges' []     _ = []
 argRanges' (x:xs) last = let nss = argRanges' xs (last+x) in [last..(last+x-1)]:nss
 
-getAtIndices xs [] = []
-getAtIndices xs (i:is) = xs!!i:(getAtIndices xs is)
+getAtIndices :: [a] -> [Int] -> [a]
+getAtIndices xs = map (xs !!)
 
 instance ToHvm TTerm HvmTerm where
     toHvm v = case v of
@@ -362,22 +373,12 @@ instance ToHvm TTerm HvmTerm where
             let fallbackRule = Rule (Ctr splitRuleName (map Var bindings)) fallback
             return $ Cases body (rules ++ [fallbackRule])
             )
-
-
-
         TUnit -> undefined
         TSort -> undefined
         TErased    -> return $ Var ""
         TCoerce u  -> undefined
         TError err -> return $ Var "error\n"
         TLit l     -> undefined
-
-toHvmAltDef :: TTerm -> ToHvmM HvmTerm
-toHvmAltDef v = case v of
-  TDef d -> do
-    d' <- toHvm d
-    return $ Var d'
-  t -> toHvm t
 
 getCtr :: TAlt -> ((HvmAtom, Int), TTerm)
 getCtr alt = case alt of
