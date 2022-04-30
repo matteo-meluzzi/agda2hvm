@@ -210,14 +210,6 @@ traverseLams :: TTerm -> TTerm
 traverseLams (TLam v) = traverseLams v
 traverseLams t = t
 
-traverseCases :: TTerm -> TTerm
-traverseCases (TCase i info v bs) = traverseCases v
-traverseCases t = t
-
-traverseLets :: TTerm -> TTerm
-traverseLets (TLet u v) = traverseLets u
-traverseLets t = t
-
 makeLamFromParams :: [HvmAtom] -> HvmTerm -> HvmTerm
 makeLamFromParams xs body = foldr Lam body xs
 
@@ -236,22 +228,6 @@ makeRule name params body = do
       return [d0, dn]
   where
     nparams = length params
-
-makeCaseRule :: HvmTerm -> HvmTerm -> HvmTerm
-makeCaseRule a b = Ctr "Case" [a, b]
-
-hvmCase :: HvmTerm -> [(HvmTerm, HvmTerm)] -> Maybe HvmTerm -> HvmTerm
-hvmCase x cases maybeFallback = Ctr "If" $ concatMap (\(c, t) -> [makeCaseRule x c, t]) cases
--- makeRule name nparams lbody = withFreshVars nparams $ \params -> do
---   let name' = curryRuleName name nparams
---   body' <- lbody params
---   let dn = Rule (Ctr name' (map Var params)) body'
---   case params of
---     [] -> do
---       return [dn]
---     params -> do
---       let d0 = curryRule [] name params
---       return [d0, dn]
 
 {-
   (Id_0) = @a @b @c (Id_3 a b c)
@@ -300,30 +276,10 @@ instance ToHvm Definition [HvmTerm] where
                 c' <- toHvm c
                 withFreshVars nparams $ \params -> do
                   let ctr = Ctr c' (map Var params)
-                  rules <- makeRule c' params ctr
-                  withFreshVars nparams $ \params2 -> do
-                    let ctr2 = Ctr c' (map Var params2)
-                    let matches = zipWith (\p1 p2 -> makeCaseRule (Var p1) (Var p2)) params params2
-                    let and = foldr (Op2 And) (Num 1) matches
-                    let match = Rule (makeCaseRule ctr ctr2) and
-                    return $ rules ++ [match]
+                  makeRule c' params ctr
 
               AbstractDefn {}  -> __IMPOSSIBLE__
               DataOrRecSig {}  -> __IMPOSSIBLE__
-
-orElse :: Maybe a -> a -> a
-orElse (Just x) _ = x
-orElse _ y = y
-
-argRanges' :: (Enum a, Num a) => [a] -> a -> [[a]]
-argRanges' []     _ = []
-argRanges' (x:xs) last = let nss = argRanges' xs (last+x) in [last..(last+x-1)]:nss
-
-getAtIndices :: [a] -> [Int] -> [a]
-getAtIndices xs = map (xs !!)
-
-desugarLet :: HvmAtom -> HvmTerm -> HvmTerm -> HvmTerm
-desugarLet x expr body = App (Lam x body) [expr]
 
 instance ToHvm TTerm HvmTerm where
     toHvm v = case v of
@@ -355,7 +311,7 @@ instance ToHvm TTerm HvmTerm where
           let rbindings = reverse bindings
           withFreshVar $ \x -> do
             body <- toHvm v
-            let ruleLet = Rule (Ctr (def ++ "_" ++ x) (map Var rbindings)) expr 
+            let ruleLet = Rule (Ctr (def ++ "_" ++ x) (map Var rbindings)) expr
             return $ Cases (Let x (App (Var $ def ++ "_" ++ x) (map Var rbindings)) body) [ruleLet]
         c@(TCase i info v bs) -> do
           defName <- getCurrentDef
@@ -372,64 +328,16 @@ instance ToHvm TTerm HvmTerm where
           rules <- traverse (\(ctr, body) -> do
             let params = zipWith (\b ix -> if i == ix then ctr else Var b) bindings [(length bindings - 1), (length bindings - 2)..]
             return $ Rule (Ctr ruleName params) (Let x ctr body)
-            ) cases 
+            ) cases
           case fallback of
             Nothing -> return $ Cases (App (Var ruleName) (map Var bindings)) rules
             Just fb -> return $ Cases (App (Var ruleName) (map Var bindings)) (rules ++ [fb])
-
-          -- let ctrss = getCtrs c
-          -- defName <- getCurrentDef
-          -- let splitRuleName = defName ++ "_split"
-          -- bindings <- getBindinds
-          -- let body = App (Var splitRuleName) (map Var bindings)
-
-          -- rules <- traverse (\ctrs -> do
-          --   let nargs = map (\((_, nargs), _) -> nargs) ctrs
-          --   let totalArgs = sum nargs
-          --   let argRanges = argRanges' nargs 0
-
-          --   withFreshVars totalArgs $ \args -> do
-          --     constructors <- traverse (\(((name, nargs), _), argIndices) -> do
-          --         let cargs = getAtIndices args argIndices
-          --         return $ Ctr name (map Var args)
-          --       ) (zip ctrs argRanges)
-
-          --     let infctrs = map Just constructors ++ repeat Nothing
-          --     let all = zipWith orElse infctrs (map Var bindings)
-          --     body <- toHvm $ (snd . last) ctrs
-          --     let bigLet = foldr1 (.) (zipWith Let bindings constructors)
-          --     return $ Rule (Ctr splitRuleName all) (bigLet body)
-          --     ) ctrss
-
-          -- if isUnreachable v then
-          --     return $ Cases body rules
-          -- else (do
-          --   fallback <- toHvm v
-          --   let fallbackRule = Rule (Ctr splitRuleName (map Var bindings)) fallback
-          --   return $ Cases body (rules ++ [fallbackRule])
-          --   )
         TUnit -> undefined
         TSort -> undefined
         TErased    -> return $ Var "Matteo"
         TCoerce u  -> undefined
         TError err -> return $ Var "error\n"
         TLit l     -> undefined
-
--- getCtr :: TAlt -> ((HvmAtom, Int), TTerm)
--- getCtr alt = case alt of
---   TACon c nargs v -> ((prettyShow $ qnameName c, nargs), v)
---   TAGuard{} -> __IMPOSSIBLE__ -- TODO
---   TALit{} -> __IMPOSSIBLE__ -- TODO
-
--- getCtrs :: TTerm -> [[((HvmAtom, Int), TTerm)]]
--- getCtrs t = case t of
---   TCase i info v bs -> do
---     let calts = map getCtr bs
---     concatMap (\t@(_, n) -> do
---       let nss = getCtrs n
---       map (t :) nss
---       ) calts
---   _ -> [[]]
 
 {-
   (record-case a ((true) () (record-case b ((true) () (false)) (else c))) (else c))))))
