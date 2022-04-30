@@ -4,6 +4,56 @@
 (False_0) = (False)
 (Case (False) (False)) = 1
 
+(Z_0) = (Z)
+(Case (Z) (Z)) = 1
+
+(S_0) = (@a (S_1 a))
+(S_1 a) = (S a)
+(Case (S a) (S b)) = (& (Case a b) 1)
+
+(Nil_0) = (Nil)
+(Case (Nil) (Nil)) = 1
+
+(Cons_0) = (@a (@b (Cons_2 a b)))
+(Cons_2 a b) = (Cons a b)
+(Case (Cons a b) (Cons c d)) = (& (Case a c) (& (Case b d) 1))
+
+(Map_0) = (@a (@b (Map_2 a b)))
+(Map_2 a b) = (Map_split_b a b)
+	(Map_split_b a (Nil)) = let b = (Nil); (b)
+	(Map_split_b a (Cons c d)) = let b = (Cons c d); ((Cons_0) ((a) (c)) ((Map_0) (a) (d)))
+
+(Matteo_0) = (Matteo)
+(Case (Matteo) (Matteo)) = 1
+
+(Nikos_0) = (Nikos)
+(Case (Nikos) (Nikos)) = 1
+
+(Luca_0) = (Luca)
+(Case (Luca) (Luca)) = 1
+
+(Andrei_0) = (Andrei)
+(Case (Andrei) (Andrei)) = 1
+
+(Friend_0) = (@a (@b (Friend_2 a b)))
+(Friend_2 a b) = let c = (Friend_c a b); (Friend_split_b a b c)
+	(Friend_split_b a (Matteo) c) = let b = (Matteo); (False_0)
+	(Friend_split_b a b c) = (c)
+	(Friend_c a b) = (False_0)
+
+(Not_0) = (@a (Not_1 a))
+(Not_1 a) = (Not_split_a a)
+	(Not_split_a (True)) = let a = (True); (False_0)
+	(Not_split_a (False)) = let a = (False); (True_0)
+
+(And_0) = (@a (@b (And_2 a b)))
+(And_2 a b) = let c = (And_c a b); (And_split_a a b c)
+	(And_split_a (True) b c) = let a = (True); (And_split_b a b c)
+	(And_split_b a (True) c) = let b = (True); (b)
+	(And_split_b a b c) = (c)
+	(And_split_a a b c) = (c)
+	(And_c a b) = (False_0)
+
 (And3_0) = (@a (@b (@c (And3_3 a b c))))
 (And3_3 a b c) = let e = (And3_e a b c); (And3_split_a a b c e)
 	(And3_split_a (True) b c e) = let a = (True); (And3_split_c a b c e)
@@ -15,7 +65,7 @@
 	(And3_split_c a b c d) = (d)
 	(And3_d a b c) = (False_0)
 
-(Main_0) = ((And3_0) (True_0) Matteo (True_0))
+(Main_0) = ((Map_0) (Not_0) ((Cons_0) (True_0) ((Cons_0) (False_0) ((Cons_0) (True_0) (Nil_0)))))
 
 (Match a b) = 0
 

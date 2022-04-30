@@ -4,9 +4,9 @@
 data Bool : Set where
   True False : Bool
 
--- data Nat : Set where
---   Z : Nat
---   S : Nat -> Nat
+data Nat : Set where
+  Z : Nat
+  S : Nat -> Nat
 
 -- _+_ : Nat -> Nat -> Nat
 -- Z + b = b
@@ -24,27 +24,27 @@ data Bool : Set where
 -- luca : Bool -> Bool
 -- luca a = (matteo id) a
 
--- data List (A : Set) : Set where
---   Nil   : List A
---   Cons  : A -> List A -> List A
+data List (A : Set) : Set where
+  Nil   : List A
+  Cons  : A -> List A -> List A
 
 -- map : {A B : Set} -> (A -> B) -> List A -> List B
 -- map f Nil = Nil
 -- map f (Cons x xs) = Cons (f x) (map f xs)
 
--- map : (Bool -> Bool) -> List Bool -> List Bool
--- map f Nil = Nil
--- map f (Cons x xs) = Cons (f x) (map f xs)
+map : (Bool -> Bool) -> List Bool -> List Bool
+map f Nil = Nil
+map f (Cons x xs) = Cons (f x) (map f xs)
 
 
 -- data Pair (A B : Set) : Set where
 --   P  : A -> B -> Pair A B
 
 -- -- nikos : Bool
--- -- nikos = luca true
+-- -- nikos = luca True
 
--- data Friends : Set where
---   Matteo Nikos Luca Andrei : Friends
+data Friends : Set where
+  Matteo Nikos Luca Andrei : Friends
 
 -- friend : Friends -> Bool
 -- friend Matteo = False
@@ -52,21 +52,21 @@ data Bool : Set where
 -- friend Nikos = True
 -- friend Andrei = True
 
--- friend : Friends -> Friends -> Bool
--- friend a Matteo = False
--- friend Luca Matteo = True
--- friend Nikos Matteo = True
--- friend Andrei Matteo = True
--- friend _ _ = False
+friend : Friends -> Friends -> Bool
+friend a Matteo = False
+friend Luca Matteo = True
+friend Nikos Matteo = True
+friend Andrei Matteo = True
+friend _ _ = False
 
 
--- not : Bool -> Bool
--- not True = False
--- not False = True
+not : Bool -> Bool
+not True = False
+not False = True
 
--- and : Bool -> Bool -> Bool
--- and True True = True
--- and _ _ = False
+and : Bool -> Bool -> Bool
+and True True = True
+and _ _ = False
 
 and3 : Bool -> Bool -> Bool -> Bool
 and3 True a True = True
@@ -74,10 +74,10 @@ and3 a b True = True
 and3 _ _ _ = False
 
 -- xor : Bool → Bool → Bool
--- xor = λ { true  true  → false
---         ; false false → false
---         ; true false  → true
---         ; false true  → true
+-- xor = λ { True  True  → False
+--         ; False False → False
+--         ; True False  → True
+--         ; False True  → True
 --         }
 
 -- data Prova : Set where
@@ -89,7 +89,7 @@ and3 _ _ _ = False
 -- pippo p3 = True
 -- pippo p4 = False
 
-main = and3 False True False
+main = map not (Cons True (Cons False (Cons True Nil)))
 
 
 -- (Nil_0) = Nil
