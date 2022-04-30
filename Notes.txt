@@ -15,6 +15,38 @@ Cannot do ```Case b (Cons c d)``` because c and d are not in scope
 Possible solution:
 Do like a synthesis: make a new rule for each case for each parameter
 
+PROBLEM with lets:
+(define 
+  (and3)
+  (lambda 
+    (a)
+    (lambda (b)
+      (lambda (c)
+        (let 
+            (e (let (d (false)) 
+                (record-case c ((true) () c) 
+                (else d))))
+                (record-case a ((true) () 
+                    (record-case c ((true) () c) 
+                    (else e))) 
+                (else e)))
+))))
+
+possible solution: move every let to top level
+
+(E) = @a@b@c (let d = (False_0); (E_split_c a b c d))
+	(E_split_c a b (True) d) = let c = (True); (c)
+	(E_split_c a b c d) = (d)
+
+(And3_3 a b c) = (And3_split_a a b c E)
+	(And3_split_a (True) b c e) = let a = (True); (And3_split_c a b c e)
+    (And3_split_a a b c e) = ((e) a b c)
+
+	(And3_split_c a b (True) e) = let c = (True); (c)
+	(And3_split_c a b c e) = ((e) a b c)
+
+(Main_0) = (And3_3 True False False) -> False
+
 -- FRIDAY 29 APRIL --
 
 TODO: 

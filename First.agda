@@ -4,9 +4,9 @@
 data Bool : Set where
   True False : Bool
 
-data Nat : Set where
-  Z : Nat
-  S : Nat -> Nat
+-- data Nat : Set where
+--   Z : Nat
+--   S : Nat -> Nat
 
 -- _+_ : Nat -> Nat -> Nat
 -- Z + b = b
@@ -24,17 +24,17 @@ data Nat : Set where
 -- luca : Bool -> Bool
 -- luca a = (matteo id) a
 
-data List (A : Set) : Set where
-  Nil   : List A
-  Cons  : A -> List A -> List A
+-- data List (A : Set) : Set where
+--   Nil   : List A
+--   Cons  : A -> List A -> List A
 
 -- map : {A B : Set} -> (A -> B) -> List A -> List B
 -- map f Nil = Nil
 -- map f (Cons x xs) = Cons (f x) (map f xs)
 
-map : (Bool -> Bool) -> List Bool -> List Bool
-map f Nil = Nil
-map f (Cons x xs) = Cons (f x) (map f xs)
+-- map : (Bool -> Bool) -> List Bool -> List Bool
+-- map f Nil = Nil
+-- map f (Cons x xs) = Cons (f x) (map f xs)
 
 
 -- data Pair (A B : Set) : Set where
@@ -60,9 +60,9 @@ map f (Cons x xs) = Cons (f x) (map f xs)
 -- friend _ _ = False
 
 
-not : Bool -> Bool
-not True = False
-not False = True
+-- not : Bool -> Bool
+-- not True = False
+-- not False = True
 
 -- and : Bool -> Bool -> Bool
 -- and True True = True
@@ -89,7 +89,7 @@ and3 _ _ _ = False
 -- pippo p3 = True
 -- pippo p4 = False
 
-main = map not (Cons True (Cons False Nil))
+main = True
 
 
 -- (Nil_0) = Nil

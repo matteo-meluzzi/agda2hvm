@@ -214,6 +214,10 @@ traverseCases :: TTerm -> TTerm
 traverseCases (TCase i info v bs) = traverseCases v
 traverseCases t = t
 
+traverseLets :: TTerm -> TTerm
+traverseLets (TLet u v) = traverseLets u
+traverseLets t = t
+
 makeLamFromParams :: [HvmAtom] -> HvmTerm -> HvmTerm
 makeLamFromParams xs body = foldr Lam body xs
 
@@ -318,41 +322,57 @@ argRanges' (x:xs) last = let nss = argRanges' xs (last+x) in [last..(last+x-1)]:
 getAtIndices :: [a] -> [Int] -> [a]
 getAtIndices xs = map (xs !!)
 
+desugarLet :: HvmAtom -> HvmTerm -> HvmTerm -> HvmTerm
+desugarLet x expr body = App (Lam x body) [expr]
+
 instance ToHvm TTerm HvmTerm where
     toHvm v = case v of
         TVar i  -> do
-            name <- getVarName i
-            start <- getEvaluationStrategy
-            return $ Parenthesis $ Var name
+          name <- getVarName i
+          start <- getEvaluationStrategy
+          return $ Parenthesis $ Var name
         TPrim p -> undefined
         TDef d  -> do
-            d' <- toHvm d
-            -- Always evaluate Def first with 0 arguments (see Notes Thu 28 Apr)
-            return $ App (Var $ curryRuleName d' 0) []
+          d' <- toHvm d
+          -- Always evaluate Def first with 0 arguments (see Notes Thu 28 Apr)
+          return $ App (Var $ curryRuleName d' 0) []
         TApp f args -> do
-            f'    <- toHvm f
-            args' <- traverse toHvm args
-            case f' of
-              Var ruleName -> return $ App (Var $ curryRuleName ruleName $ length args') args'
-              _ -> return $ App f' args'
+          f'    <- toHvm f
+          args' <- traverse toHvm args
+          case f' of
+            Var ruleName -> return $ App (Var $ curryRuleName ruleName $ length args') args'
+            _ -> return $ App f' args'
         TLam v  -> withFreshVar $ \x -> do
-            body <- toHvm v
-            return $ Lam x body
+          body <- toHvm v
+          return $ Lam x body
         TCon c -> do
-            c' <- toHvm c
-            return $ App (Var $ curryRuleName c' 0) []
+          c' <- toHvm c
+          return $ App (Var $ curryRuleName c' 0) []
         TLet u v -> do
           expr <- toHvm u
           withFreshVar $ \x -> do
             body <- toHvm v
             return $ Let x expr body
         c@(TCase i info v bs) -> do
+          defName <- getCurrentDef
+          bindings' <- getBindinds
+          let bindings = reverse bindings'
           x <- getVarName i
           cases <- traverse toHvm bs
+          let ruleName = defName ++ "_split_" ++ x
           fallback <- if isUnreachable v
             then return Nothing
-            else Just <$> toHvm v
-          return $ hvmCase (Var x) cases fallback
+            else do
+              v' <- toHvm v
+              return $ Just $  Rule (Ctr ruleName (map Var bindings)) v'
+          rules <- traverse (\(ctr, body) -> do
+            let params = zipWith (\b ix -> if i == ix then ctr else Var b) bindings [(length bindings - 1), (length bindings - 2)..]
+            return $ Rule (Ctr ruleName params) (Let x ctr body)
+            ) cases 
+          case fallback of
+            Nothing -> return $ Cases (App (Var ruleName) (map Var bindings)) rules
+            Just fb -> return $ Cases (App (Var ruleName) (map Var bindings)) (rules ++ [fb])
+
           -- let ctrss = getCtrs c
           -- defName <- getCurrentDef
           -- let splitRuleName = defName ++ "_split"
@@ -386,26 +406,26 @@ instance ToHvm TTerm HvmTerm where
           --   )
         TUnit -> undefined
         TSort -> undefined
-        TErased    -> return $ Var ""
+        TErased    -> undefined
         TCoerce u  -> undefined
         TError err -> return $ Var "error\n"
         TLit l     -> undefined
 
-getCtr :: TAlt -> ((HvmAtom, Int), TTerm)
-getCtr alt = case alt of
-  TACon c nargs v -> ((prettyShow $ qnameName c, nargs), v)
-  TAGuard{} -> __IMPOSSIBLE__ -- TODO
-  TALit{} -> __IMPOSSIBLE__ -- TODO
+-- getCtr :: TAlt -> ((HvmAtom, Int), TTerm)
+-- getCtr alt = case alt of
+--   TACon c nargs v -> ((prettyShow $ qnameName c, nargs), v)
+--   TAGuard{} -> __IMPOSSIBLE__ -- TODO
+--   TALit{} -> __IMPOSSIBLE__ -- TODO
 
-getCtrs :: TTerm -> [[((HvmAtom, Int), TTerm)]]
-getCtrs t = case t of
-  TCase i info v bs -> do
-    let calts = map getCtr bs
-    concatMap (\t@(_, n) -> do
-      let nss = getCtrs n
-      map (t :) nss
-      ) calts
-  _ -> [[]]
+-- getCtrs :: TTerm -> [[((HvmAtom, Int), TTerm)]]
+-- getCtrs t = case t of
+--   TCase i info v bs -> do
+--     let calts = map getCtr bs
+--     concatMap (\t@(_, n) -> do
+--       let nss = getCtrs n
+--       map (t :) nss
+--       ) calts
+--   _ -> [[]]
 
 {-
   (record-case a ((true) () (record-case b ((true) () (false)) (else c))) (else c))))))
