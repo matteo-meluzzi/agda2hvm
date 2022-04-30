@@ -66,9 +66,10 @@ hvmCompile opts _ isMain def =
 
 hvmPostModule :: HvmOptions -> () -> IsMain -> ModuleName -> [[HvmTerm]] -> TCM ()
 hvmPostModule options _ isMain moduleName sexprss = do
-    let matchFailed = Rule (Ctr "Match" [Var "a", Var "b"]) (Num 0)
-    let callMain = Rule (Ctr "Main" []) (App (Var "Main_0") [])
-    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (sexprss ++ [[matchFailed], [callMain]]))
+    let matchFailed = [Rule (Ctr "Match" [Var "a", Var "b"]) (Num 0)]
+    let ifte = [Rule (Ctr "If" [Num 1, Var "t", Var "e"]) (App (Var "t") []), Rule (Ctr "If" [Num 0, Var "t", Var "e"]) (App (Var "e") [])]
+    let callMain = [Rule (Ctr "Main" []) (App (Var "Main_0") [])]
+    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (sexprss ++ [matchFailed, ifte, callMain]))
     liftIO $ T.writeFile "out.hvm" (T.pack t)
 
 main :: IO ()

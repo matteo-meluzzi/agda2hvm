@@ -3,6 +3,17 @@
 Instead of pattern matching on the whole rule I will try to pattern match varibale by variable
 For each definition X create a Match function which determines if X and Y are equal
 
+PROBLEM:
+the Match rule works either only for constructors of only for numbers. If in the future actual numbers will be used then I will need to change something about this Match rule
+(Main) = (Match 1 1) -> 0
+(Main) = (Match True True) -> 1
+
+BIG PROBLEM with scoping of variables: 
+(Map_2 a b) = (If (Case b (Nil)) (b) (Case b (Cons c d)) ((Cons_0) ((a) (c)) ((Map_0) (a) (d))))
+Cannot do ```Case b (Cons c d)``` because c and d are not in scope
+
+Possible solution:
+Do like a synthesis: make a new rule for each case for each parameter
 
 -- FRIDAY 29 APRIL --
 

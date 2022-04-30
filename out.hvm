@@ -1,68 +1,39 @@
 (True_0) = (True)
-(Match (True) (True)) = 1
+(Case (True) (True)) = 1
 
 (False_0) = (False)
-(Match (False) (False)) = 1
+(Case (False) (False)) = 1
 
 (Z_0) = (Z)
-(Match (Z) (Z)) = 1
+(Case (Z) (Z)) = 1
 
 (S_0) = (@a (S_1 a))
 (S_1 a) = (S a)
-(Match (S a) (S b)) = (& (| (Match a b) (== a b)) 1)
+(Case (S a) (S b)) = (& (Case a b) 1)
 
 (Nil_0) = (Nil)
-(Match (Nil) (Nil)) = 1
+(Case (Nil) (Nil)) = 1
 
 (Cons_0) = (@a (@b (Cons_2 a b)))
 (Cons_2 a b) = (Cons a b)
-(Match (Cons a b) (Cons c d)) = (& (| (Match a c) (== a c)) (& (| (Match b d) (== b d)) 1))
+(Case (Cons a b) (Cons c d)) = (& (Case a c) (& (Case b d) 1))
 
 (Map_0) = (@a (@b (Map_2 a b)))
-(Map_2 a b) = (Map_split b a)
-	(Map_split (Nil) a) = let b = (Nil);(b)
-	(Map_split (Cons c d) a) = let b = (Cons c d);((Cons_0) ((a) (c)) ((Map_0) (a) (d)))
-
-(P_0) = (@a (@b (P_2 a b)))
-(P_2 a b) = (P a b)
-(Match (P a b) (P c d)) = (& (| (Match a c) (== a c)) (& (| (Match b d) (== b d)) 1))
-
-(Matteo_0) = (Matteo)
-(Match (Matteo) (Matteo)) = 1
-
-(Nikos_0) = (Nikos)
-(Match (Nikos) (Nikos)) = 1
-
-(Luca_0) = (Luca)
-(Match (Luca) (Luca)) = 1
-
-(Andrei_0) = (Andrei)
-(Match (Andrei) (Andrei)) = 1
-
-(Friend_0) = (@a (@b (Friend_2 a b)))
-(Friend_2 a b) = let c = (False_0);(Friend_split c b a)
-	(Friend_split (Matteo) b a) = let c = (Matteo);(False_0)
-	(Friend_split c b a) = (c)
+(Map_2 a b) = (If (Case b (Nil)) (b) (Case b (Cons c d)) ((Cons_0) ((a) (c)) ((Map_0) (a) (d))))
 
 (Not_0) = (@a (Not_1 a))
-(Not_1 a) = (Not_split a)
-	(Not_split (True)) = let a = (True);(False_0)
-	(Not_split (False)) = let a = (False);(True_0)
-
-(And_0) = (@a (@b (And_2 a b)))
-(And_2 a b) = let c = (False_0);(And_split c b a)
-	(And_split (True) (True) a) = let c = (True);let b = (True);(b)
-	(And_split c b a) = (c)
+(Not_1 a) = (If (Case a (True)) (False_0) (Case a (False)) (True_0))
 
 (And3_0) = (@a (@b (@c (And3_3 a b c))))
-(And3_3 a b c) = let e = let d = (False_0);(And3_split d c b a)
-	(And3_split (True) c b a) = let d = (True);(c)
-	(And3_split d c b a) = (d);(And3_split e c b a)
-	(And3_split (True) (True) b a) = let e = (True);let c = (True);(c)
-	(And3_split e c b a) = (e)
+(And3_3 a b c) = let e = let d = (False_0);(If (Case c (True)) (c));(If (Case a (True)) (If (Case c (True)) (c)))
+(If (Case a e) t) -> (And3_3_split_a a b c)
+If (Case a e) t   -> (And3_3_split_a e b c) = t
 
 (Main_0) = ((Map_0) (Not_0) ((Cons_0) (True_0) ((Cons_0) (False_0) (Nil_0))))
 
 (Match a b) = 0
+
+(If 1 t e) = (t)
+(If 0 t e) = (e)
 
 (Main) = (Main_0)

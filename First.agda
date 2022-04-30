@@ -37,14 +37,14 @@ map f Nil = Nil
 map f (Cons x xs) = Cons (f x) (map f xs)
 
 
-data Pair (A B : Set) : Set where
-  P  : A -> B -> Pair A B
+-- data Pair (A B : Set) : Set where
+--   P  : A -> B -> Pair A B
 
--- nikos : Bool
--- nikos = luca true
+-- -- nikos : Bool
+-- -- nikos = luca true
 
-data Friends : Set where
-  Matteo Nikos Luca Andrei : Friends
+-- data Friends : Set where
+--   Matteo Nikos Luca Andrei : Friends
 
 -- friend : Friends -> Bool
 -- friend Matteo = False
@@ -52,21 +52,21 @@ data Friends : Set where
 -- friend Nikos = True
 -- friend Andrei = True
 
-friend : Friends -> Friends -> Bool
-friend a Matteo = False
-friend Luca Matteo = True
-friend Nikos Matteo = True
-friend Andrei Matteo = True
-friend _ _ = False
+-- friend : Friends -> Friends -> Bool
+-- friend a Matteo = False
+-- friend Luca Matteo = True
+-- friend Nikos Matteo = True
+-- friend Andrei Matteo = True
+-- friend _ _ = False
 
 
 not : Bool -> Bool
 not True = False
 not False = True
 
-and : Bool -> Bool -> Bool
-and True True = True
-and _ _ = False
+-- and : Bool -> Bool -> Bool
+-- and True True = True
+-- and _ _ = False
 
 and3 : Bool -> Bool -> Bool -> Bool
 and3 True a True = True

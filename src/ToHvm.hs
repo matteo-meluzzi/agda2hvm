@@ -233,6 +233,11 @@ makeRule name params body = do
   where
     nparams = length params
 
+makeCaseRule :: HvmTerm -> HvmTerm -> HvmTerm
+makeCaseRule a b = Ctr "Case" [a, b]
+
+hvmCase :: HvmTerm -> [(HvmTerm, HvmTerm)] -> Maybe HvmTerm -> HvmTerm
+hvmCase x cases maybeFallback = Ctr "If" $ concatMap (\(c, t) -> [makeCaseRule x c, t]) cases
 -- makeRule name nparams lbody = withFreshVars nparams $ \params -> do
 --   let name' = curryRuleName name nparams
 --   body' <- lbody params
@@ -294,9 +299,9 @@ instance ToHvm Definition [HvmTerm] where
                   rules <- makeRule c' params ctr
                   withFreshVars nparams $ \params2 -> do
                     let ctr2 = Ctr c' (map Var params2)
-                    let matches = zipWith (\p1 p2 ->  Op2 Or (Ctr "Match" [Var p1, Var p2]) (Op2 Eq (Var p1) (Var p2))) params params2
+                    let matches = zipWith (\p1 p2 -> makeCaseRule (Var p1) (Var p2)) params params2
                     let and = foldr (Op2 And) (Num 1) matches
-                    let match = Rule (Ctr "Match" [ctr, ctr2]) and
+                    let match = Rule (makeCaseRule ctr ctr2) and
                     return $ rules ++ [match]
 
               AbstractDefn {}  -> __IMPOSSIBLE__
@@ -342,37 +347,43 @@ instance ToHvm TTerm HvmTerm where
             body <- toHvm v
             return $ Let x expr body
         c@(TCase i info v bs) -> do
-          let ctrss = getCtrs c
-          defName <- getCurrentDef
-          let splitRuleName = defName ++ "_split"
-          bindings <- getBindinds
-          let body = App (Var splitRuleName) (map Var bindings)
+          x <- getVarName i
+          cases <- traverse toHvm bs
+          fallback <- if isUnreachable v
+            then return Nothing
+            else Just <$> toHvm v
+          return $ hvmCase (Var x) cases fallback
+          -- let ctrss = getCtrs c
+          -- defName <- getCurrentDef
+          -- let splitRuleName = defName ++ "_split"
+          -- bindings <- getBindinds
+          -- let body = App (Var splitRuleName) (map Var bindings)
 
-          rules <- traverse (\ctrs -> do
-            let nargs = map (\((_, nargs), _) -> nargs) ctrs
-            let totalArgs = sum nargs
-            let argRanges = argRanges' nargs 0
+          -- rules <- traverse (\ctrs -> do
+          --   let nargs = map (\((_, nargs), _) -> nargs) ctrs
+          --   let totalArgs = sum nargs
+          --   let argRanges = argRanges' nargs 0
 
-            withFreshVars totalArgs $ \args -> do
-              constructors <- traverse (\(((name, nargs), _), argIndices) -> do
-                  let cargs = getAtIndices args argIndices
-                  return $ Ctr name (map Var args)
-                ) (zip ctrs argRanges)
+          --   withFreshVars totalArgs $ \args -> do
+          --     constructors <- traverse (\(((name, nargs), _), argIndices) -> do
+          --         let cargs = getAtIndices args argIndices
+          --         return $ Ctr name (map Var args)
+          --       ) (zip ctrs argRanges)
 
-              let infctrs = map Just constructors ++ repeat Nothing
-              let all = zipWith orElse infctrs (map Var bindings)
-              body <- toHvm $ (snd . last) ctrs
-              let bigLet = foldr1 (.) (zipWith Let bindings constructors)
-              return $ Rule (Ctr splitRuleName all) (bigLet body)
-              ) ctrss
+          --     let infctrs = map Just constructors ++ repeat Nothing
+          --     let all = zipWith orElse infctrs (map Var bindings)
+          --     body <- toHvm $ (snd . last) ctrs
+          --     let bigLet = foldr1 (.) (zipWith Let bindings constructors)
+          --     return $ Rule (Ctr splitRuleName all) (bigLet body)
+          --     ) ctrss
 
-          if isUnreachable v then
-              return $ Cases body rules
-          else (do
-            fallback <- toHvm v
-            let fallbackRule = Rule (Ctr splitRuleName (map Var bindings)) fallback
-            return $ Cases body (rules ++ [fallbackRule])
-            )
+          -- if isUnreachable v then
+          --     return $ Cases body rules
+          -- else (do
+          --   fallback <- toHvm v
+          --   let fallbackRule = Rule (Ctr splitRuleName (map Var bindings)) fallback
+          --   return $ Cases body (rules ++ [fallbackRule])
+          --   )
         TUnit -> undefined
         TSort -> undefined
         TErased    -> return $ Var ""
@@ -397,20 +408,25 @@ getCtrs t = case t of
   _ -> [[]]
 
 {-
-  (And a b) = (And_split_1 a b)
-      (And_split_1 True b) = (And_split_2 True b)
-      (And_split_1 a b) = False
-      (And_split_2 a True) = True
-      (And_split_2 a b) = False
+  (record-case a ((true) () (record-case b ((true) () (false)) (else c))) (else c))))))
 -}
--- instance ToHvm TAlt (HvmTerm, HvmTerm) where
---   toHvm alt = case alt of
---     TACon c nargs v -> withFreshVars nargs $ \xs -> do
---       body <- toHvm v
---       let name = prettyShow $ qnameName c
---       return (Ctr name (map Var xs), body)
---     -- ^ Matches on the given constructor. If the match succeeds,
---     -- the pattern variables are prepended to the current environment
---     -- (pushes all existing variables aArity steps further away)
---     TAGuard{} -> __IMPOSSIBLE__ -- TODO
---     TALit{} -> __IMPOSSIBLE__ -- TODO
+instance ToHvm TAlt (HvmTerm, HvmTerm) where
+  toHvm alt = case alt of
+    TACon c nargs v -> withFreshVars nargs $ \xs -> do
+      body <- toHvm v
+      let name = prettyShow $ qnameName c
+      let ctr = Ctr name (map Var xs)
+      return (ctr, body)
+    -- ^ Matches on the given constructor. If the match succeeds,
+    -- the pattern variables are prepended to the current environment
+    -- (pushes all existing variables aArity steps further away)
+    TAGuard{} -> __IMPOSSIBLE__ -- TODO
+    TALit{} -> __IMPOSSIBLE__ -- TODO
+
+{-
+(Map_0) = (@a (@b (Map_2 a b)))
+(Map_2 a b) = (Map_2_case_b a b)
+    (Map2_case_b a Nil) = Nil
+    (Map2_case_b a (Cons c d)) = let b = (Cons c d); ((Cons_0) ((a) (c)) ((Map_0) (a) (d))))
+
+-}
