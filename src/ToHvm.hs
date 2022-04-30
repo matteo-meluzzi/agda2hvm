@@ -350,9 +350,13 @@ instance ToHvm TTerm HvmTerm where
           return $ App (Var $ curryRuleName c' 0) []
         TLet u v -> do
           expr <- toHvm u
+          def <- getCurrentDef
+          bindings <- getBindinds
+          let rbindings = reverse bindings
           withFreshVar $ \x -> do
             body <- toHvm v
-            return $ Let x expr body
+            let ruleLet = Rule (Ctr (def ++ "_" ++ x) (map Var rbindings)) expr 
+            return $ Cases (Let x (App (Var $ def ++ "_" ++ x) (map Var rbindings)) body) [ruleLet]
         c@(TCase i info v bs) -> do
           defName <- getCurrentDef
           bindings' <- getBindinds
@@ -406,7 +410,7 @@ instance ToHvm TTerm HvmTerm where
           --   )
         TUnit -> undefined
         TSort -> undefined
-        TErased    -> undefined
+        TErased    -> return $ Var "Matteo"
         TCoerce u  -> undefined
         TError err -> return $ Var "error\n"
         TLit l     -> undefined
@@ -448,5 +452,16 @@ instance ToHvm TAlt (HvmTerm, HvmTerm) where
 (Map_2 a b) = (Map_2_case_b a b)
     (Map2_case_b a Nil) = Nil
     (Map2_case_b a (Cons c d)) = let b = (Cons c d); ((Cons_0) ((a) (c)) ((Map_0) (a) (d))))
+
+(And3_0) = (@a (@b (@c (And3_3 a b c))))
+(And3_3 a b c) = let e = (@ (And3_e a b c)); (And3_split_a a b c e)
+	(And3_split_a (True) b c e) = let a = (True); (And3_split_c a b c e)
+	(And3_split_c a b (True) e) = let c = (True); (c)
+	(And3_split_c a b c e) = (e)
+	(And3_split_a a b c e) = (e)
+	(And3_e a b c e) = let d = (@ (And3_d a b c e)); (And3_split_c a b c d)
+	(And3_split_c a b (True) d) = let c = (True); (c)
+	(And3_split_c a b c d) = (d)
+	(And3_d a b c d) = (False_0)
 
 -}

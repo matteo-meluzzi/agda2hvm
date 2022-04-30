@@ -89,7 +89,7 @@ and3 _ _ _ = False
 -- pippo p3 = True
 -- pippo p4 = False
 
-main = True
+main = and3 False True False
 
 
 -- (Nil_0) = Nil

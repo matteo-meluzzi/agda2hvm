@@ -5,19 +5,17 @@
 (Case (False) (False)) = 1
 
 (And3_0) = (@a (@b (@c (And3_3 a b c))))
-
-(E) = @a@b@c (let d = (False_0); (E_split_c a b c d))
-	(E_split_c a b (True) d) = let c = (True); (c)
-	(E_split_c a b c d) = (d)
-
-(And3_3 a b c) = (And3_split_a a b c E)
+(And3_3 a b c) = let e = (And3_e a b c); (And3_split_a a b c e)
 	(And3_split_a (True) b c e) = let a = (True); (And3_split_c a b c e)
-    (And3_split_a a b c e) = ((e) a b c)
-
 	(And3_split_c a b (True) e) = let c = (True); (c)
-	(And3_split_c a b c e) = ((e) a b c)
+	(And3_split_c a b c e) = (e)
+	(And3_split_a a b c e) = (e)
+	(And3_e a b c) = let d = (And3_d a b c); (And3_split_c a b c d)
+	(And3_split_c a b (True) d) = let c = (True); (c)
+	(And3_split_c a b c d) = (d)
+	(And3_d a b c) = (False_0)
 
-(Main_0) = (And3_3 True False False)
+(Main_0) = ((And3_0) (True_0) Matteo (True_0))
 
 (Match a b) = 0
 
