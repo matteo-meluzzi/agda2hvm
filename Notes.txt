@@ -1,3 +1,26 @@
+-- SUNDAY 1 MAY --
+
+Surpisingly case splitting appears to be working.
+I added support for builin nats like professor cockx did in his scheme extractor.
+
+After running simple benchmarks the HVM extractor appears to be slower than the scheme one, let alone the haskell one.
+One reason might be that calling a function now returns always a lambda first and then the arguments are applied to that:
+```
+(Gen_0) = (@a (Gen_1 a))
+(Gen_1 a) = (Gen_split_a a)
+	(Gen_split_a 0) = let a = 0; ((Leaf_0) 1)
+	(Gen_split_a a) = let b = (Gen_b a); ((Node_0) ((Gen_0) (b)) ((Gen_0) (b)))
+	(Gen_b a) = (- (a) 1)
+
+(Sun_0) = (@a (Sun_1 a))
+(Sun_1 a) = (Sun_split_a a)
+	(Sun_split_a (Node b c)) = let a = (Node b c); (+ ((Sun_0) (b)) ((Sun_0) (c)))
+	(Sun_split_a (Leaf d)) = let a = (Leaf d); 1
+
+(Main_0) = ((Sun_0) ((Gen_0) 22))
+```
+Another reason but which is probably less effectful is that the case splitting happens one varibale at the time.
+
 -- SATURDAY 30 APRIL --
 
 Instead of pattern matching on the whole rule I will try to pattern match varibale by variable
