@@ -141,8 +141,7 @@ setNameUsed x = modify $ \s ->
 -- a Hvm identifier
 hvmExtendedAlphaChars :: Set Char
 hvmExtendedAlphaChars = Set.fromList
-  [ '!' , '$' , '%' , '&' , '*' , '+' , '-' , '.' , '/' , ':' , '<' , '=' , '>'
-  , '?' , '@' , '^' , '_' , '~'
+  [ '$' , '.', '_'
   ]
 
 -- Categories of unicode characters that are allowed to appear in
@@ -152,7 +151,7 @@ hvmAllowedUnicodeCats = Set.fromList
   [ UppercaseLetter , LowercaseLetter , TitlecaseLetter , ModifierLetter
   , OtherLetter , NonSpacingMark , SpacingCombiningMark , EnclosingMark
   , DecimalNumber , LetterNumber , OtherNumber , ConnectorPunctuation
-  , DashPunctuation , OtherPunctuation , CurrencySymbol , MathSymbol
+  , DashPunctuation , OtherPunctuation , CurrencySymbol
   , ModifierSymbol , OtherSymbol , PrivateUse
   ]
 
@@ -162,11 +161,27 @@ isValidHvmChar x
   | isAscii x = isAlphaNum x || x `Set.member` hvmExtendedAlphaChars
   | otherwise = generalCategory x `Set.member` hvmAllowedUnicodeCats
 
+fixHvmName :: QName -> [Char]
+fixHvmName n = fixName $ prettyShow $ qnameName n
+  where 
+    fixName s = do
+      let s'  = concatMap fixChar s
+      let (x:xs) = if (not . isLetter) (head s') then "z" ++ s' else s'
+      -- 'U':x:xs -- TODO: do something smarter
+      toUpper x:xs
+    fixChar c
+      | isValidHvmChar c = [c]
+      | otherwise           = "x" ++ toHex (ord c) -- ++ ";"
+
+    toHex 0 = ""
+    toHex i = toHex (i `div` 16) ++ [fourBitsToChar (i `mod` 16)]
+
+
 -- Creates a valid Hvm name from a (qualified) Agda name.
 -- Precondition: the given name is not already in toHvmDefs.
 makeHvmName :: QName -> ToHvmM HvmAtom
 makeHvmName n = do
-  a <- go $ fixName $ prettyShow $ qnameName n
+  a <- go $ fixHvmName n
   saveDefName n a
   setNameUsed a
   return a
@@ -174,19 +189,6 @@ makeHvmName n = do
     nextName = ('z':) -- TODO: do something smarter
 
     go s     = ifM (isNameUsed s) (go $ nextName s) (return s)
-
-    fixName s = do
-      let s'  = concatMap fixChar s
-      let (x:xs) = if isNumber (head s') then "z" ++ s' else s'
-      -- 'U':x:xs -- TODO: do something smarter
-      toUpper x:xs
-
-    fixChar c
-      | isValidHvmChar c = [c]
-      | otherwise           = "\\x" ++ toHex (ord c) ++ ";"
-
-    toHex 0 = ""
-    toHex i = toHex (i `div` 16) ++ [fourBitsToChar (i `mod` 16)]
 
 fourBitsToChar :: Int -> Char
 fourBitsToChar i = "0123456789ABCDEF" !! i
@@ -312,7 +314,7 @@ instance ToHvm TTerm HvmTerm where
           withFreshVar $ \x -> do
             body <- toHvm v
             let ruleLet = Rule (Ctr (def ++ "_" ++ x) (map Var rbindings)) expr
-            return $ Cases (Let x (App (Var $ def ++ "_" ++ x) (map Var rbindings)) body) [ruleLet]
+            return $ Rules (Let x (App (Var $ def ++ "_" ++ x) (map Var rbindings)) body) [ruleLet]
         c@(TCase i info v bs) -> do
           defName <- getCurrentDef
           bindings' <- getBindinds
@@ -330,8 +332,8 @@ instance ToHvm TTerm HvmTerm where
             return $ Rule (Ctr ruleName params) (Let x ctr body)
             ) cases
           case fallback of
-            Nothing -> return $ Cases (App (Var ruleName) (map Var bindings)) rules
-            Just fb -> return $ Cases (App (Var ruleName) (map Var bindings)) (rules ++ [fb])
+            Nothing -> return $ Rules (App (Var ruleName) (map Var bindings)) rules
+            Just fb -> return $ Rules (App (Var ruleName) (map Var bindings)) (rules ++ [fb])
         TUnit -> undefined
         TSort -> undefined
         TErased    -> return $ Var "Matteo"
@@ -346,7 +348,7 @@ instance ToHvm TAlt (HvmTerm, HvmTerm) where
   toHvm alt = case alt of
     TACon c nargs v -> withFreshVars nargs $ \xs -> do
       body <- toHvm v
-      let name = prettyShow $ qnameName c
+      let name = fixHvmName c
       let ctr = Ctr name (map Var xs)
       return (ctr, body)
     -- ^ Matches on the given constructor. If the match succeeds,

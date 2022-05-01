@@ -40,7 +40,7 @@ data HvmTerm =  Lam HvmAtom HvmTerm |
                 Num HvmNum |
                 Parenthesis HvmTerm |
                 Rule HvmTerm HvmTerm |
-                Cases HvmTerm [HvmTerm]
+                Rules HvmTerm [HvmTerm]
 
 showSExpr :: Maybe String -> [HvmTerm] -> String
 showSExpr (Just head) [] = "(" ++ head ++  ")"
@@ -57,4 +57,4 @@ instance Show HvmTerm where
     show (Num i) = show i
     show (Parenthesis t) = showSExpr Nothing [t]
     show (Rule t1 t2) = show t1 ++ " = " ++ show t2
-    show (Cases x xs) = show x ++ "\n\t" ++ intercalate "\n\t" (map show xs)
+    show (Rules x xs) = show x ++ "\n\t" ++ intercalate "\n\t" (map show xs)
