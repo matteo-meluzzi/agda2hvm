@@ -109,21 +109,76 @@ typedef u64 Lnk;
 #define NEQ (0xF)
 
 //GENERATED_CONSTRUCTOR_IDS_START//
-#define _SUN__SPLIT__A_ (10)
-#define _GEN__B_ (6)
-#define _LEAF__1_ (14)
-#define _MAIN__0_ (9)
-#define _NODE__0_ (16)
-#define _SUN__1_ (1)
-#define _GEN__SPLIT__A_ (11)
-#define _SUN__0_ (0)
-#define _IF_ (7)
-#define _NODE__2_ (4)
-#define _GEN__1_ (3)
-#define _LEAF__0_ (13)
-#define _MATCH_ (15)
-#define _GEN__0_ (2)
-#define _MAIN_ (8)
+#define _HEAD__2_ (67)
+#define _HEAD__1_ (71)
+#define _ID__1_ (25)
+#define _NIL__0_ (2)
+#define _ITE__3_ (73)
+#define _TEST4__0_ (75)
+#define _TWO__0_ (8)
+#define _CON__1_ (4)
+#define _TEST3__0_ (72)
+#define _MAIN__0_ (30)
+#define _POW2__1_ (45)
+#define _POW2__SPLIT__A__1_ (66)
+#define _ZERO__0_ (33)
+#define _Z__X2B____2_ (24)
+#define _Z__X2B____0_ (23)
+#define _MAP__0_ (15)
+#define _MAP__4_ (48)
+#define _TWICE__1_ (22)
+#define _CON__2_ (74)
+#define _NOT__1_ (40)
+#define _MAIN_ (76)
+#define _ITE__SPLIT__B__4_ (19)
+#define _MAP__5_ (1)
+#define _FALSE__0_ (11)
+#define _ITE__4_ (18)
+#define _SUC__0_ (60)
+#define _ITE__2_ (68)
+#define _CON__3_ (5)
+#define _CONSUME__1_ (44)
+#define _FOE__1_ (14)
+#define _SUC__1_ (9)
+#define _TRUE__0_ (29)
+#define _FOE__0_ (13)
+#define _ID__0_ (69)
+#define _MAP__1_ (32)
+#define _Z__X2B____SPLIT__A__2_ (58)
+#define _ONE__0_ (10)
+#define _ITE__1_ (62)
+#define _TAIL__2_ (6)
+#define _NOT__SPLIT__A__1_ (53)
+#define _THREE__0_ (46)
+#define _FIE__1_ (20)
+#define _TAIL__0_ (38)
+#define _MAP__2_ (63)
+#define _Z__X2B____1_ (52)
+#define _PRED__0_ (57)
+#define _ITE__0_ (70)
+#define _TEST1__0_ (26)
+#define _PRED__1_ (54)
+#define _HEAD__3_ (41)
+#define _TEST2__0_ (31)
+#define _CON__0_ (47)
+#define _FUN__0_ (51)
+#define _TAIL__1_ (61)
+#define _PRED__SPLIT__A__1_ (55)
+#define _Z123X27X23X7CHX5CX65LLO__0_ (36)
+#define _NOT__0_ (39)
+#define _TWICE__SPLIT__A__1_ (49)
+#define _CONSUME__SPLIT__A__1_ (64)
+#define _POW2__0_ (65)
+#define _TAIL__3_ (7)
+#define _FIE__0_ (59)
+#define _HEAD__0_ (56)
+#define _CONSUME__0_ (43)
+#define _TWICE__0_ (21)
+#define _MAP__3_ (0)
+#define _MAP__SPLIT__E__5_ (17)
+#define _LOOP__0_ (28)
+#define _HEAD__SPLIT__C__3_ (42)
+#define _TAIL__SPLIT__C__3_ (35)
 
 //GENERATED_CONSTRUCTOR_IDS_END//
 
@@ -530,21 +585,56 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
           switch (fun)
           //GENERATED_REWRITE_RULES_STEP_0_START//
           {
-            case _SUN__SPLIT__A_: {
-              if (get_ari(term) == 1) {
-                stk_push(&stack, host);
-                host = get_loc(term, 0);
+            case _HEAD__2_: {
+              if (get_ari(term) == 2) {
+                init = 0;
                 continue;
               }
             };
-            case _GEN__B_: {
+            case _HEAD__1_: {
               if (get_ari(term) == 1) {
                 init = 0;
                 continue;
               }
             };
-            case _LEAF__1_: {
+            case _ID__1_: {
               if (get_ari(term) == 1) {
+                init = 0;
+                continue;
+              }
+            };
+            case _NIL__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _ITE__3_: {
+              if (get_ari(term) == 3) {
+                init = 0;
+                continue;
+              }
+            };
+            case _TEST4__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _TWO__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _CON__1_: {
+              if (get_ari(term) == 1) {
+                init = 0;
+                continue;
+              }
+            };
+            case _TEST3__0_: {
+              if (get_ari(term) == 0) {
                 init = 0;
                 continue;
               }
@@ -555,64 +645,63 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
                 continue;
               }
             };
-            case _NODE__0_: {
-              if (get_ari(term) == 0) {
-                init = 0;
-                continue;
-              }
-            };
-            case _SUN__1_: {
+            case _POW2__1_: {
               if (get_ari(term) == 1) {
                 init = 0;
                 continue;
               }
             };
-            case _GEN__SPLIT__A_: {
+            case _POW2__SPLIT__A__1_: {
               if (get_ari(term) == 1) {
                 stk_push(&stack, host);
                 host = get_loc(term, 0);
                 continue;
               }
             };
-            case _SUN__0_: {
+            case _ZERO__0_: {
               if (get_ari(term) == 0) {
                 init = 0;
                 continue;
               }
             };
-            case _IF_: {
-              if (get_ari(term) == 3) {
-                stk_push(&stack, host);
-                host = get_loc(term, 0);
-                continue;
-              }
-            };
-            case _NODE__2_: {
+            case _Z__X2B____2_: {
               if (get_ari(term) == 2) {
                 init = 0;
                 continue;
               }
             };
-            case _GEN__1_: {
+            case _Z__X2B____0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _MAP__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _MAP__4_: {
+              if (get_ari(term) == 4) {
+                init = 0;
+                continue;
+              }
+            };
+            case _TWICE__1_: {
               if (get_ari(term) == 1) {
                 init = 0;
                 continue;
               }
             };
-            case _LEAF__0_: {
-              if (get_ari(term) == 0) {
-                init = 0;
-                continue;
-              }
-            };
-            case _MATCH_: {
+            case _CON__2_: {
               if (get_ari(term) == 2) {
                 init = 0;
                 continue;
               }
             };
-            case _GEN__0_: {
-              if (get_ari(term) == 0) {
+            case _NOT__1_: {
+              if (get_ari(term) == 1) {
                 init = 0;
                 continue;
               }
@@ -620,6 +709,309 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
             case _MAIN_: {
               if (get_ari(term) == 0) {
                 init = 0;
+                continue;
+              }
+            };
+            case _ITE__SPLIT__B__4_: {
+              if (get_ari(term) == 4) {
+                stk_push(&stack, host);
+                host = get_loc(term, 1);
+                continue;
+              }
+            };
+            case _MAP__5_: {
+              if (get_ari(term) == 5) {
+                init = 0;
+                continue;
+              }
+            };
+            case _FALSE__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _ITE__4_: {
+              if (get_ari(term) == 4) {
+                init = 0;
+                continue;
+              }
+            };
+            case _SUC__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _ITE__2_: {
+              if (get_ari(term) == 2) {
+                init = 0;
+                continue;
+              }
+            };
+            case _CON__3_: {
+              if (get_ari(term) == 3) {
+                init = 0;
+                continue;
+              }
+            };
+            case _CONSUME__1_: {
+              if (get_ari(term) == 1) {
+                init = 0;
+                continue;
+              }
+            };
+            case _FOE__1_: {
+              if (get_ari(term) == 1) {
+                init = 0;
+                continue;
+              }
+            };
+            case _SUC__1_: {
+              if (get_ari(term) == 1) {
+                init = 0;
+                continue;
+              }
+            };
+            case _TRUE__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _FOE__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _ID__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _MAP__1_: {
+              if (get_ari(term) == 1) {
+                init = 0;
+                continue;
+              }
+            };
+            case _Z__X2B____SPLIT__A__2_: {
+              if (get_ari(term) == 2) {
+                stk_push(&stack, host);
+                host = get_loc(term, 0);
+                continue;
+              }
+            };
+            case _ONE__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _ITE__1_: {
+              if (get_ari(term) == 1) {
+                init = 0;
+                continue;
+              }
+            };
+            case _TAIL__2_: {
+              if (get_ari(term) == 2) {
+                init = 0;
+                continue;
+              }
+            };
+            case _NOT__SPLIT__A__1_: {
+              if (get_ari(term) == 1) {
+                stk_push(&stack, host);
+                host = get_loc(term, 0);
+                continue;
+              }
+            };
+            case _THREE__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _FIE__1_: {
+              if (get_ari(term) == 1) {
+                init = 0;
+                continue;
+              }
+            };
+            case _TAIL__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _MAP__2_: {
+              if (get_ari(term) == 2) {
+                init = 0;
+                continue;
+              }
+            };
+            case _Z__X2B____1_: {
+              if (get_ari(term) == 1) {
+                init = 0;
+                continue;
+              }
+            };
+            case _PRED__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _ITE__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _TEST1__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _PRED__1_: {
+              if (get_ari(term) == 1) {
+                init = 0;
+                continue;
+              }
+            };
+            case _HEAD__3_: {
+              if (get_ari(term) == 3) {
+                init = 0;
+                continue;
+              }
+            };
+            case _TEST2__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _CON__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _FUN__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _TAIL__1_: {
+              if (get_ari(term) == 1) {
+                init = 0;
+                continue;
+              }
+            };
+            case _PRED__SPLIT__A__1_: {
+              if (get_ari(term) == 1) {
+                stk_push(&stack, host);
+                host = get_loc(term, 0);
+                continue;
+              }
+            };
+            case _Z123X27X23X7CHX5CX65LLO__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _NOT__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _TWICE__SPLIT__A__1_: {
+              if (get_ari(term) == 1) {
+                stk_push(&stack, host);
+                host = get_loc(term, 0);
+                continue;
+              }
+            };
+            case _CONSUME__SPLIT__A__1_: {
+              if (get_ari(term) == 1) {
+                stk_push(&stack, host);
+                host = get_loc(term, 0);
+                continue;
+              }
+            };
+            case _POW2__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _TAIL__3_: {
+              if (get_ari(term) == 3) {
+                init = 0;
+                continue;
+              }
+            };
+            case _FIE__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _HEAD__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _CONSUME__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _TWICE__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _MAP__3_: {
+              if (get_ari(term) == 3) {
+                init = 0;
+                continue;
+              }
+            };
+            case _MAP__SPLIT__E__5_: {
+              if (get_ari(term) == 5) {
+                stk_push(&stack, host);
+                host = get_loc(term, 4);
+                continue;
+              }
+            };
+            case _LOOP__0_: {
+              if (get_ari(term) == 0) {
+                init = 0;
+                continue;
+              }
+            };
+            case _HEAD__SPLIT__C__3_: {
+              if (get_ari(term) == 3) {
+                stk_push(&stack, host);
+                host = get_loc(term, 2);
+                continue;
+              }
+            };
+            case _TAIL__SPLIT__C__3_: {
+              if (get_ari(term) == 3) {
+                stk_push(&stack, host);
+                host = get_loc(term, 2);
                 continue;
               }
             };
@@ -925,14 +1317,237 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
           switch (fun)
           //GENERATED_REWRITE_RULES_STEP_1_START//
           {
-            case _SUN__SPLIT__A_: {
+            case _HEAD__2_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 cal_1 = alloc(mem, 3);
+                link(mem, cal_1 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_1 + 1, ask_arg(mem, term, 1));
+                link(mem, cal_1 + 2, Var(lam_0));
+                link(mem, lam_0 + 1, Cal(3, 41, cal_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 2);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _HEAD__1_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 lam_1 = alloc(mem, 2);
+                u64 cal_2 = alloc(mem, 3);
+                link(mem, cal_2 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_2 + 1, Var(lam_0));
+                link(mem, cal_2 + 2, Var(lam_1));
+                link(mem, lam_1 + 1, Cal(3, 41, cal_2));
+                link(mem, lam_0 + 1, Lam(lam_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _ID__1_: {
+              if (1) {
+                inc_cost(mem);
+                u64 done = ask_arg(mem, term, 0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _NIL__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 ctr_0 = alloc(mem, 0);
+                u64 done = Ctr(0, 3, ctr_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _ITE__3_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 cal_1 = alloc(mem, 4);
+                link(mem, cal_1 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_1 + 1, ask_arg(mem, term, 1));
+                link(mem, cal_1 + 2, ask_arg(mem, term, 2));
+                link(mem, cal_1 + 3, Var(lam_0));
+                link(mem, lam_0 + 1, Cal(4, 18, cal_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 3);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _TEST4__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 0);
+                u64 done = Cal(0, 36, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _TWO__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 0);
+                u64 cal_1 = alloc(mem, 1);
+                link(mem, cal_1 + 0, Cal(0, 10, cal_0));
+                u64 done = Cal(1, 9, cal_1);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _CON__1_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 lam_1 = alloc(mem, 2);
+                u64 cal_2 = alloc(mem, 3);
+                link(mem, cal_2 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_2 + 1, Var(lam_0));
+                link(mem, cal_2 + 2, Var(lam_1));
+                link(mem, lam_1 + 1, Cal(3, 5, cal_2));
+                link(mem, lam_0 + 1, Lam(lam_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _TEST3__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 ctr_0 = alloc(mem, 0);
+                u64 ctr_1 = alloc(mem, 0);
+                u64 ctr_2 = alloc(mem, 0);
+                u64 ctr_3 = alloc(mem, 0);
+                u64 ctr_4 = alloc(mem, 0);
+                u64 ctr_5 = alloc(mem, 0);
+                u64 ctr_6 = alloc(mem, 0);
+                u64 cal_7 = alloc(mem, 0);
+                u64 cal_8 = alloc(mem, 0);
+                u64 cal_9 = alloc(mem, 1);
+                link(mem, cal_9 + 0, Cal(0, 33, cal_8));
+                u64 cal_10 = alloc(mem, 1);
+                link(mem, cal_10 + 0, Cal(1, 9, cal_9));
+                u64 cal_11 = alloc(mem, 0);
+                u64 cal_12 = alloc(mem, 0);
+                u64 cal_13 = alloc(mem, 1);
+                link(mem, cal_13 + 0, Cal(0, 33, cal_12));
+                u64 cal_14 = alloc(mem, 0);
+                u64 cal_15 = alloc(mem, 1);
+                link(mem, cal_15 + 0, Cal(0, 33, cal_14));
+                u64 cal_16 = alloc(mem, 0);
+                u64 cal_17 = alloc(mem, 0);
+                u64 cal_18 = alloc(mem, 1);
+                link(mem, cal_18 + 0, Cal(0, 33, cal_17));
+                u64 cal_19 = alloc(mem, 1);
+                link(mem, cal_19 + 0, Cal(1, 9, cal_18));
+                u64 cal_20 = alloc(mem, 0);
+                u64 cal_21 = alloc(mem, 3);
+                link(mem, cal_21 + 0, Cal(0, 33, cal_16));
+                link(mem, cal_21 + 1, Cal(1, 9, cal_19));
+                link(mem, cal_21 + 2, Cal(0, 2, cal_20));
+                u64 cal_22 = alloc(mem, 3);
+                link(mem, cal_22 + 0, Cal(1, 9, cal_13));
+                link(mem, cal_22 + 1, Cal(1, 9, cal_15));
+                link(mem, cal_22 + 2, Cal(3, 5, cal_21));
+                u64 cal_23 = alloc(mem, 3);
+                link(mem, cal_23 + 0, Cal(1, 9, cal_10));
+                link(mem, cal_23 + 1, Cal(0, 33, cal_11));
+                link(mem, cal_23 + 2, Cal(3, 5, cal_22));
+                u64 cal_24 = alloc(mem, 5);
+                link(mem, cal_24 + 0, Ctr(0, 27, ctr_4));
+                link(mem, cal_24 + 1, Ctr(0, 27, ctr_5));
+                link(mem, cal_24 + 2, Ctr(0, 27, ctr_6));
+                link(mem, cal_24 + 3, Cal(0, 60, cal_7));
+                link(mem, cal_24 + 4, Cal(3, 5, cal_23));
+                u64 cal_25 = alloc(mem, 3);
+                link(mem, cal_25 + 0, Ctr(0, 27, ctr_2));
+                link(mem, cal_25 + 1, Ctr(0, 27, ctr_3));
+                link(mem, cal_25 + 2, Cal(5, 1, cal_24));
+                u64 cal_26 = alloc(mem, 3);
+                link(mem, cal_26 + 0, Ctr(0, 27, ctr_0));
+                link(mem, cal_26 + 1, Ctr(0, 27, ctr_1));
+                link(mem, cal_26 + 2, Cal(3, 7, cal_25));
+                u64 done = Cal(3, 41, cal_26);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _MAIN__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 0);
+                u64 done = Cal(0, 31, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _POW2__1_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 1);
+                link(mem, cal_0 + 0, ask_arg(mem, term, 0));
+                u64 done = Cal(1, 66, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _POW2__SPLIT__A__1_: {
               if (get_tag(ask_arg(mem,term,0)) == PAR) {
                 cal_par(mem, host, term, ask_arg(mem, term, 0), 0);
                 continue;
               }
-              if ((get_tag(ask_arg(mem, term, 0)) == CTR && get_ext(ask_arg(mem, term, 0)) == 5u)) {
+              if ((get_tag(ask_arg(mem, term, 0)) == CTR && get_ext(ask_arg(mem, term, 0)) == 34u)) {
                 inc_cost(mem);
-                u64 cpy_0 = ask_arg(mem, ask_arg(mem, term, 0), 1);
+                u64 ctr_0 = alloc(mem, 0);
+                u64 cal_1 = alloc(mem, 1);
+                link(mem, cal_1 + 0, Ctr(0, 34, ctr_0));
+                u64 done = Cal(1, 9, cal_1);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                clear(mem, get_loc(ask_arg(mem, term, 0), 0), 0);
+                init = 1;
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 0)) == CTR && get_ext(ask_arg(mem, term, 0)) == 50u)) {
+                inc_cost(mem);
+                u64 cpy_0 = ask_arg(mem, ask_arg(mem, term, 0), 0);
                 u64 dp0_1;
                 u64 dp1_2;
                 if (get_tag(cpy_0) == U32) {
@@ -946,48 +1561,11 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
                   dp0_1 = Dp0(col_4, dup_3);
                   dp1_2 = Dp1(col_4, dup_3);
                 }
-                u64 cpy_5 = ask_arg(mem, ask_arg(mem, term, 0), 0);
-                u64 dp0_6;
-                u64 dp1_7;
-                if (get_tag(cpy_5) == U32) {
-                  inc_cost(mem);
-                  dp0_6 = cpy_5;
-                  dp1_7 = cpy_5;
-                } else {
-                  u64 dup_8 = alloc(mem, 3);
-                  u64 col_9 = gen_dupk(mem);
-                  link(mem, dup_8 + 2, cpy_5);
-                  dp0_6 = Dp0(col_9, dup_8);
-                  dp1_7 = Dp1(col_9, dup_8);
-                }
-                u64 cal_13 = alloc(mem, 0);
-                u64 app_12 = alloc(mem, 2);
-                link(mem, app_12 + 0, Cal(0, 0, cal_13));
-                link(mem, app_12 + 1, dp1_7);
-                u64 cal_15 = alloc(mem, 0);
-                u64 app_14 = alloc(mem, 2);
-                link(mem, app_14 + 0, Cal(0, 0, cal_15));
-                link(mem, app_14 + 1, dp1_2);
-                u64 ret_10;
-                if (get_tag(App(app_12)) == U32 && get_tag(App(app_14)) == U32) {
-                  ret_10 = U_32(get_val(App(app_12)) + get_val(App(app_14)));
-                  inc_cost(mem);
-                } else {
-                  u64 op2_11 = alloc(mem, 2);
-                  link(mem, op2_11 + 0, App(app_12));
-                  link(mem, op2_11 + 1, App(app_14));
-                  ret_10 = Op2(ADD, op2_11);
-                }
-                u64 done = ret_10;
-                link(mem, host, done);
-                clear(mem, get_loc(term, 0), 1);
-                clear(mem, get_loc(ask_arg(mem, term, 0), 0), 2);
-                init = 1;
-                continue;
-              }
-              if ((get_tag(ask_arg(mem, term, 0)) == CTR && get_ext(ask_arg(mem, term, 0)) == 12u)) {
-                inc_cost(mem);
-                u64 done = U_32(1);
+                u64 cal_5 = alloc(mem, 1);
+                link(mem, cal_5 + 0, dp1_2);
+                u64 cal_6 = alloc(mem, 1);
+                link(mem, cal_6 + 0, Cal(1, 45, cal_5));
+                u64 done = Cal(1, 22, cal_6);
                 link(mem, host, done);
                 clear(mem, get_loc(term, 0), 1);
                 clear(mem, get_loc(ask_arg(mem, term, 0), 0), 1);
@@ -996,52 +1574,11 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
               }
               break;
             };
-            case _GEN__B_: {
+            case _ZERO__0_: {
               if (1) {
                 inc_cost(mem);
-                u64 ret_0;
-                if (get_tag(ask_arg(mem, term, 0)) == U32 && get_tag(U_32(1)) == U32) {
-                  ret_0 = U_32(get_val(ask_arg(mem, term, 0)) - get_val(U_32(1)));
-                  inc_cost(mem);
-                } else {
-                  u64 op2_1 = alloc(mem, 2);
-                  link(mem, op2_1 + 0, ask_arg(mem, term, 0));
-                  link(mem, op2_1 + 1, U_32(1));
-                  ret_0 = Op2(SUB, op2_1);
-                }
-                u64 done = ret_0;
-                link(mem, host, done);
-                clear(mem, get_loc(term, 0), 1);
-                init = 1;
-                continue;
-              }
-              break;
-            };
-            case _LEAF__1_: {
-              if (1) {
-                inc_cost(mem);
-                u64 ctr_0 = alloc(mem, 1);
-                link(mem, ctr_0 + 0, ask_arg(mem, term, 0));
-                u64 done = Ctr(1, 12, ctr_0);
-                link(mem, host, done);
-                clear(mem, get_loc(term, 0), 1);
-                init = 1;
-                continue;
-              }
-              break;
-            };
-            case _MAIN__0_: {
-              if (1) {
-                inc_cost(mem);
-                u64 cal_1 = alloc(mem, 0);
-                u64 cal_3 = alloc(mem, 0);
-                u64 app_2 = alloc(mem, 2);
-                link(mem, app_2 + 0, Cal(0, 2, cal_3));
-                link(mem, app_2 + 1, U_32(22));
-                u64 app_0 = alloc(mem, 2);
-                link(mem, app_0 + 0, Cal(0, 0, cal_1));
-                link(mem, app_0 + 1, App(app_2));
-                u64 done = App(app_0);
+                u64 ctr_0 = alloc(mem, 0);
+                u64 done = Ctr(0, 34, ctr_0);
                 link(mem, host, done);
                 clear(mem, get_loc(term, 0), 0);
                 init = 1;
@@ -1049,7 +1586,21 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
               }
               break;
             };
-            case _NODE__0_: {
+            case _Z__X2B____2_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 2);
+                link(mem, cal_0 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_0 + 1, ask_arg(mem, term, 1));
+                u64 done = Cal(2, 58, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 2);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _Z__X2B____0_: {
               if (1) {
                 inc_cost(mem);
                 u64 lam_0 = alloc(mem, 2);
@@ -1057,7 +1608,7 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
                 u64 cal_2 = alloc(mem, 2);
                 link(mem, cal_2 + 0, Var(lam_0));
                 link(mem, cal_2 + 1, Var(lam_1));
-                link(mem, lam_1 + 1, Cal(2, 4, cal_2));
+                link(mem, lam_1 + 1, Cal(2, 24, cal_2));
                 link(mem, lam_0 + 1, Lam(lam_1));
                 u64 done = Lam(lam_0);
                 link(mem, host, done);
@@ -1067,84 +1618,25 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
               }
               break;
             };
-            case _SUN__1_: {
-              if (1) {
-                inc_cost(mem);
-                u64 cal_0 = alloc(mem, 1);
-                link(mem, cal_0 + 0, ask_arg(mem, term, 0));
-                u64 done = Cal(1, 10, cal_0);
-                link(mem, host, done);
-                clear(mem, get_loc(term, 0), 1);
-                init = 1;
-                continue;
-              }
-              break;
-            };
-            case _GEN__SPLIT__A_: {
-              if (get_tag(ask_arg(mem,term,0)) == PAR) {
-                cal_par(mem, host, term, ask_arg(mem, term, 0), 0);
-                continue;
-              }
-              if ((get_tag(ask_arg(mem, term, 0)) == U32 && get_val(ask_arg(mem, term, 0)) == 0u)) {
-                inc_cost(mem);
-                u64 cal_1 = alloc(mem, 0);
-                u64 app_0 = alloc(mem, 2);
-                link(mem, app_0 + 0, Cal(0, 13, cal_1));
-                link(mem, app_0 + 1, U_32(1));
-                u64 done = App(app_0);
-                link(mem, host, done);
-                clear(mem, get_loc(term, 0), 1);
-                init = 1;
-                continue;
-              }
-              if (1) {
-                inc_cost(mem);
-                u64 cal_3 = alloc(mem, 1);
-                link(mem, cal_3 + 0, ask_arg(mem, term, 0));
-                u64 cpy_0 = Cal(1, 6, cal_3);
-                u64 dp0_1;
-                u64 dp1_2;
-                if (get_tag(cpy_0) == U32) {
-                  inc_cost(mem);
-                  dp0_1 = cpy_0;
-                  dp1_2 = cpy_0;
-                } else {
-                  u64 dup_4 = alloc(mem, 3);
-                  u64 col_5 = gen_dupk(mem);
-                  link(mem, dup_4 + 2, cpy_0);
-                  dp0_1 = Dp0(col_5, dup_4);
-                  dp1_2 = Dp1(col_5, dup_4);
-                }
-                u64 cal_8 = alloc(mem, 0);
-                u64 cal_10 = alloc(mem, 0);
-                u64 app_9 = alloc(mem, 2);
-                link(mem, app_9 + 0, Cal(0, 2, cal_10));
-                link(mem, app_9 + 1, dp0_1);
-                u64 app_7 = alloc(mem, 2);
-                link(mem, app_7 + 0, Cal(0, 16, cal_8));
-                link(mem, app_7 + 1, App(app_9));
-                u64 cal_12 = alloc(mem, 0);
-                u64 app_11 = alloc(mem, 2);
-                link(mem, app_11 + 0, Cal(0, 2, cal_12));
-                link(mem, app_11 + 1, dp1_2);
-                u64 app_6 = alloc(mem, 2);
-                link(mem, app_6 + 0, App(app_7));
-                link(mem, app_6 + 1, App(app_11));
-                u64 done = App(app_6);
-                link(mem, host, done);
-                clear(mem, get_loc(term, 0), 1);
-                init = 1;
-                continue;
-              }
-              break;
-            };
-            case _SUN__0_: {
+            case _MAP__0_: {
               if (1) {
                 inc_cost(mem);
                 u64 lam_0 = alloc(mem, 2);
-                u64 cal_1 = alloc(mem, 1);
-                link(mem, cal_1 + 0, Var(lam_0));
-                link(mem, lam_0 + 1, Cal(1, 1, cal_1));
+                u64 lam_1 = alloc(mem, 2);
+                u64 lam_2 = alloc(mem, 2);
+                u64 lam_3 = alloc(mem, 2);
+                u64 lam_4 = alloc(mem, 2);
+                u64 cal_5 = alloc(mem, 5);
+                link(mem, cal_5 + 0, Var(lam_0));
+                link(mem, cal_5 + 1, Var(lam_1));
+                link(mem, cal_5 + 2, Var(lam_2));
+                link(mem, cal_5 + 3, Var(lam_3));
+                link(mem, cal_5 + 4, Var(lam_4));
+                link(mem, lam_4 + 1, Cal(5, 1, cal_5));
+                link(mem, lam_3 + 1, Lam(lam_4));
+                link(mem, lam_2 + 1, Lam(lam_3));
+                link(mem, lam_1 + 1, Lam(lam_2));
+                link(mem, lam_0 + 1, Lam(lam_1));
                 u64 done = Lam(lam_0);
                 link(mem, host, done);
                 clear(mem, get_loc(term, 0), 0);
@@ -1153,51 +1645,31 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
               }
               break;
             };
-            case _IF_: {
-              if (get_tag(ask_arg(mem,term,0)) == PAR) {
-                cal_par(mem, host, term, ask_arg(mem, term, 0), 0);
-                continue;
-              }
-              if ((get_tag(ask_arg(mem, term, 0)) == U32 && get_val(ask_arg(mem, term, 0)) == 1u)) {
-                inc_cost(mem);
-                u64 done = ask_arg(mem, term, 1);
-                link(mem, host, done);
-                clear(mem, get_loc(term, 0), 3);
-                collect(mem, ask_arg(mem, term, 2));
-                init = 1;
-                continue;
-              }
-              if ((get_tag(ask_arg(mem, term, 0)) == U32 && get_val(ask_arg(mem, term, 0)) == 0u)) {
-                inc_cost(mem);
-                u64 done = ask_arg(mem, term, 2);
-                link(mem, host, done);
-                clear(mem, get_loc(term, 0), 3);
-                collect(mem, ask_arg(mem, term, 1));
-                init = 1;
-                continue;
-              }
-              break;
-            };
-            case _NODE__2_: {
+            case _MAP__4_: {
               if (1) {
                 inc_cost(mem);
-                u64 ctr_0 = alloc(mem, 2);
-                link(mem, ctr_0 + 0, ask_arg(mem, term, 0));
-                link(mem, ctr_0 + 1, ask_arg(mem, term, 1));
-                u64 done = Ctr(2, 5, ctr_0);
+                u64 lam_0 = alloc(mem, 2);
+                u64 cal_1 = alloc(mem, 5);
+                link(mem, cal_1 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_1 + 1, ask_arg(mem, term, 1));
+                link(mem, cal_1 + 2, ask_arg(mem, term, 2));
+                link(mem, cal_1 + 3, ask_arg(mem, term, 3));
+                link(mem, cal_1 + 4, Var(lam_0));
+                link(mem, lam_0 + 1, Cal(5, 1, cal_1));
+                u64 done = Lam(lam_0);
                 link(mem, host, done);
-                clear(mem, get_loc(term, 0), 2);
+                clear(mem, get_loc(term, 0), 4);
                 init = 1;
                 continue;
               }
               break;
             };
-            case _GEN__1_: {
+            case _TWICE__1_: {
               if (1) {
                 inc_cost(mem);
                 u64 cal_0 = alloc(mem, 1);
                 link(mem, cal_0 + 0, ask_arg(mem, term, 0));
-                u64 done = Cal(1, 11, cal_0);
+                u64 done = Cal(1, 49, cal_0);
                 link(mem, host, done);
                 clear(mem, get_loc(term, 0), 1);
                 init = 1;
@@ -1205,7 +1677,226 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
               }
               break;
             };
-            case _LEAF__0_: {
+            case _CON__2_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 cal_1 = alloc(mem, 3);
+                link(mem, cal_1 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_1 + 1, ask_arg(mem, term, 1));
+                link(mem, cal_1 + 2, Var(lam_0));
+                link(mem, lam_0 + 1, Cal(3, 5, cal_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 2);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _NOT__1_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 1);
+                link(mem, cal_0 + 0, ask_arg(mem, term, 0));
+                u64 done = Cal(1, 53, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _MAIN_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 0);
+                u64 done = Cal(0, 30, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _ITE__SPLIT__B__4_: {
+              if (get_tag(ask_arg(mem,term,1)) == PAR) {
+                cal_par(mem, host, term, ask_arg(mem, term, 1), 1);
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 1)) == CTR && get_ext(ask_arg(mem, term, 1)) == 37u)) {
+                inc_cost(mem);
+                u64 done = ask_arg(mem, term, 2);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 4);
+                clear(mem, get_loc(ask_arg(mem, term, 1), 0), 0);
+                collect(mem, ask_arg(mem, term, 0));
+                collect(mem, ask_arg(mem, term, 3));
+                init = 1;
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 1)) == CTR && get_ext(ask_arg(mem, term, 1)) == 12u)) {
+                inc_cost(mem);
+                u64 done = ask_arg(mem, term, 3);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 4);
+                clear(mem, get_loc(ask_arg(mem, term, 1), 0), 0);
+                collect(mem, ask_arg(mem, term, 0));
+                collect(mem, ask_arg(mem, term, 2));
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _MAP__5_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 5);
+                link(mem, cal_0 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_0 + 1, ask_arg(mem, term, 1));
+                link(mem, cal_0 + 2, ask_arg(mem, term, 2));
+                link(mem, cal_0 + 3, ask_arg(mem, term, 3));
+                link(mem, cal_0 + 4, ask_arg(mem, term, 4));
+                u64 done = Cal(5, 17, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 5);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _FALSE__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 ctr_0 = alloc(mem, 0);
+                u64 done = Ctr(0, 12, ctr_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _ITE__4_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 4);
+                link(mem, cal_0 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_0 + 1, ask_arg(mem, term, 1));
+                link(mem, cal_0 + 2, ask_arg(mem, term, 2));
+                link(mem, cal_0 + 3, ask_arg(mem, term, 3));
+                u64 done = Cal(4, 19, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 4);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _SUC__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 cal_1 = alloc(mem, 1);
+                link(mem, cal_1 + 0, Var(lam_0));
+                link(mem, lam_0 + 1, Cal(1, 9, cal_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _ITE__2_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 lam_1 = alloc(mem, 2);
+                u64 cal_2 = alloc(mem, 4);
+                link(mem, cal_2 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_2 + 1, ask_arg(mem, term, 1));
+                link(mem, cal_2 + 2, Var(lam_0));
+                link(mem, cal_2 + 3, Var(lam_1));
+                link(mem, lam_1 + 1, Cal(4, 18, cal_2));
+                link(mem, lam_0 + 1, Lam(lam_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 2);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _CON__3_: {
+              if (1) {
+                inc_cost(mem);
+                u64 ctr_0 = alloc(mem, 3);
+                link(mem, ctr_0 + 0, ask_arg(mem, term, 0));
+                link(mem, ctr_0 + 1, ask_arg(mem, term, 1));
+                link(mem, ctr_0 + 2, ask_arg(mem, term, 2));
+                u64 done = Ctr(3, 16, ctr_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 3);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _CONSUME__1_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 1);
+                link(mem, cal_0 + 0, ask_arg(mem, term, 0));
+                u64 done = Cal(1, 64, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _FOE__1_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 1);
+                link(mem, cal_0 + 0, ask_arg(mem, term, 0));
+                u64 cal_1 = alloc(mem, 1);
+                link(mem, cal_1 + 0, Cal(1, 20, cal_0));
+                u64 done = Cal(1, 9, cal_1);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _SUC__1_: {
+              if (1) {
+                inc_cost(mem);
+                u64 ctr_0 = alloc(mem, 1);
+                link(mem, ctr_0 + 0, ask_arg(mem, term, 0));
+                u64 done = Ctr(1, 50, ctr_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _TRUE__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 ctr_0 = alloc(mem, 0);
+                u64 done = Ctr(0, 37, ctr_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _FOE__0_: {
               if (1) {
                 inc_cost(mem);
                 u64 lam_0 = alloc(mem, 2);
@@ -1220,26 +1911,13 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
               }
               break;
             };
-            case _MATCH_: {
-              if (1) {
-                inc_cost(mem);
-                u64 done = U_32(0);
-                link(mem, host, done);
-                clear(mem, get_loc(term, 0), 2);
-                collect(mem, ask_arg(mem, term, 0));
-                collect(mem, ask_arg(mem, term, 1));
-                init = 1;
-                continue;
-              }
-              break;
-            };
-            case _GEN__0_: {
+            case _ID__0_: {
               if (1) {
                 inc_cost(mem);
                 u64 lam_0 = alloc(mem, 2);
                 u64 cal_1 = alloc(mem, 1);
                 link(mem, cal_1 + 0, Var(lam_0));
-                link(mem, lam_0 + 1, Cal(1, 3, cal_1));
+                link(mem, lam_0 + 1, Cal(1, 25, cal_1));
                 u64 done = Lam(lam_0);
                 link(mem, host, done);
                 clear(mem, get_loc(term, 0), 0);
@@ -1248,13 +1926,867 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
               }
               break;
             };
-            case _MAIN_: {
+            case _MAP__1_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 lam_1 = alloc(mem, 2);
+                u64 lam_2 = alloc(mem, 2);
+                u64 lam_3 = alloc(mem, 2);
+                u64 cal_4 = alloc(mem, 5);
+                link(mem, cal_4 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_4 + 1, Var(lam_0));
+                link(mem, cal_4 + 2, Var(lam_1));
+                link(mem, cal_4 + 3, Var(lam_2));
+                link(mem, cal_4 + 4, Var(lam_3));
+                link(mem, lam_3 + 1, Cal(5, 1, cal_4));
+                link(mem, lam_2 + 1, Lam(lam_3));
+                link(mem, lam_1 + 1, Lam(lam_2));
+                link(mem, lam_0 + 1, Lam(lam_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _Z__X2B____SPLIT__A__2_: {
+              if (get_tag(ask_arg(mem,term,0)) == PAR) {
+                cal_par(mem, host, term, ask_arg(mem, term, 0), 0);
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 0)) == CTR && get_ext(ask_arg(mem, term, 0)) == 34u)) {
+                inc_cost(mem);
+                u64 done = ask_arg(mem, term, 1);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 2);
+                clear(mem, get_loc(ask_arg(mem, term, 0), 0), 0);
+                init = 1;
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 0)) == CTR && get_ext(ask_arg(mem, term, 0)) == 50u)) {
+                inc_cost(mem);
+                u64 cpy_0 = ask_arg(mem, ask_arg(mem, term, 0), 0);
+                u64 dp0_1;
+                u64 dp1_2;
+                if (get_tag(cpy_0) == U32) {
+                  inc_cost(mem);
+                  dp0_1 = cpy_0;
+                  dp1_2 = cpy_0;
+                } else {
+                  u64 dup_3 = alloc(mem, 3);
+                  u64 col_4 = gen_dupk(mem);
+                  link(mem, dup_3 + 2, cpy_0);
+                  dp0_1 = Dp0(col_4, dup_3);
+                  dp1_2 = Dp1(col_4, dup_3);
+                }
+                u64 cal_5 = alloc(mem, 2);
+                link(mem, cal_5 + 0, dp1_2);
+                link(mem, cal_5 + 1, ask_arg(mem, term, 1));
+                u64 cal_6 = alloc(mem, 1);
+                link(mem, cal_6 + 0, Cal(2, 24, cal_5));
+                u64 done = Cal(1, 9, cal_6);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 2);
+                clear(mem, get_loc(ask_arg(mem, term, 0), 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _ONE__0_: {
               if (1) {
                 inc_cost(mem);
                 u64 cal_0 = alloc(mem, 0);
-                u64 done = Cal(0, 9, cal_0);
+                u64 cal_1 = alloc(mem, 1);
+                link(mem, cal_1 + 0, Cal(0, 33, cal_0));
+                u64 done = Cal(1, 9, cal_1);
                 link(mem, host, done);
                 clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _ITE__1_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 lam_1 = alloc(mem, 2);
+                u64 lam_2 = alloc(mem, 2);
+                u64 cal_3 = alloc(mem, 4);
+                link(mem, cal_3 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_3 + 1, Var(lam_0));
+                link(mem, cal_3 + 2, Var(lam_1));
+                link(mem, cal_3 + 3, Var(lam_2));
+                link(mem, lam_2 + 1, Cal(4, 18, cal_3));
+                link(mem, lam_1 + 1, Lam(lam_2));
+                link(mem, lam_0 + 1, Lam(lam_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _TAIL__2_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 cal_1 = alloc(mem, 3);
+                link(mem, cal_1 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_1 + 1, ask_arg(mem, term, 1));
+                link(mem, cal_1 + 2, Var(lam_0));
+                link(mem, lam_0 + 1, Cal(3, 7, cal_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 2);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _NOT__SPLIT__A__1_: {
+              if (get_tag(ask_arg(mem,term,0)) == PAR) {
+                cal_par(mem, host, term, ask_arg(mem, term, 0), 0);
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 0)) == CTR && get_ext(ask_arg(mem, term, 0)) == 37u)) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 0);
+                u64 done = Cal(0, 11, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                clear(mem, get_loc(ask_arg(mem, term, 0), 0), 0);
+                init = 1;
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 0)) == CTR && get_ext(ask_arg(mem, term, 0)) == 12u)) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 0);
+                u64 done = Cal(0, 29, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                clear(mem, get_loc(ask_arg(mem, term, 0), 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _THREE__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 0);
+                u64 cal_1 = alloc(mem, 1);
+                link(mem, cal_1 + 0, Cal(0, 8, cal_0));
+                u64 done = Cal(1, 9, cal_1);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _FIE__1_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 1);
+                link(mem, cal_0 + 0, ask_arg(mem, term, 0));
+                u64 done = Cal(1, 9, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _TAIL__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 lam_1 = alloc(mem, 2);
+                u64 lam_2 = alloc(mem, 2);
+                u64 cal_3 = alloc(mem, 3);
+                link(mem, cal_3 + 0, Var(lam_0));
+                link(mem, cal_3 + 1, Var(lam_1));
+                link(mem, cal_3 + 2, Var(lam_2));
+                link(mem, lam_2 + 1, Cal(3, 7, cal_3));
+                link(mem, lam_1 + 1, Lam(lam_2));
+                link(mem, lam_0 + 1, Lam(lam_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _MAP__2_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 lam_1 = alloc(mem, 2);
+                u64 lam_2 = alloc(mem, 2);
+                u64 cal_3 = alloc(mem, 5);
+                link(mem, cal_3 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_3 + 1, ask_arg(mem, term, 1));
+                link(mem, cal_3 + 2, Var(lam_0));
+                link(mem, cal_3 + 3, Var(lam_1));
+                link(mem, cal_3 + 4, Var(lam_2));
+                link(mem, lam_2 + 1, Cal(5, 1, cal_3));
+                link(mem, lam_1 + 1, Lam(lam_2));
+                link(mem, lam_0 + 1, Lam(lam_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 2);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _Z__X2B____1_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 cal_1 = alloc(mem, 2);
+                link(mem, cal_1 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_1 + 1, Var(lam_0));
+                link(mem, lam_0 + 1, Cal(2, 24, cal_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _PRED__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 cal_1 = alloc(mem, 1);
+                link(mem, cal_1 + 0, Var(lam_0));
+                link(mem, lam_0 + 1, Cal(1, 54, cal_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _ITE__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 lam_1 = alloc(mem, 2);
+                u64 lam_2 = alloc(mem, 2);
+                u64 lam_3 = alloc(mem, 2);
+                u64 cal_4 = alloc(mem, 4);
+                link(mem, cal_4 + 0, Var(lam_0));
+                link(mem, cal_4 + 1, Var(lam_1));
+                link(mem, cal_4 + 2, Var(lam_2));
+                link(mem, cal_4 + 3, Var(lam_3));
+                link(mem, lam_3 + 1, Cal(4, 18, cal_4));
+                link(mem, lam_2 + 1, Lam(lam_3));
+                link(mem, lam_1 + 1, Lam(lam_2));
+                link(mem, lam_0 + 1, Lam(lam_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _TEST1__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 ctr_0 = alloc(mem, 0);
+                u64 cal_1 = alloc(mem, 0);
+                u64 cal_2 = alloc(mem, 0);
+                u64 cal_3 = alloc(mem, 0);
+                u64 cal_4 = alloc(mem, 4);
+                link(mem, cal_4 + 0, Ctr(0, 27, ctr_0));
+                link(mem, cal_4 + 1, Cal(0, 11, cal_1));
+                link(mem, cal_4 + 2, Cal(0, 28, cal_2));
+                link(mem, cal_4 + 3, Cal(0, 29, cal_3));
+                u64 done = Cal(4, 18, cal_4);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _PRED__1_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 1);
+                link(mem, cal_0 + 0, ask_arg(mem, term, 0));
+                u64 done = Cal(1, 55, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _HEAD__3_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 3);
+                link(mem, cal_0 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_0 + 1, ask_arg(mem, term, 1));
+                link(mem, cal_0 + 2, ask_arg(mem, term, 2));
+                u64 done = Cal(3, 42, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 3);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _TEST2__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 0);
+                u64 cal_1 = alloc(mem, 1);
+                link(mem, cal_1 + 0, Cal(0, 46, cal_0));
+                u64 cal_2 = alloc(mem, 1);
+                link(mem, cal_2 + 0, Cal(1, 22, cal_1));
+                u64 cal_3 = alloc(mem, 1);
+                link(mem, cal_3 + 0, Cal(1, 22, cal_2));
+                u64 cal_4 = alloc(mem, 1);
+                link(mem, cal_4 + 0, Cal(1, 22, cal_3));
+                u64 cal_5 = alloc(mem, 1);
+                link(mem, cal_5 + 0, Cal(1, 45, cal_4));
+                u64 done = Cal(1, 44, cal_5);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _CON__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 lam_1 = alloc(mem, 2);
+                u64 lam_2 = alloc(mem, 2);
+                u64 cal_3 = alloc(mem, 3);
+                link(mem, cal_3 + 0, Var(lam_0));
+                link(mem, cal_3 + 1, Var(lam_1));
+                link(mem, cal_3 + 2, Var(lam_2));
+                link(mem, lam_2 + 1, Cal(3, 5, cal_3));
+                link(mem, lam_1 + 1, Lam(lam_2));
+                link(mem, lam_0 + 1, Lam(lam_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _FUN__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 0);
+                u64 cal_1 = alloc(mem, 1);
+                link(mem, cal_1 + 0, Cal(0, 33, cal_0));
+                u64 cal_2 = alloc(mem, 1);
+                link(mem, cal_2 + 0, Cal(1, 9, cal_1));
+                u64 cal_3 = alloc(mem, 1);
+                link(mem, cal_3 + 0, Cal(1, 9, cal_2));
+                u64 cal_4 = alloc(mem, 0);
+                u64 cal_5 = alloc(mem, 1);
+                link(mem, cal_5 + 0, Cal(0, 33, cal_4));
+                u64 cal_6 = alloc(mem, 1);
+                link(mem, cal_6 + 0, Cal(1, 9, cal_5));
+                u64 cal_7 = alloc(mem, 1);
+                link(mem, cal_7 + 0, Cal(1, 9, cal_6));
+                u64 cal_8 = alloc(mem, 2);
+                link(mem, cal_8 + 0, Cal(1, 20, cal_3));
+                link(mem, cal_8 + 1, Cal(1, 14, cal_7));
+                u64 done = Cal(2, 24, cal_8);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _TAIL__1_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 lam_1 = alloc(mem, 2);
+                u64 cal_2 = alloc(mem, 3);
+                link(mem, cal_2 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_2 + 1, Var(lam_0));
+                link(mem, cal_2 + 2, Var(lam_1));
+                link(mem, lam_1 + 1, Cal(3, 7, cal_2));
+                link(mem, lam_0 + 1, Lam(lam_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _PRED__SPLIT__A__1_: {
+              if (get_tag(ask_arg(mem,term,0)) == PAR) {
+                cal_par(mem, host, term, ask_arg(mem, term, 0), 0);
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 0)) == CTR && get_ext(ask_arg(mem, term, 0)) == 34u)) {
+                inc_cost(mem);
+                u64 ctr_0 = alloc(mem, 0);
+                u64 done = Ctr(0, 34, ctr_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                clear(mem, get_loc(ask_arg(mem, term, 0), 0), 0);
+                init = 1;
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 0)) == CTR && get_ext(ask_arg(mem, term, 0)) == 50u)) {
+                inc_cost(mem);
+                u64 cpy_0 = ask_arg(mem, ask_arg(mem, term, 0), 0);
+                u64 dp0_1;
+                u64 dp1_2;
+                if (get_tag(cpy_0) == U32) {
+                  inc_cost(mem);
+                  dp0_1 = cpy_0;
+                  dp1_2 = cpy_0;
+                } else {
+                  u64 dup_3 = alloc(mem, 3);
+                  u64 col_4 = gen_dupk(mem);
+                  link(mem, dup_3 + 2, cpy_0);
+                  dp0_1 = Dp0(col_4, dup_3);
+                  dp1_2 = Dp1(col_4, dup_3);
+                }
+                u64 done = dp1_2;
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                clear(mem, get_loc(ask_arg(mem, term, 0), 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _Z123X27X23X7CHX5CX65LLO__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 0);
+                u64 done = Cal(0, 33, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _NOT__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 cal_1 = alloc(mem, 1);
+                link(mem, cal_1 + 0, Var(lam_0));
+                link(mem, lam_0 + 1, Cal(1, 40, cal_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _TWICE__SPLIT__A__1_: {
+              if (get_tag(ask_arg(mem,term,0)) == PAR) {
+                cal_par(mem, host, term, ask_arg(mem, term, 0), 0);
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 0)) == CTR && get_ext(ask_arg(mem, term, 0)) == 34u)) {
+                inc_cost(mem);
+                u64 ctr_0 = alloc(mem, 0);
+                u64 done = Ctr(0, 34, ctr_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                clear(mem, get_loc(ask_arg(mem, term, 0), 0), 0);
+                init = 1;
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 0)) == CTR && get_ext(ask_arg(mem, term, 0)) == 50u)) {
+                inc_cost(mem);
+                u64 cpy_0 = ask_arg(mem, ask_arg(mem, term, 0), 0);
+                u64 dp0_1;
+                u64 dp1_2;
+                if (get_tag(cpy_0) == U32) {
+                  inc_cost(mem);
+                  dp0_1 = cpy_0;
+                  dp1_2 = cpy_0;
+                } else {
+                  u64 dup_3 = alloc(mem, 3);
+                  u64 col_4 = gen_dupk(mem);
+                  link(mem, dup_3 + 2, cpy_0);
+                  dp0_1 = Dp0(col_4, dup_3);
+                  dp1_2 = Dp1(col_4, dup_3);
+                }
+                u64 cal_5 = alloc(mem, 1);
+                link(mem, cal_5 + 0, dp1_2);
+                u64 cal_6 = alloc(mem, 1);
+                link(mem, cal_6 + 0, Cal(1, 22, cal_5));
+                u64 cal_7 = alloc(mem, 1);
+                link(mem, cal_7 + 0, Cal(1, 9, cal_6));
+                u64 done = Cal(1, 9, cal_7);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                clear(mem, get_loc(ask_arg(mem, term, 0), 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _CONSUME__SPLIT__A__1_: {
+              if (get_tag(ask_arg(mem,term,0)) == PAR) {
+                cal_par(mem, host, term, ask_arg(mem, term, 0), 0);
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 0)) == CTR && get_ext(ask_arg(mem, term, 0)) == 34u)) {
+                inc_cost(mem);
+                u64 ctr_0 = alloc(mem, 0);
+                u64 done = Ctr(0, 34, ctr_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                clear(mem, get_loc(ask_arg(mem, term, 0), 0), 0);
+                init = 1;
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 0)) == CTR && get_ext(ask_arg(mem, term, 0)) == 50u)) {
+                inc_cost(mem);
+                u64 cpy_0 = ask_arg(mem, ask_arg(mem, term, 0), 0);
+                u64 dp0_1;
+                u64 dp1_2;
+                if (get_tag(cpy_0) == U32) {
+                  inc_cost(mem);
+                  dp0_1 = cpy_0;
+                  dp1_2 = cpy_0;
+                } else {
+                  u64 dup_3 = alloc(mem, 3);
+                  u64 col_4 = gen_dupk(mem);
+                  link(mem, dup_3 + 2, cpy_0);
+                  dp0_1 = Dp0(col_4, dup_3);
+                  dp1_2 = Dp1(col_4, dup_3);
+                }
+                u64 cal_5 = alloc(mem, 1);
+                link(mem, cal_5 + 0, dp1_2);
+                u64 done = Cal(1, 44, cal_5);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                clear(mem, get_loc(ask_arg(mem, term, 0), 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _POW2__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 cal_1 = alloc(mem, 1);
+                link(mem, cal_1 + 0, Var(lam_0));
+                link(mem, lam_0 + 1, Cal(1, 45, cal_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _TAIL__3_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 3);
+                link(mem, cal_0 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_0 + 1, ask_arg(mem, term, 1));
+                link(mem, cal_0 + 2, ask_arg(mem, term, 2));
+                u64 done = Cal(3, 35, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 3);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _FIE__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 cal_1 = alloc(mem, 1);
+                link(mem, cal_1 + 0, Var(lam_0));
+                link(mem, lam_0 + 1, Cal(1, 20, cal_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _HEAD__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 lam_1 = alloc(mem, 2);
+                u64 lam_2 = alloc(mem, 2);
+                u64 cal_3 = alloc(mem, 3);
+                link(mem, cal_3 + 0, Var(lam_0));
+                link(mem, cal_3 + 1, Var(lam_1));
+                link(mem, cal_3 + 2, Var(lam_2));
+                link(mem, lam_2 + 1, Cal(3, 41, cal_3));
+                link(mem, lam_1 + 1, Lam(lam_2));
+                link(mem, lam_0 + 1, Lam(lam_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _CONSUME__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 cal_1 = alloc(mem, 1);
+                link(mem, cal_1 + 0, Var(lam_0));
+                link(mem, lam_0 + 1, Cal(1, 44, cal_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _TWICE__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 cal_1 = alloc(mem, 1);
+                link(mem, cal_1 + 0, Var(lam_0));
+                link(mem, lam_0 + 1, Cal(1, 22, cal_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _MAP__3_: {
+              if (1) {
+                inc_cost(mem);
+                u64 lam_0 = alloc(mem, 2);
+                u64 lam_1 = alloc(mem, 2);
+                u64 cal_2 = alloc(mem, 5);
+                link(mem, cal_2 + 0, ask_arg(mem, term, 0));
+                link(mem, cal_2 + 1, ask_arg(mem, term, 1));
+                link(mem, cal_2 + 2, ask_arg(mem, term, 2));
+                link(mem, cal_2 + 3, Var(lam_0));
+                link(mem, cal_2 + 4, Var(lam_1));
+                link(mem, lam_1 + 1, Cal(5, 1, cal_2));
+                link(mem, lam_0 + 1, Lam(lam_1));
+                u64 done = Lam(lam_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 3);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _MAP__SPLIT__E__5_: {
+              if (get_tag(ask_arg(mem,term,4)) == PAR) {
+                cal_par(mem, host, term, ask_arg(mem, term, 4), 4);
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 4)) == CTR && get_ext(ask_arg(mem, term, 4)) == 3u)) {
+                inc_cost(mem);
+                u64 ctr_0 = alloc(mem, 0);
+                u64 done = Ctr(0, 3, ctr_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 5);
+                clear(mem, get_loc(ask_arg(mem, term, 4), 0), 0);
+                collect(mem, ask_arg(mem, term, 0));
+                collect(mem, ask_arg(mem, term, 1));
+                collect(mem, ask_arg(mem, term, 2));
+                collect(mem, ask_arg(mem, term, 3));
+                init = 1;
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 4)) == CTR && get_ext(ask_arg(mem, term, 4)) == 16u)) {
+                inc_cost(mem);
+                u64 cpy_0 = ask_arg(mem, ask_arg(mem, term, 4), 2);
+                u64 dp0_1;
+                u64 dp1_2;
+                if (get_tag(cpy_0) == U32) {
+                  inc_cost(mem);
+                  dp0_1 = cpy_0;
+                  dp1_2 = cpy_0;
+                } else {
+                  u64 dup_3 = alloc(mem, 3);
+                  u64 col_4 = gen_dupk(mem);
+                  link(mem, dup_3 + 2, cpy_0);
+                  dp0_1 = Dp0(col_4, dup_3);
+                  dp1_2 = Dp1(col_4, dup_3);
+                }
+                u64 cpy_5 = ask_arg(mem, ask_arg(mem, term, 4), 1);
+                u64 dp0_6;
+                u64 dp1_7;
+                if (get_tag(cpy_5) == U32) {
+                  inc_cost(mem);
+                  dp0_6 = cpy_5;
+                  dp1_7 = cpy_5;
+                } else {
+                  u64 dup_8 = alloc(mem, 3);
+                  u64 col_9 = gen_dupk(mem);
+                  link(mem, dup_8 + 2, cpy_5);
+                  dp0_6 = Dp0(col_9, dup_8);
+                  dp1_7 = Dp1(col_9, dup_8);
+                }
+                u64 cpy_10 = ask_arg(mem, ask_arg(mem, term, 4), 0);
+                u64 dp0_11;
+                u64 dp1_12;
+                if (get_tag(cpy_10) == U32) {
+                  inc_cost(mem);
+                  dp0_11 = cpy_10;
+                  dp1_12 = cpy_10;
+                } else {
+                  u64 dup_13 = alloc(mem, 3);
+                  u64 col_14 = gen_dupk(mem);
+                  link(mem, dup_13 + 2, cpy_10);
+                  dp0_11 = Dp0(col_14, dup_13);
+                  dp1_12 = Dp1(col_14, dup_13);
+                }
+                u64 cpy_15 = ask_arg(mem, term, 3);
+                u64 dp0_16;
+                u64 dp1_17;
+                if (get_tag(cpy_15) == U32) {
+                  inc_cost(mem);
+                  dp0_16 = cpy_15;
+                  dp1_17 = cpy_15;
+                } else {
+                  u64 dup_18 = alloc(mem, 3);
+                  u64 col_19 = gen_dupk(mem);
+                  link(mem, dup_18 + 2, cpy_15);
+                  dp0_16 = Dp0(col_19, dup_18);
+                  dp1_17 = Dp1(col_19, dup_18);
+                }
+                u64 app_20 = alloc(mem, 2);
+                link(mem, app_20 + 0, dp0_16);
+                link(mem, app_20 + 1, dp1_7);
+                u64 ctr_21 = alloc(mem, 0);
+                u64 ctr_22 = alloc(mem, 0);
+                u64 ctr_23 = alloc(mem, 0);
+                u64 cal_24 = alloc(mem, 5);
+                link(mem, cal_24 + 0, Ctr(0, 27, ctr_21));
+                link(mem, cal_24 + 1, Ctr(0, 27, ctr_22));
+                link(mem, cal_24 + 2, Ctr(0, 27, ctr_23));
+                link(mem, cal_24 + 3, dp1_17);
+                link(mem, cal_24 + 4, dp1_2);
+                u64 cal_25 = alloc(mem, 3);
+                link(mem, cal_25 + 0, dp1_12);
+                link(mem, cal_25 + 1, App(app_20));
+                link(mem, cal_25 + 2, Cal(5, 1, cal_24));
+                u64 done = Cal(3, 5, cal_25);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 5);
+                clear(mem, get_loc(ask_arg(mem, term, 4), 0), 3);
+                collect(mem, ask_arg(mem, term, 0));
+                collect(mem, ask_arg(mem, term, 1));
+                collect(mem, ask_arg(mem, term, 2));
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _LOOP__0_: {
+              if (1) {
+                inc_cost(mem);
+                u64 cal_0 = alloc(mem, 0);
+                u64 done = Cal(0, 28, cal_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 0);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _HEAD__SPLIT__C__3_: {
+              if (get_tag(ask_arg(mem,term,2)) == PAR) {
+                cal_par(mem, host, term, ask_arg(mem, term, 2), 2);
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 2)) == CTR && get_ext(ask_arg(mem, term, 2)) == 16u)) {
+                inc_cost(mem);
+                u64 cpy_0 = ask_arg(mem, ask_arg(mem, term, 2), 1);
+                u64 dp0_1;
+                u64 dp1_2;
+                if (get_tag(cpy_0) == U32) {
+                  inc_cost(mem);
+                  dp0_1 = cpy_0;
+                  dp1_2 = cpy_0;
+                } else {
+                  u64 dup_3 = alloc(mem, 3);
+                  u64 col_4 = gen_dupk(mem);
+                  link(mem, dup_3 + 2, cpy_0);
+                  dp0_1 = Dp0(col_4, dup_3);
+                  dp1_2 = Dp1(col_4, dup_3);
+                }
+                u64 done = dp1_2;
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 3);
+                clear(mem, get_loc(ask_arg(mem, term, 2), 0), 3);
+                collect(mem, ask_arg(mem, term, 0));
+                collect(mem, ask_arg(mem, term, 1));
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _TAIL__SPLIT__C__3_: {
+              if (get_tag(ask_arg(mem,term,2)) == PAR) {
+                cal_par(mem, host, term, ask_arg(mem, term, 2), 2);
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 2)) == CTR && get_ext(ask_arg(mem, term, 2)) == 16u)) {
+                inc_cost(mem);
+                u64 cpy_0 = ask_arg(mem, ask_arg(mem, term, 2), 2);
+                u64 dp0_1;
+                u64 dp1_2;
+                if (get_tag(cpy_0) == U32) {
+                  inc_cost(mem);
+                  dp0_1 = cpy_0;
+                  dp1_2 = cpy_0;
+                } else {
+                  u64 dup_3 = alloc(mem, 3);
+                  u64 col_4 = gen_dupk(mem);
+                  link(mem, dup_3 + 2, cpy_0);
+                  dp0_1 = Dp0(col_4, dup_3);
+                  dp1_2 = Dp1(col_4, dup_3);
+                }
+                u64 done = dp1_2;
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 3);
+                clear(mem, get_loc(ask_arg(mem, term, 2), 0), 3);
+                collect(mem, ask_arg(mem, term, 0));
+                collect(mem, ask_arg(mem, term, 1));
                 init = 1;
                 continue;
               }
@@ -1821,25 +3353,85 @@ int main(int argc, char* argv[]) {
   struct timeval stop, start;
 
   // Id-to-Name map
-  const u64 id_to_name_size = 17;
+  const u64 id_to_name_size = 77;
   char* id_to_name_data[id_to_name_size];
-  id_to_name_data[5] = "Node";
-  id_to_name_data[2] = "Gen_0";
-  id_to_name_data[3] = "Gen_1";
-  id_to_name_data[15] = "Match";
-  id_to_name_data[6] = "Gen_b";
-  id_to_name_data[12] = "Leaf";
-  id_to_name_data[9] = "Main_0";
-  id_to_name_data[13] = "Leaf_0";
-  id_to_name_data[16] = "Node_0";
-  id_to_name_data[7] = "If";
-  id_to_name_data[10] = "Sun_split_a";
-  id_to_name_data[1] = "Sun_1";
-  id_to_name_data[0] = "Sun_0";
-  id_to_name_data[8] = "Main";
-  id_to_name_data[4] = "Node_2";
-  id_to_name_data[14] = "Leaf_1";
-  id_to_name_data[11] = "Gen_split_a";
+  id_to_name_data[46] = "Three_0";
+  id_to_name_data[3] = "Nil";
+  id_to_name_data[16] = "Con";
+  id_to_name_data[25] = "Id_1";
+  id_to_name_data[60] = "Suc_0";
+  id_to_name_data[37] = "True";
+  id_to_name_data[53] = "Not_split_a_1";
+  id_to_name_data[50] = "Suc";
+  id_to_name_data[34] = "Zero";
+  id_to_name_data[10] = "One_0";
+  id_to_name_data[44] = "Consume_1";
+  id_to_name_data[54] = "Pred_1";
+  id_to_name_data[56] = "Head_0";
+  id_to_name_data[40] = "Not_1";
+  id_to_name_data[6] = "Tail_2";
+  id_to_name_data[17] = "Map_split_e_5";
+  id_to_name_data[4] = "Con_1";
+  id_to_name_data[23] = "Z_x2B__0";
+  id_to_name_data[61] = "Tail_1";
+  id_to_name_data[2] = "Nil_0";
+  id_to_name_data[68] = "Ite_2";
+  id_to_name_data[8] = "Two_0";
+  id_to_name_data[13] = "Foe_0";
+  id_to_name_data[33] = "Zero_0";
+  id_to_name_data[27] = "Matteo";
+  id_to_name_data[49] = "Twice_split_a_1";
+  id_to_name_data[64] = "Consume_split_a_1";
+  id_to_name_data[66] = "Pow2_split_a_1";
+  id_to_name_data[70] = "Ite_0";
+  id_to_name_data[58] = "Z_x2B__split_a_2";
+  id_to_name_data[71] = "Head_1";
+  id_to_name_data[75] = "Test4_0";
+  id_to_name_data[5] = "Con_3";
+  id_to_name_data[42] = "Head_split_c_3";
+  id_to_name_data[67] = "Head_2";
+  id_to_name_data[15] = "Map_0";
+  id_to_name_data[39] = "Not_0";
+  id_to_name_data[72] = "Test3_0";
+  id_to_name_data[74] = "Con_2";
+  id_to_name_data[28] = "Loop_0";
+  id_to_name_data[7] = "Tail_3";
+  id_to_name_data[41] = "Head_3";
+  id_to_name_data[47] = "Con_0";
+  id_to_name_data[32] = "Map_1";
+  id_to_name_data[48] = "Map_4";
+  id_to_name_data[76] = "Main";
+  id_to_name_data[21] = "Twice_0";
+  id_to_name_data[35] = "Tail_split_c_3";
+  id_to_name_data[51] = "Fun_0";
+  id_to_name_data[22] = "Twice_1";
+  id_to_name_data[12] = "False";
+  id_to_name_data[65] = "Pow2_0";
+  id_to_name_data[38] = "Tail_0";
+  id_to_name_data[43] = "Consume_0";
+  id_to_name_data[29] = "True_0";
+  id_to_name_data[59] = "Fie_0";
+  id_to_name_data[62] = "Ite_1";
+  id_to_name_data[19] = "Ite_split_b_4";
+  id_to_name_data[31] = "Test2_0";
+  id_to_name_data[9] = "Suc_1";
+  id_to_name_data[26] = "Test1_0";
+  id_to_name_data[57] = "Pred_0";
+  id_to_name_data[14] = "Foe_1";
+  id_to_name_data[20] = "Fie_1";
+  id_to_name_data[24] = "Z_x2B__2";
+  id_to_name_data[73] = "Ite_3";
+  id_to_name_data[69] = "Id_0";
+  id_to_name_data[63] = "Map_2";
+  id_to_name_data[30] = "Main_0";
+  id_to_name_data[18] = "Ite_4";
+  id_to_name_data[55] = "Pred_split_a_1";
+  id_to_name_data[45] = "Pow2_1";
+  id_to_name_data[36] = "Z123x27x23x7CHx5Cx65llo_0";
+  id_to_name_data[52] = "Z_x2B__1";
+  id_to_name_data[11] = "False_0";
+  id_to_name_data[0] = "Map_3";
+  id_to_name_data[1] = "Map_5";
 ;
 
   // Builds main term

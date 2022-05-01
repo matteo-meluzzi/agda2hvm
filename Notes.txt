@@ -21,6 +21,29 @@ One reason might be that calling a function now returns always a lambda first an
 ```
 Another reason but which is probably less effectful is that the case splitting happens one varibale at the time.
 
+the program
+```
+-- A binary tree of uints
+data Tree : Set where 
+    Node : Tree -> Tree -> Tree
+    Leaf : Nat -> Tree
+
+-- Creates a tree with 2^n elements
+gen : Nat -> Tree
+gen 0 = Leaf 1
+gen (suc n) = Node (gen(n)) (gen(n))
+
+-- Adds all elements of a tree
+sun : Tree -> Nat
+sun (Leaf x)   = 1
+sun (Node a b) = sun a + sun b
+
+-- Performs 2^n additions
+main = sun (gen 22)
+```
+runs in 6.01s, 289406979 rewrites and 549454240 words size without the Application-Lambda optimization
+runs in 5.55s, 234881034 rewrites and 549454176 words size with    the Application-Lambda optimization
+
 -- SATURDAY 30 APRIL --
 
 Instead of pattern matching on the whole rule I will try to pattern match varibale by variable

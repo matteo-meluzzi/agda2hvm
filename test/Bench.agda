@@ -16,4 +16,4 @@ sun (Leaf x)   = 1
 sun (Node a b) = sun a + sun b
 
 -- Performs 2^n additions
-main = sun (gen 22)
+main = sun (gen 10)

@@ -210,32 +210,28 @@ traverseLams t = t
 makeLamFromParams :: [HvmAtom] -> HvmTerm -> HvmTerm
 makeLamFromParams xs body = foldr Lam body xs
 
-curryRuleName :: String -> Int -> String
-curryRuleName f i = f ++ "_" ++ show i
-
-makeRule :: String -> [HvmAtom] -> HvmTerm -> ToHvmM [HvmTerm]
-makeRule name params body = do
-  let name' = curryRuleName name nparams
-  let dn = Rule (Ctr name' (map Var params)) body
-  case params of
-    [] -> do
-      return [dn]
-    params -> do
-      let d0 = curryRule [] name params
-      return [d0, dn]
-  where
-    nparams = length params
-
 {-
   (Id_0) = @a @b @c (Id_3 a b c)
   (Id_3 a b c)= c
 -}
 curryRule :: [HvmAtom] -> HvmAtom -> [HvmAtom] -> HvmTerm
-curryRule cparams f lparams = Rule (Ctr (curryRuleName f cparamsLen) $ map Var cparams) (makeLamFromParams lparams (App (Var $ curryRuleName f paramsLen) (map Var cparams ++ map Var lparams)))
+curryRule cparams f lparams = Rule (Ctr (Def f) $ map Var cparams) (makeLamFromParams lparams (App (Def f) (map Var cparams ++ map Var lparams)))
   where
     cparamsLen = length cparams
     lparamsLen = length lparams
     paramsLen = cparamsLen + lparamsLen
+    
+makeRule :: String -> [HvmAtom] -> HvmTerm -> ToHvmM [HvmTerm]
+makeRule name params body = do
+  let dn = Rule (Ctr (Def name) (map Var params)) body
+  case params of
+    [] -> do
+      return [dn]
+    params -> do
+      let ds = zipWith3 (\cparams lparams i -> curryRule cparams name lparams) (inits params) (tails params) [0..(max 0 $ length params - 1)]
+      return $ ds ++ [dn]
+  where
+    nparams = length params
 
 instance ToHvm Definition [HvmTerm] where
     toHvm def
@@ -260,7 +256,7 @@ instance ToHvm Definition [HvmTerm] where
                             makeRule f' params body
                       Just t -> do
                           body <- toHvm t
-                          return [Rule (Ctr (curryRuleName f' 0) []) body]
+                          return [Rule (Ctr (Def f') []) body]
                       Nothing   -> return []
               Primitive {}     -> return []
               PrimitiveSort {} -> return []
@@ -270,7 +266,7 @@ instance ToHvm Definition [HvmTerm] where
                 let c = conName chead
                 c' <- toHvm c
                 withFreshVars nparams $ \params -> do
-                  let ctr = Ctr c' (map Var params)
+                  let ctr = Ctr (Var c') (map Var params)
                   makeRule c' params ctr
 
               AbstractDefn {}  -> __IMPOSSIBLE__
@@ -286,13 +282,13 @@ instance ToHvm TTerm HvmTerm where
         TDef d  -> do
           d' <- toHvm d
           -- Always evaluate Def first with 0 arguments (see Notes Thu 28 Apr)
-          return $ App (Var $ curryRuleName d' 0) []
+          return $ App (Def d') []
         TApp (TPrim p) args -> toHvm (p, args)
         TApp f args -> do
           f'    <- toHvm f
           args' <- traverse toHvm args
           case f' of
-            Var ruleName -> return $ App (Var $ curryRuleName ruleName $ length args') args'
+            Def ruleName -> return $ App (Def ruleName) args'
             _ -> return $ App f' args'
         TLam v  -> withFreshVar $ \x -> do
           body <- toHvm v
@@ -300,7 +296,7 @@ instance ToHvm TTerm HvmTerm where
         TLit l -> toHvm l
         TCon c -> do
           c' <- toHvm c
-          return $ App (Var $ curryRuleName c' 0) []
+          return $ App (Def c') []
         TLet u v -> do
           expr <- toHvm u
           def <- getCurrentDef
@@ -308,8 +304,8 @@ instance ToHvm TTerm HvmTerm where
           let rbindings = reverse bindings
           withFreshVar $ \x -> do
             body <- toHvm v
-            let ruleLet = Rule (Ctr (def ++ "_" ++ x) (map Var rbindings)) expr
-            return $ Rules (Let x (App (Var $ def ++ "_" ++ x) (map Var rbindings)) body) [ruleLet]
+            let ruleLet = Rule (Ctr (Def $ def ++ "_" ++ x) (map Var rbindings)) expr
+            return $ Rules (Let x (App (Def $ def ++ "_" ++ x) (map Var rbindings)) body) [ruleLet]
         c@(TCase i info v bs) -> do
           defName <- getCurrentDef
           bindings' <- getBindinds
@@ -321,14 +317,14 @@ instance ToHvm TTerm HvmTerm where
             then return Nothing
             else do
               v' <- toHvm v
-              return $ Just $  Rule (Ctr ruleName (map Var bindings)) v'
+              return $ Just $  Rule (Ctr (Def ruleName) (map Var bindings)) v'
           rules <- traverse (\(ctr, body) -> do
             let params = zipWith (\b ix -> if i == ix then ctr else Var b) bindings [(length bindings - 1), (length bindings - 2)..]
-            return $ Rule (Ctr ruleName params) (Let x ctr body)
+            return $ Rule (Ctr (Def ruleName) params) (Let x ctr body)
             ) cases
           case fallback of
-            Nothing -> return $ Rules (App (Var ruleName) (map Var bindings)) rules
-            Just fb -> return $ Rules (App (Var ruleName) (map Var bindings)) (rules ++ [fb])
+            Nothing -> return $ Rules (App (Def ruleName) (map Var bindings)) rules
+            Just fb -> return $ Rules (App (Def ruleName) (map Var bindings)) (rules ++ [fb])
         TUnit -> undefined
         TSort -> undefined
         TErased    -> return $ Var "Matteo"
@@ -359,7 +355,7 @@ instance ToHvm TAlt (HvmTerm, HvmTerm) where
     TACon c nargs v -> withFreshVars nargs $ \xs -> do
       body <- toHvm v
       let name = fixHvmName c
-      let ctr = Ctr name (map Var xs)
+      let ctr = Ctr (Var name) (map Var xs)
       return (ctr, body)
     -- ^ Matches on the given constructor. If the match succeeds,
     -- the pattern variables are prepended to the current environment

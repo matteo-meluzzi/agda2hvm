@@ -58,18 +58,33 @@ backend' = Backend'
 backend :: Backend
 backend = Backend backend'
 
+optimize :: HvmTerm -> HvmTerm
+optimize t = case t of
+    App (App (Def n) []) args -> App (Def n) (map optimize args)
+
+    Lam n t -> Lam n (optimize t)
+    App t args -> App (optimize t) (map optimize args)
+    Ctr t args -> Ctr (optimize t) (map optimize args)
+    Op2 o t1 t2 -> Op2 o (optimize t1) (optimize t2)
+    Let n t1 t2 -> Let n (optimize t1) (optimize t2)
+    Var n -> Var n
+    Def n -> Def n
+    Num i -> Num i
+    Parenthesis t -> Parenthesis t
+    Rule t1 t2 -> Rule (optimize t1) (optimize t2)
+    Rules t ts -> Rules (optimize t) (map optimize ts)
+
 hvmCompile :: HvmOptions -> () -> IsMain -> Definition -> TCM [HvmTerm]
-hvmCompile opts _ isMain def =
-    toHvm def
-    & (`evalStateT` initToHvmState)
-    & (`runReaderT` initToHvmEnv opts)
+hvmCompile opts _ isMain def = do
+    ts <- toHvm def
+            & (`evalStateT` initToHvmState)
+            & (`runReaderT` initToHvmEnv opts)
+    return $ map optimize ts
 
 hvmPostModule :: HvmOptions -> () -> IsMain -> ModuleName -> [[HvmTerm]] -> TCM ()
 hvmPostModule options _ isMain moduleName sexprss = do
-    let matchFailed = [Rule (Ctr "Match" [Var "a", Var "b"]) (Num 0)]
-    let ifte = [Rule (Ctr "If" [Num 1, Var "t", Var "e"]) (App (Var "t") []), Rule (Ctr "If" [Num 0, Var "t", Var "e"]) (App (Var "e") [])]
-    let callMain = [Rule (Ctr "Main" []) (App (Var "Main_0") [])]
-    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (sexprss ++ [matchFailed, ifte, callMain]))
+    let callMain = [Rule (Ctr (Var "Main") []) (App (Def "Main") [])]
+    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (sexprss ++ [callMain]))
     liftIO $ T.writeFile "out.hvm" (T.pack t)
 
 main :: IO ()
