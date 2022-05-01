@@ -1,6 +1,6 @@
 #!/bin/sh
 
-stack run First2.agda
+stack run Nats.agda
 hvm c out.hvm
 clang -O2 -o out out.c
 ./out

@@ -1,95 +1,38 @@
-(Id_0) = (@a (Id_1 a))
-(Id_1 a) = (a)
-
-(True_0) = (True)
-
-(False_0) = (False)
-
-(Not_0) = (@a (Not_1 a))
-(Not_1 a) = (Not_split_a a)
-	(Not_split_a (True)) = let a = (True); (False_0)
-	(Not_split_a (False)) = let a = (False); (True_0)
-
-(Ite_0) = (@a (@b (@c (@d (Ite_4 a b c d)))))
-(Ite_4 a b c d) = (Ite_split_b a b c d)
-	(Ite_split_b a (True) c d) = let b = (True); (c)
-	(Ite_split_b a (False) c d) = let b = (False); (d)
-
-(Loop_0) = (Loop_0)
-
-(Test1_0) = ((Ite_0) Matteo (False_0) (Loop_0) (True_0))
-
-(Zero_0) = (Zero)
-
-(Suc_0) = (@a (Suc_1 a))
-(Suc_1 a) = (Suc a)
-
-(One_0) = ((Suc_0) (Zero_0))
-
-(Two_0) = ((Suc_0) (One_0))
-
-(Three_0) = ((Suc_0) (Two_0))
+(Plus3_0) = (@a (Plus3_1 a))
+(Plus3_1 a) = (+ 3 (a))
 
 (Pred_0) = (@a (Pred_1 a))
 (Pred_1 a) = (Pred_split_a a)
-	(Pred_split_a (Zero)) = let a = (Zero); (a)
-	(Pred_split_a (Suc b)) = let a = (Suc b); (b)
+	(Pred_split_a 0) = let a = 0; 0
+	(Pred_split_a a) = (- (a) 1)
 
-(Z_x2B__0) = (@a (@b (Z_x2B__2 a b)))
-(Z_x2B__2 a b) = (Z_x2B__split_a a b)
-	(Z_x2B__split_a (Zero) b) = let a = (Zero); (b)
-	(Z_x2B__split_a (Suc c) b) = let a = (Suc c); ((Suc_0) ((Z_x2B__0) (c) (b)))
+(Test1_0) = ((Pred_0) (+ 1 ((Pred_0) ((Plus3_0) 40))))
 
 (Twice_0) = (@a (Twice_1 a))
-(Twice_1 a) = (Twice_split_a a)
-	(Twice_split_a (Zero)) = let a = (Zero); (a)
-	(Twice_split_a (Suc b)) = let a = (Suc b); ((Suc_0) ((Suc_0) ((Twice_0) (b))))
+(Twice_1 a) = (* 2 (a))
 
 (Pow2_0) = (@a (Pow2_1 a))
 (Pow2_1 a) = (Pow2_split_a a)
-	(Pow2_split_a (Zero)) = let a = (Zero); ((Suc_0) (a))
-	(Pow2_split_a (Suc b)) = let a = (Suc b); ((Twice_0) ((Pow2_0) (b)))
+	(Pow2_split_a 0) = let a = 0; 1
+	(Pow2_split_a a) = let b = (Pow2_b a); ((Twice_0) ((Pow2_0) (b)))
+	(Pow2_b a) = (- (a) 1)
 
 (Consume_0) = (@a (Consume_1 a))
 (Consume_1 a) = (Consume_split_a a)
-	(Consume_split_a (Zero)) = let a = (Zero); (a)
-	(Consume_split_a (Suc b)) = let a = (Suc b); ((Consume_0) (b))
+	(Consume_split_a 0) = let a = 0; 0
+	(Consume_split_a a) = let b = (Consume_b a); ((Consume_0) (b))
+	(Consume_b a) = (- (a) 1)
 
-(Test2_0) = ((Consume_0) ((Pow2_0) ((Twice_0) ((Twice_0) ((Twice_0) (Three_0))))))
+(If_then_else__0) = (@a (@b (@c (@d (If_then_else__4 a b c d)))))
+(If_then_else__4 a b c d) = (If_then_else__split_b a b c d)
+	(If_then_else__split_b a (False) c d) = let b = (False); (d)
+	(If_then_else__split_b a (True) c d) = let b = (True); (c)
 
-(Nil_0) = (Nil)
+(Ifte_0) = ((If_then_else__0) Matteo (True_0) 1 0)
 
-(Con_0) = (@a (@b (@c (Con_3 a b c))))
-(Con_3 a b c) = (Con a b c)
+(Test2_0) = ((Consume_0) ((Pow2_0) 24))
 
-(Head_0) = (@a (@b (@c (Head_3 a b c))))
-(Head_3 a b c) = (Head_split_c a b c)
-	(Head_split_c a b (Con d e f)) = let c = (Con d e f); (e)
-
-(Tail_0) = (@a (@b (@c (Tail_3 a b c))))
-(Tail_3 a b c) = (Tail_split_c a b c)
-	(Tail_split_c a b (Con d e f)) = let c = (Con d e f); (f)
-
-(Map_0) = (@a (@b (@c (@d (@e (Map_5 a b c d e))))))
-(Map_5 a b c d e) = (Map_split_e a b c d e)
-	(Map_split_e a b c d (Nil)) = let e = (Nil); (e)
-	(Map_split_e a b c d (Con f g h)) = let e = (Con f g h); ((Con_0) (f) ((d) (g)) ((Map_0) Matteo Matteo Matteo (d) (h)))
-
-(Test3_0) = ((Head_0) Matteo Matteo ((Tail_0) Matteo Matteo ((Map_0) Matteo Matteo Matteo (Suc_0) ((Con_0) ((Suc_0) ((Suc_0) (Zero_0))) (Zero_0) ((Con_0) ((Suc_0) (Zero_0)) ((Suc_0) (Zero_0)) ((Con_0) (Zero_0) ((Suc_0) ((Suc_0) (Zero_0))) (Nil_0)))))))
-
-(Z123x27x23x7CHx5Cx65llo_0) = (Zero_0)
-
-(Test4_0) = (Z123x27x23x7CHx5Cx65llo_0)
-
-(Fie_0) = (@a (Fie_1 a))
-(Fie_1 a) = ((Suc_0) (a))
-
-(Foe_0) = (@a (Foe_1 a))
-(Foe_1 a) = ((Suc_0) ((Fie_0) (a)))
-
-(Fun_0) = ((Z_x2B__0) ((Fie_0) ((Suc_0) ((Suc_0) (Zero_0)))) ((Foe_0) ((Suc_0) ((Suc_0) (Zero_0)))))
-
-(Main_0) = (Test4_0)
+(Main_0) = (Test1_0)
 
 (Match a b) = 0
 

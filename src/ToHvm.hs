@@ -228,8 +228,6 @@ makeRule name params body = do
 
 {-
   (Id_0) = @a @b @c (Id_3 a b c)
-  (Id_1 a) = @b @c (Id_3 a b c)
-  (Id_2 a b) =  @c (Id_3 a b c)
   (Id_3 a b c)= c
 -}
 curryRule :: [HvmAtom] -> HvmAtom -> [HvmAtom] -> HvmTerm
@@ -263,7 +261,7 @@ instance ToHvm Definition [HvmTerm] where
                       Just t -> do
                           body <- toHvm t
                           return [Rule (Ctr (curryRuleName f' 0) []) body]
-                      Nothing   -> error $ "Could not compile Function " ++ f' ++ ": treeless transformation returned Nothing"
+                      Nothing   -> return []
               Primitive {}     -> return []
               PrimitiveSort {} -> return []
               Datatype {}      -> return []
@@ -284,11 +282,12 @@ instance ToHvm TTerm HvmTerm where
           name <- getVarName i
           start <- getEvaluationStrategy
           return $ Parenthesis $ Var name
-        TPrim p -> undefined
+        TPrim p -> toHvm (p , [] :: [TTerm])
         TDef d  -> do
           d' <- toHvm d
           -- Always evaluate Def first with 0 arguments (see Notes Thu 28 Apr)
           return $ App (Var $ curryRuleName d' 0) []
+        TApp (TPrim p) args -> toHvm (p, args)
         TApp f args -> do
           f'    <- toHvm f
           args' <- traverse toHvm args
@@ -298,6 +297,7 @@ instance ToHvm TTerm HvmTerm where
         TLam v  -> withFreshVar $ \x -> do
           body <- toHvm v
           return $ Lam x body
+        TLit l -> toHvm l
         TCon c -> do
           c' <- toHvm c
           return $ App (Var $ curryRuleName c' 0) []
@@ -333,12 +333,27 @@ instance ToHvm TTerm HvmTerm where
         TSort -> undefined
         TErased    -> return $ Var "Matteo"
         TCoerce u  -> undefined
-        TError err -> return $ Var "error\n"
-        TLit l     -> undefined
+        TError err -> return $ Var "error\n"  
 
-{-
-  (record-case a ((true) () (record-case b ((true) () (false)) (else c))) (else c))))))
--}
+instance ToHvm (TPrim, [TTerm]) HvmTerm where
+  toHvm (p, args) = do
+    args' <- traverse toHvm args
+    let o1 = head args'
+    let o2 = head $ tail args'
+    case p of
+      PAdd -> return $ Op2 Add o1 o2
+      PSub -> return $ Op2 Sub o1 o2
+      PMul -> return $ Op2 Mul o1 o2
+      PQuot -> return $ Op2 Div o1 o2
+      PRem -> return $ Op2 Mod o1 o2
+      PEqI -> return $ Op2 Eq o1 o2
+      _ -> undefined
+
+instance ToHvm Literal HvmTerm where
+  toHvm lit = case lit of
+    LitNat x -> return $ Num x
+    _ -> undefined
+
 instance ToHvm TAlt (HvmTerm, HvmTerm) where
   toHvm alt = case alt of
     TACon c nargs v -> withFreshVars nargs $ \xs -> do
@@ -350,23 +365,7 @@ instance ToHvm TAlt (HvmTerm, HvmTerm) where
     -- the pattern variables are prepended to the current environment
     -- (pushes all existing variables aArity steps further away)
     TAGuard{} -> __IMPOSSIBLE__ -- TODO
-    TALit{} -> __IMPOSSIBLE__ -- TODO
-
-{-
-(Map_0) = (@a (@b (Map_2 a b)))
-(Map_2 a b) = (Map_2_case_b a b)
-    (Map2_case_b a Nil) = Nil
-    (Map2_case_b a (Cons c d)) = let b = (Cons c d); ((Cons_0) ((a) (c)) ((Map_0) (a) (d))))
-
-(And3_0) = (@a (@b (@c (And3_3 a b c))))
-(And3_3 a b c) = let e = (@ (And3_e a b c)); (And3_split_a a b c e)
-	(And3_split_a (True) b c e) = let a = (True); (And3_split_c a b c e)
-	(And3_split_c a b (True) e) = let c = (True); (c)
-	(And3_split_c a b c e) = (e)
-	(And3_split_a a b c e) = (e)
-	(And3_e a b c e) = let d = (@ (And3_d a b c e)); (And3_split_c a b c d)
-	(And3_split_c a b (True) d) = let c = (True); (c)
-	(And3_split_c a b c d) = (d)
-	(And3_d a b c d) = (False_0)
-
--}
+    TALit lit body -> do
+      lit' <- toHvm lit
+      body' <- toHvm body
+      return (lit', body') -- TODO

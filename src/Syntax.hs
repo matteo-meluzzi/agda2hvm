@@ -5,7 +5,7 @@ import Data.List
 type HvmAtom = String
 data HvmOp2 = Add |
               Sub |
-              Mult |
+              Mul |
               Div |
               Mod |
               And |
@@ -22,7 +22,7 @@ data HvmOp2 = Add |
 instance Show HvmOp2 where
     show Add = "+"
     show Sub = "-"
-    show Mult = "*"
+    show Mul = "*"
     show Div = "/"
     show Mod = "%"
     show And = "&"
@@ -30,14 +30,13 @@ instance Show HvmOp2 where
     show Eq = "=="
     show _ = undefined
 
-type HvmNum = Int
 data HvmTerm =  Lam HvmAtom HvmTerm |
                 App HvmTerm [HvmTerm] |
                 Ctr HvmAtom [HvmTerm] |
                 Op2 HvmOp2 HvmTerm HvmTerm |
                 Let HvmAtom HvmTerm HvmTerm |
                 Var HvmAtom |
-                Num HvmNum |
+                Num Integer |
                 Parenthesis HvmTerm |
                 Rule HvmTerm HvmTerm |
                 Rules HvmTerm [HvmTerm]
