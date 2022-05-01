@@ -22,6 +22,16 @@ consume : Nat → Nat
 consume zero = zero
 consume (suc n) = consume n
 
+fac : Nat -> Nat
+fac zero = 1
+fac n@(suc prev) = n * (fac prev) 
+
+fib : Nat -> Nat
+fib 0 = 0
+fib 1 = 1
+fib (suc (suc n)) = fib (suc n) + fib n
+
+
 if_then_else_ : {A : Set} → Bool → A → A → A
 if true then x else y = x
 if false then x else y = y
@@ -30,4 +40,4 @@ ifte = if true then 1 else 0
 
 test2 = consume (pow2 24)
 
-main = test1
+main = fib 40 -- HVM: 6.5 s

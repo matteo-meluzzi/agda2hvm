@@ -1,0 +1,25 @@
+(Node_0) = (@a (@b (Node_2 a b)))
+(Node_2 a b) = (Node a b)
+
+(Leaf_0) = (@a (Leaf_1 a))
+(Leaf_1 a) = (Leaf a)
+
+(Gen_0) = (@a (Gen_1 a))
+(Gen_1 a) = (Gen_split_a a)
+	(Gen_split_a 0) = let a = 0; ((Leaf_0) 1)
+	(Gen_split_a a) = let b = (Gen_b a); ((Node_0) ((Gen_0) (b)) ((Gen_0) (b)))
+	(Gen_b a) = (- (a) 1)
+
+(Sun_0) = (@a (Sun_1 a))
+(Sun_1 a) = (Sun_split_a a)
+	(Sun_split_a (Node b c)) = let a = (Node b c); (+ ((Sun_0) (b)) ((Sun_0) (c)))
+	(Sun_split_a (Leaf d)) = let a = (Leaf d); 1
+
+(Main_0) = ((Sun_0) ((Gen_0) 22))
+
+(Match a b) = 0
+
+(If 1 t e) = (t)
+(If 0 t e) = (e)
+
+(Main) = (Main_0)

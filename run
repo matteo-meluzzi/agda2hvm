@@ -1,6 +1,0 @@
-#!/bin/sh
-
-stack run Nats.agda
-hvm c out.hvm
-clang -O2 -o out out.c
-./out
