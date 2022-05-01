@@ -148,11 +148,7 @@ hvmExtendedAlphaChars = Set.fromList
 -- a Hvm identifier
 hvmAllowedUnicodeCats :: Set GeneralCategory
 hvmAllowedUnicodeCats = Set.fromList
-  [ UppercaseLetter , LowercaseLetter , TitlecaseLetter , ModifierLetter
-  , OtherLetter , NonSpacingMark , SpacingCombiningMark , EnclosingMark
-  , DecimalNumber , LetterNumber , OtherNumber , ConnectorPunctuation
-  , DashPunctuation , OtherPunctuation , CurrencySymbol
-  , ModifierSymbol , OtherSymbol , PrivateUse
+  [ UppercaseLetter , LowercaseLetter , DecimalNumber , DashPunctuation
   ]
 
 -- True if the character is allowed to be used in a Hvm identifier
@@ -167,11 +163,10 @@ fixHvmName n = fixName $ prettyShow $ qnameName n
     fixName s = do
       let s'  = concatMap fixChar s
       let (x:xs) = if (not . isLetter) (head s') then "z" ++ s' else s'
-      -- 'U':x:xs -- TODO: do something smarter
       toUpper x:xs
     fixChar c
       | isValidHvmChar c = [c]
-      | otherwise           = "x" ++ toHex (ord c) -- ++ ";"
+      | otherwise           = "x" ++ toHex (ord c)
 
     toHex 0 = ""
     toHex i = toHex (i `div` 16) ++ [fourBitsToChar (i `mod` 16)]
