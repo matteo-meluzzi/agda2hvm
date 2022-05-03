@@ -38,6 +38,7 @@ data HvmTerm =  Lam HvmAtom HvmTerm |
                 Var HvmAtom |
                 Def HvmAtom |
                 Num Integer |
+                Str String |
                 Parenthesis HvmTerm |
                 Rule HvmTerm HvmTerm |
                 Rules HvmTerm [HvmTerm]
@@ -58,6 +59,7 @@ instance Show HvmTerm where
     show (Var n) = n
     show (Def n) = n
     show (Num i) = show i
+    show (Str xs) = show xs
     show (Parenthesis t) = showSExpr Nothing [t]
     show (Rule t1 t2) = show t1 ++ " = " ++ show t2
     show (Rules x xs) = show x ++ "\n\t" ++ intercalate "\n\t" (map show xs)

@@ -38,6 +38,8 @@ import GHC.Generics ( Generic )
 import ToHvm
 import Syntax
 
+import System.Process
+
 backend' :: Backend' HvmOptions HvmOptions () () [HvmTerm]
 backend' = Backend'
     {
@@ -70,6 +72,7 @@ optimize t = case t of
     Var n -> Var n
     Def n -> Def n
     Num i -> Num i
+    Str xs -> Str xs
     Parenthesis t -> Parenthesis t
     Rule t1 t2 -> Rule (optimize t1) (optimize t2)
     Rules t ts -> Rules (optimize t) (map optimize ts)
@@ -82,10 +85,16 @@ hvmCompile opts _ isMain def = do
     return $ map optimize ts
 
 hvmPostModule :: HvmOptions -> () -> IsMain -> ModuleName -> [[HvmTerm]] -> TCM ()
-hvmPostModule options _ isMain moduleName sexprss = do
+hvmPostModule options _ isMain modName sexprss = do
     let callMain = [Rule (Ctr (Var "Main") []) (App (Def "Main") [])]
-    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (sexprss ++ [callMain]))
-    liftIO $ T.writeFile "out.hvm" (T.pack t)
+    let putStrRule = [Rule (Ctr (Def "PutStrLn") [Var "a"]) (Var "a")]
+    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (sexprss ++ [putStrRule] ++ [callMain]))
+    let fileName' = prettyShow (last $ mnameToList modName)
+        fileName  = fileName' ++ ".hvm"
+        filenameC = fileName' ++ ".c"
+    liftIO $ T.writeFile fileName (T.pack t)
+    liftIO $ callProcess "hvm" ["c", fileName]
+    liftIO $ callProcess "clang" ["-Ofast", "-o", fileName', filenameC]
 
 main :: IO ()
 main = runAgda [backend]

@@ -261,7 +261,7 @@ instance ToHvm Definition [HvmTerm] where
               Primitive {}     -> return []
               PrimitiveSort {} -> return []
               Datatype {}      -> return []
-              Record {}        -> undefined
+              Record {}        -> return []
               Constructor { conSrcCon=chead, conArity=nparams } -> do
                 let c = conName chead
                 c' <- toHvm c
@@ -348,7 +348,13 @@ instance ToHvm (TPrim, [TTerm]) HvmTerm where
 instance ToHvm Literal HvmTerm where
   toHvm lit = case lit of
     LitNat x -> return $ Num x
-    _ -> undefined
+    LitWord64 x -> undefined
+    LitFloat  x -> undefined
+    LitString x -> return $ Str $ T.unpack x
+    LitChar   x -> undefined
+    LitQName  x -> undefined
+    LitMeta p x -> undefined
+
 
 instance ToHvm TAlt (HvmTerm, HvmTerm) where
   toHvm alt = case alt of
