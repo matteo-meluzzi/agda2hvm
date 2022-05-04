@@ -27,7 +27,7 @@ instance Show HvmOp2 where
     show Mod = "%"
     show And = "&"
     show Or = "|"
-    show Eq = "=="
+    show Eq = "Eq_2"
     show _ = undefined
 
 data HvmTerm =  Lam HvmAtom HvmTerm |

@@ -26,12 +26,13 @@ dependencies:
 - deepseq >= 1.4.5
 - text >= 1.2.3.1
 - mtl >= 2.2.2
+- process
 
 library:
   source-dirs: src
 
 executables:
-  agda2HVM-exe:
+  agda2HVM:
     main:                Main.hs
     source-dirs:         app
     ghc-options:

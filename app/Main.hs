@@ -39,6 +39,7 @@ import ToHvm
 import Syntax
 
 import System.Process
+import System.Environment (getArgs)
 
 backend' :: Backend' HvmOptions HvmOptions () () [HvmTerm]
 backend' = Backend'
@@ -88,13 +89,41 @@ hvmPostModule :: HvmOptions -> () -> IsMain -> ModuleName -> [[HvmTerm]] -> TCM 
 hvmPostModule options _ isMain modName sexprss = do
     let callMain = [Rule (Ctr (Var "Main") []) (App (Def "Main") [])]
     let putStrRule = [Rule (Ctr (Def "PutStrLn") [Var "a"]) (Var "a")]
-    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (sexprss ++ [putStrRule] ++ [callMain]))
+    let eqRule = [Rule (Ctr (Def "Eq") [Var "a", Var "b"]) (Rules (App (Def "Eq_split") [App (Var "==") [Var "a", Var "b"]]) [
+                    Rule (Ctr (Def "Eq_split") [Num 1]) (Var "True"),
+                    Rule (Ctr (Def "Eq_split") [Num 0]) (Var "False")])]
+    let monusRule = [Rule (Ctr (Def "Monus") [Var "a", Var "b"]) (Rules (App (Def "Monus_split") [App (Var ">") [Var "a", Var "b"], Var "a", Var "b"]) [
+                        Rule (Ctr (Def "Monus_split") [Num 1, Var "a", Var "b"]) (App (Var "-") [Var "a", Var "b"]),
+                        Rule (Ctr (Def "Monus_split") [Num 0, Var "a", Var "b"]) (Num 0)])]
+    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (sexprss ++ [putStrRule] ++ [eqRule] ++ [monusRule] ++ [callMain]))
     let fileName' = prettyShow (last $ mnameToList modName)
         fileName  = fileName' ++ ".hvm"
         filenameC = fileName' ++ ".c"
     liftIO $ T.writeFile fileName (T.pack t)
     liftIO $ callProcess "hvm" ["c", fileName]
-    liftIO $ callProcess "clang" ["-Ofast", "-o", fileName', filenameC]
+    liftIO $ callProcess "clang" ["-Ofast", "-lpthread", "-o", fileName', filenameC]
 
 main :: IO ()
 main = runAgda [backend]
+
+-- data List a = Nil | Cons a (List a)
+
+-- -- Folds over a list
+-- fold :: List t1 -> (t1 -> t2 -> t2) -> t2 -> t2
+-- fold Nil         c n = n
+-- fold (Cons x xs) c n = c x (fold xs c n)
+
+-- -- A list from 0 to n
+-- range :: (Eq a, Num a) => a -> List a -> List a
+-- range 0 xs = xs
+-- range n xs =
+--   let m = n - 1
+--   in range m (Cons m xs)
+
+-- -- Sums a big list with fold
+-- main :: IO ()
+-- main = do
+--   n <- read.head <$> getArgs :: IO Int
+--   let size = 1000000 * n
+--   let list = range size Nil
+--   print $ fold list (+) 0

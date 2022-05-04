@@ -44,15 +44,22 @@ library
     , containers >=0.5.7.1
     , deepseq >=1.4.5
     , mtl >=2.2.2
+    , process
     , text >=1.2.3.1
   default-language: Haskell2010
 
-executable agda2HVM-exe
+executable agda2HVM
   main-is: Main.hs
   other-modules:
       Paths_agda2HVM
   hs-source-dirs:
       app
+  default-extensions:
+      DeriveAnyClass
+      DeriveGeneric
+      FlexibleInstances
+      MultiParamTypeClasses
+      TypeSynonymInstances
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       Agda >=2.6.2.1 && <2.6.3
@@ -61,19 +68,27 @@ executable agda2HVM-exe
     , containers >=0.5.7.1
     , deepseq >=1.4.5
     , mtl >=2.2.2
+    , process
     , text >=1.2.3.1
   default-language: Haskell2010
-  default-extensions:
-      DeriveAnyClass
-      DeriveGeneric
-      FlexibleInstances
-      MultiParamTypeClasses
-      TypeSynonymInstances
 
 test-suite agda2HVM-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      MAlonzo.Code.Agda.Builtin.Bool
+      MAlonzo.Code.Agda.Builtin.Char
+      MAlonzo.Code.Agda.Builtin.IO
+      MAlonzo.Code.Agda.Builtin.List
+      MAlonzo.Code.Agda.Builtin.Maybe
+      MAlonzo.Code.Agda.Builtin.Nat
+      MAlonzo.Code.Agda.Builtin.Sigma
+      MAlonzo.Code.Agda.Builtin.String
+      MAlonzo.Code.Agda.Builtin.Unit
+      MAlonzo.Code.Agda.Primitive
+      MAlonzo.Code.HelloWorld
+      MAlonzo.RTE
+      MAlonzo.RTE.Float
       Paths_agda2HVM
   hs-source-dirs:
       test
@@ -91,5 +106,6 @@ test-suite agda2HVM-test
     , containers >=0.5.7.1
     , deepseq >=1.4.5
     , mtl >=2.2.2
+    , process
     , text >=1.2.3.1
   default-language: Haskell2010

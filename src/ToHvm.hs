@@ -160,6 +160,7 @@ isValidHvmChar x
 fixHvmName :: QName -> [Char]
 fixHvmName n = fixName $ prettyShow $ qnameName n
   where 
+    fixName "_-_" = "Monus"
     fixName s = do
       let s'  = concatMap fixChar s
       let (x:xs) = if (not . isLetter) (head s') then "z" ++ s' else s'

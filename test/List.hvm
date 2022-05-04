@@ -1,0 +1,9 @@
+(X5Bx5D_0) = (X5Bx5D)
+
+(Z_x2237__0) = (@a (@b (Z_x2237__2 a b)))
+(Z_x2237__1 a) = (@b (Z_x2237__2 a b))
+(Z_x2237__2 a b) = (Z_x2237_ a b)
+
+(PutStrLn_1 a) = a
+
+(Main) = (Main_0)
