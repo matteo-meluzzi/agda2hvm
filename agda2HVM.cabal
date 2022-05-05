@@ -44,6 +44,7 @@ library
     , base >=4.15.0.0 && <4.16
     , containers >=0.5.7.1
     , deepseq >=1.4.5
+    , directory
     , mtl >=2.2.2
     , process
     , text >=1.2.3.1
@@ -69,6 +70,7 @@ executable agda2HVM
     , base >=4.15.0.0 && <4.16
     , containers >=0.5.7.1
     , deepseq >=1.4.5
+    , directory
     , mtl >=2.2.2
     , process
     , text >=1.2.3.1
@@ -108,6 +110,7 @@ test-suite agda2HVM-test
     , base >=4.15.0.0 && <4.16
     , containers >=0.5.7.1
     , deepseq >=1.4.5
+    , directory
     , mtl >=2.2.2
     , process
     , text >=1.2.3.1

@@ -344,7 +344,23 @@ instance ToHvm (TPrim, [TTerm]) HvmTerm where
       PQuot -> return $ Op2 Div o1 o2
       PRem -> return $ Op2 Mod o1 o2
       PEqI -> return $ Op2 Eq o1 o2
-      _ -> undefined
+      PAdd64 -> undefined
+      PSub64 -> undefined
+      PMul64 -> undefined
+      PQuot64 -> undefined
+      PRem64 -> undefined
+      PGeq -> undefined
+      PLt -> undefined
+      PLt64 -> undefined
+      PEq64 -> undefined
+      PEqF -> undefined
+      PEqS -> undefined
+      PEqC -> undefined
+      PEqQ -> undefined
+      PIf -> undefined
+      PSeq -> return $ Var $ "PSeq " ++ show args'
+      PITo64 -> undefined
+      P64ToI -> undefined
 
 instance ToHvm Literal HvmTerm where
   toHvm lit = case lit of

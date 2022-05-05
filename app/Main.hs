@@ -40,6 +40,7 @@ import Syntax
 
 import System.Process
 import System.Environment (getArgs)
+import System.Directory
 
 import Utils
 
@@ -141,9 +142,10 @@ hvmPostModule options _ isMain modName sexprss = do
     let fileName' = prettyShow (last $ mnameToList modName)
         fileName  = fileName' ++ ".hvm"
         filenameC = fileName' ++ ".c"
-    liftIO $ T.writeFile fileName (T.pack t)
-    liftIO $ callProcess "hvm" ["c", fileName, "--single-thread"]
-    liftIO $ callProcess "clang" ["-Ofast", "-lpthread", "-o", fileName', filenameC]
+    liftIO $ createDirectoryIfMissing True "build"
+    liftIO $ T.writeFile ("./build/" ++ fileName) (T.pack t)
+    -- liftIO $ callProcess "hvm" ["c", fileName]
+    -- liftIO $ callProcess "clang" ["-Ofast", "-lpthread", "-o", fileName', filenameC]
     where
         isKeeper (Rule (Ctr (Def "Main") _) _) ts = True
         isKeeper t ts = t `used` ts

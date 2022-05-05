@@ -1,100 +1,65 @@
+open import Agda.Builtin.IO
+open import Agda.Builtin.Unit
+open import Agda.Builtin.String
+open import Agda.Builtin.Bool
+open import Agda.Builtin.Nat
+open import Data.Nat.Show
 
--- postulate A : Set
+postulate
+  putStrLn : String → IO ⊤
 
-data Bool : Set where
-  True False : Bool
+{-# FOREIGN GHC import qualified Data.Text.IO as Text #-}
+{-# COMPILE GHC putStrLn = Text.putStrLn #-}
 
-data Nat : Set where
-  Z : Nat
-  S : Nat -> Nat
 
--- _+_ : Nat -> Nat -> Nat
--- Z + b = b
--- (S a) + b = S (a + b) 
-
--- id : Bool -> Bool
--- id x = x
-
--- id2 : Bool -> Bool -> Bool -> Bool
--- id2 x = \y -> \z -> x
-
--- matteo : (Bool -> Bool) -> Bool -> Bool
--- matteo f b = f b
-
--- luca : Bool -> Bool
--- luca a = (matteo id) a
+variable A B : Set
 
 data List (A : Set) : Set where
-  Nil   : List A
-  Cons  : A -> List A -> List A
+  Nil : List A
+  Cons : A → List A → List A
 
--- map : {A B : Set} -> (A -> B) -> List A -> List B
--- map f Nil = Nil
--- map f (Cons x xs) = Cons (f x) (map f xs)
+if_then_else_ : {A : Set} → Bool → A → A → A
+if true then x else y = x
+if false then x else y = y
 
-map : (Bool -> Bool) -> List Bool -> List Bool
-map f Nil = Nil
-map f (Cons x xs) = Cons (f x) (map f xs)
+filter : (A → Bool) → List A → List A
+filter p Nil = Nil
+filter p (Cons x xs) = if p x then (Cons x (filter p xs)) else filter p xs
 
+append : List A → List A → List A
+append Nil ys = ys
+append (Cons x xs) ys = (Cons x (append xs ys))
 
--- data Pair (A B : Set) : Set where
---   P  : A -> B -> Pair A B
+bind : List A → (A → List B) → List B
+bind Nil f = Nil
+bind (Cons x xs) f = append (f x) (bind xs f)
 
--- -- nikos : Bool
--- -- nikos = luca True
+range : Nat → Nat → List Nat
+range x y = go ((suc y) - x) x
+  where
+    go : Nat → Nat → List Nat
+    go zero    _ = Nil
+    go (suc m) n = Cons n (go m (suc n))
 
-data Friends : Set where
-  Matteo Nikos Luca Andrei : Friends
+record Triple : Set where
+  constructor triple
+  field
+    fst snd trd : Nat
 
--- friend : Friends -> Bool
--- friend Matteo = False
--- friend Luca = True
--- friend Nikos = True
--- friend Andrei = True
+alltriples : Nat → List Triple
+alltriples top = (bind (range 1 top) (λ z → (bind (range 1 z) (λ y → (bind (range 1 y) (λ x → (Cons (triple x y z) Nil)))))))
 
-friend : Friends -> Friends -> Bool
-friend a Matteo = False
-friend Luca Matteo = True
-friend Nikos Matteo = True
-friend Andrei Matteo = True
-friend _ _ = False
+cartesian : Triple → Bool
+cartesian (triple x y z) = x * x + y * y == z * z
 
+triples : Nat → List Triple
+triples top = filter cartesian (alltriples top)
 
-not : Bool -> Bool
-not True = False
-not False = True
+sumall : List Triple → Nat
+sumall Nil = 0
+sumall (Cons (triple x y z) xs) = x + y + z + sumall xs
 
-and : Bool -> Bool -> Bool
-and True True = True
-and _ _ = False
+test1 = sumall (triples 20) -- evaluates to 33638
 
-and3 : Bool -> Bool -> Bool -> Bool
-and3 True a True = True
-and3 a b True = True
-and3 _ _ _ = False
-
--- xor : Bool → Bool → Bool
--- xor = λ { True  True  → False
---         ; False False → False
---         ; True False  → True
---         ; False True  → True
---         }
-
--- data Prova : Set where
---   p1 p2 p3 p4 : Prova
-
--- pippo : Prova -> Bool
--- pippo p1 = True
--- pippo p2 = False
--- pippo p3 = True
--- pippo p4 = False
-
-main = map not (Cons True (Cons False (Cons True Nil)))
-
-
--- (Nil_0) = Nil
-
--- (Cons_0) = @a @b (Cons_2 a b)
--- (Cons_2 a b) = (Cons a b)
-
--- (Main) = ((Cons_0) True ((Cons_0) False Nil))
+main : IO ⊤
+main = putStrLn (show test1)
