@@ -41,6 +41,8 @@ import Syntax
 import System.Process
 import System.Environment (getArgs)
 
+import Utils
+
 backend' :: Backend' HvmOptions HvmOptions () () [HvmTerm]
 backend' = Backend'
     {
@@ -61,9 +63,29 @@ backend' = Backend'
 backend :: Backend
 backend = Backend backend'
 
+flatten :: HvmTerm -> [HvmTerm]
+flatten term = term:(case term of
+    Lam n t -> flatten t
+    App t args -> flatten t ++ concatMap flatten args
+    Ctr t args -> flatten t ++ concatMap flatten args
+    Op2 o t1 t2 -> flatten t1 ++ flatten t2
+    Let n t1 t2 -> flatten t1 ++ flatten t2
+    Var n -> []
+    Def n -> []
+    Num i -> []
+    Str xs -> []
+    Parenthesis t -> flatten t
+    Rule t1 t2 -> flatten t1 ++ flatten t2
+    Rules t ts -> flatten t ++ concatMap flatten ts
+    )
+
+contains :: HvmTerm -> (HvmTerm -> Bool) -> Bool
+contains term p = any p $ flatten term
+
 optimize :: HvmTerm -> HvmTerm
 optimize t = case t of
     App (App (Def n) []) args -> App (Def n) (map optimize args)
+    Let n t1 t2 | not $ t2 `contains` (== Var n) -> optimize t2
 
     Lam n t -> Lam n (optimize t)
     App t args -> App (optimize t) (map optimize args)
@@ -74,7 +96,7 @@ optimize t = case t of
     Def n -> Def n
     Num i -> Num i
     Str xs -> Str xs
-    Parenthesis t -> Parenthesis t
+    Parenthesis t -> Parenthesis (optimize t)
     Rule t1 t2 -> Rule (optimize t1) (optimize t2)
     Rules t ts -> Rules (optimize t) (map optimize ts)
 
@@ -85,8 +107,28 @@ hvmCompile opts _ isMain def = do
             & (`runReaderT` initToHvmEnv opts)
     return $ map optimize ts
 
+definitions :: [HvmTerm] -> [HvmAtom]
+definitions [] = []
+definitions (Rule (Ctr (Def name) _) _:xs) = name:definitions xs
+definitions (_:xs) = definitions xs
+
+used :: HvmTerm -> [HvmTerm] -> Bool
+used r@(Rule (Ctr (Def name) params) _) rules = any (`contains` (\case
+        App (Def n) args -> name == n && length params == length args
+        _ -> False
+    )) $ filter (/= r) rules
+used r rules = False
+
+whileChange :: Eq t => t -> (t -> t) -> t
+whileChange last f = do
+    let new = f last
+    if new == last then last else whileChange new f
+
 hvmPostModule :: HvmOptions -> () -> IsMain -> ModuleName -> [[HvmTerm]] -> TCM ()
 hvmPostModule options _ isMain modName sexprss = do
+    let ts = concat sexprss
+    let uss = whileChange sexprss (\s -> map (filter (`isKeeper` concat s)) s)
+
     let callMain = [Rule (Ctr (Var "Main") []) (App (Def "Main") [])]
     let putStrRule = [Rule (Ctr (Def "PutStrLn") [Var "a"]) (Var "a")]
     let eqRule = [Rule (Ctr (Def "Eq") [Var "a", Var "b"]) (Rules (App (Def "Eq_split") [App (Var "==") [Var "a", Var "b"]]) [
@@ -95,13 +137,16 @@ hvmPostModule options _ isMain modName sexprss = do
     let monusRule = [Rule (Ctr (Def "Monus") [Var "a", Var "b"]) (Rules (App (Def "Monus_split") [App (Var ">") [Var "a", Var "b"], Var "a", Var "b"]) [
                         Rule (Ctr (Def "Monus_split") [Num 1, Var "a", Var "b"]) (App (Var "-") [Var "a", Var "b"]),
                         Rule (Ctr (Def "Monus_split") [Num 0, Var "a", Var "b"]) (Num 0)])]
-    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (sexprss ++ [putStrRule] ++ [eqRule] ++ [monusRule] ++ [callMain]))
+    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (uss ++ [putStrRule] ++ [eqRule] ++ [monusRule] ++ [callMain]))
     let fileName' = prettyShow (last $ mnameToList modName)
         fileName  = fileName' ++ ".hvm"
         filenameC = fileName' ++ ".c"
     liftIO $ T.writeFile fileName (T.pack t)
-    liftIO $ callProcess "hvm" ["c", fileName]
+    liftIO $ callProcess "hvm" ["c", fileName, "--single-thread"]
     liftIO $ callProcess "clang" ["-Ofast", "-lpthread", "-o", fileName', filenameC]
+    where
+        isKeeper (Rule (Ctr (Def "Main") _) _) ts = True
+        isKeeper t ts = t `used` ts
 
 main :: IO ()
 main = runAgda [backend]

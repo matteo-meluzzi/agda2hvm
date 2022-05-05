@@ -19,6 +19,7 @@ data HvmOp2 = Add |
               GtEq |
               Gt |
               NEq
+            deriving Eq
 instance Show HvmOp2 where
     show Add = "+"
     show Sub = "-"
@@ -42,6 +43,8 @@ data HvmTerm =  Lam HvmAtom HvmTerm |
                 Parenthesis HvmTerm |
                 Rule HvmTerm HvmTerm |
                 Rules HvmTerm [HvmTerm]
+            deriving Eq
+
 
 showSExpr :: Maybe String -> [HvmTerm] -> String
 showSExpr (Just head) [] = "(" ++ head ++  ")"

@@ -38,6 +38,7 @@ library
       FlexibleInstances
       MultiParamTypeClasses
       TypeSynonymInstances
+      LambdaCase
   build-depends:
       Agda >=2.6.2.1 && <2.6.3
     , base >=4.15.0.0 && <4.16
@@ -60,6 +61,7 @@ executable agda2HVM
       FlexibleInstances
       MultiParamTypeClasses
       TypeSynonymInstances
+      LambdaCase
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       Agda >=2.6.2.1 && <2.6.3
@@ -98,6 +100,7 @@ test-suite agda2HVM-test
       FlexibleInstances
       MultiParamTypeClasses
       TypeSynonymInstances
+      LambdaCase
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       Agda >=2.6.2.1 && <2.6.3
