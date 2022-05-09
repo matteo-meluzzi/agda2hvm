@@ -277,7 +277,7 @@ instance ToHvm Definition [HvmTerm] where
 
 instance ToHvm TTerm HvmTerm where
     toHvm v' = do
-      let v = convertGuards v'
+      v <- liftTCM $ eliminateLiteralPatterns (convertGuards v')
       case v of
         TVar i  -> do
           name <- getVarName i
