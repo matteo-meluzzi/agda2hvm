@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      Erase
       Syntax
       ToHvm
       Utils
@@ -80,19 +81,6 @@ test-suite agda2HVM-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      MAlonzo.Code.Agda.Builtin.Bool
-      MAlonzo.Code.Agda.Builtin.Char
-      MAlonzo.Code.Agda.Builtin.IO
-      MAlonzo.Code.Agda.Builtin.List
-      MAlonzo.Code.Agda.Builtin.Maybe
-      MAlonzo.Code.Agda.Builtin.Nat
-      MAlonzo.Code.Agda.Builtin.Sigma
-      MAlonzo.Code.Agda.Builtin.String
-      MAlonzo.Code.Agda.Builtin.Unit
-      MAlonzo.Code.Agda.Primitive
-      MAlonzo.Code.HelloWorld
-      MAlonzo.RTE
-      MAlonzo.RTE.Float
       Paths_agda2HVM
   hs-source-dirs:
       test

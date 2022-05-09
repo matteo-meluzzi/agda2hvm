@@ -1,3 +1,0 @@
-(PutStrLn_1 a) = a
-
-(Main) = (Main_0)

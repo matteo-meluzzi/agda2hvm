@@ -1,5 +1,0 @@
-(Main_0) = (PutStrLn_1 "Hello, World!")
-
-(PutStrLn_1 a) = a
-
-(Main) = (Main_0)

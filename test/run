@@ -1,6 +1,0 @@
-#!/bin/sh
-
-stack run Bench.agda
-hvm c out.hvm
-clang -Ofast -o out out.c
-./out

@@ -7,6 +7,7 @@ import Prelude hiding ( null , empty )
 
 import Agda.Compiler.Common
 import Agda.Compiler.ToTreeless
+import Agda.Compiler.Treeless.GuardsToPrims
 
 import Agda.Syntax.Abstract.Name
 import Agda.Syntax.Common
@@ -45,6 +46,7 @@ import GHC.Generics ( Generic )
 
 import Syntax
 import Utils (safeTail, safeInit, safeHead)
+import Erase ( runE , erasable , getFunInfo )
 
 data HvmOptions = Options deriving (Generic, NFData)
 
@@ -274,7 +276,9 @@ instance ToHvm Definition [HvmTerm] where
               DataOrRecSig {}  -> __IMPOSSIBLE__
 
 instance ToHvm TTerm HvmTerm where
-    toHvm v = case v of
+    toHvm v' = do
+      let v = convertGuards v'
+      case v of
         TVar i  -> do
           name <- getVarName i
           start <- getEvaluationStrategy
@@ -328,7 +332,7 @@ instance ToHvm TTerm HvmTerm where
             Just fb -> return $ Rules (App (Def ruleName) (map Var bindings)) (rules ++ [fb])
         TUnit -> undefined
         TSort -> undefined
-        TErased    -> return $ Var "Matteo"
+        TErased    -> return $ Var "Erased"
         TCoerce u  -> undefined
         TError err -> return $ Var "error\n"  
 
@@ -385,8 +389,8 @@ instance ToHvm TAlt (HvmTerm, HvmTerm) where
     -- ^ Matches on the given constructor. If the match succeeds,
     -- the pattern variables are prepended to the current environment
     -- (pushes all existing variables aArity steps further away)
-    TAGuard{} -> __IMPOSSIBLE__ -- TODO
+    TAGuard{} -> __IMPOSSIBLE__
     TALit lit body -> do
       lit' <- toHvm lit
       body' <- toHvm body
-      return (lit', body') -- TODO
+      return (lit', body')

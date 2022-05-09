@@ -1,8 +1,0 @@
-(Just_0) = (@a (Just_1 a))
-(Just_1 a) = (Just a)
-
-(Nothing_0) = (Nothing)
-
-(PutStrLn_1 a) = a
-
-(Main) = (Main_0)
