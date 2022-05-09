@@ -29,6 +29,8 @@ instance Show HvmOp2 where
     show And = "&"
     show Or = "|"
     show Eq = "Eq_2"
+    show Gt = "Gt_2"
+    show Lt = "Lt_2"
     show _ = undefined
 
 data HvmTerm =  Lam HvmAtom HvmTerm |

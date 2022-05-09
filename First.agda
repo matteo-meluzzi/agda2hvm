@@ -3,7 +3,7 @@ open import Agda.Builtin.Unit
 open import Agda.Builtin.String
 open import Agda.Builtin.Bool
 open import Agda.Builtin.Nat
-open import Data.Nat.Show
+-- open import Data.Nat.Show
 
 postulate
   putStrLn : String → IO ⊤
@@ -61,5 +61,4 @@ sumall (Cons (triple x y z) xs) = x + y + z + sumall xs
 
 test1 = sumall (triples 20) -- evaluates to 33638
 
-main : IO ⊤
-main = putStrLn (show test1)
+main = test1

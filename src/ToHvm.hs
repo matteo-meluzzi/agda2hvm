@@ -44,7 +44,7 @@ import qualified Data.Text as T
 import GHC.Generics ( Generic )
 
 import Syntax
-import Utils (safeTail, safeInit)
+import Utils (safeTail, safeInit, safeHead)
 
 data HvmOptions = Options deriving (Generic, NFData)
 
@@ -335,6 +335,7 @@ instance ToHvm TTerm HvmTerm where
 instance ToHvm (TPrim, [TTerm]) HvmTerm where
   toHvm (p, args) = do
     args' <- traverse toHvm args
+    unless (length args' >= 2) $ fail $ "primitive operation " <> show p <> " called with " <> show (length args) <> " arguments!"
     let o1 = head args'
     let o2 = head $ tail args'
     case p of
@@ -344,13 +345,14 @@ instance ToHvm (TPrim, [TTerm]) HvmTerm where
       PQuot -> return $ Op2 Div o1 o2
       PRem -> return $ Op2 Mod o1 o2
       PEqI -> return $ Op2 Eq o1 o2
+      PLt -> return $ Op2 Lt o1 o2
+      PGeq -> return $ Op2 GtEq o1 o2
+
       PAdd64 -> undefined
       PSub64 -> undefined
       PMul64 -> undefined
       PQuot64 -> undefined
       PRem64 -> undefined
-      PGeq -> undefined
-      PLt -> undefined
       PLt64 -> undefined
       PEq64 -> undefined
       PEqF -> undefined

@@ -1,0 +1,58 @@
+(False_0) = (False)
+
+(True_0) = (True)
+
+(Nil_0) = (Nil)
+
+(Cons_2 a b) = (Cons a b)
+
+(If_then_else__4 a b c d) = (If_then_else__split_b_4 a b c d)
+	(If_then_else__split_b_4 a (False) c d) = (d)
+	(If_then_else__split_b_4 a (True) c d) = (c)
+
+(Filter_3 a b c) = (Filter_split_c_3 a b c)
+	(Filter_split_c_3 a b (Nil)) = let c = (Nil); (c)
+	(Filter_split_c_3 a b (Cons d e)) = (If_then_else__4 Matteo ((b) (d)) (Cons_2 (d) (Filter_3 Matteo (b) (e))) (Filter_3 Matteo (b) (e)))
+
+(Append_3 a b c) = (Append_split_b_3 a b c)
+	(Append_split_b_3 a (Nil) c) = (c)
+	(Append_split_b_3 a (Cons d e) c) = (Cons_2 (d) (Append_3 Matteo (e) (c)))
+
+(Z_or__2 a b) = let d = (Z_or__d_2 a b); (Z_or__split_a_3 a b d)
+	(Z_or__split_a_3 (True) b d) = let a = (True); (a)
+	(Z_or__split_a_3 a b d) = (d)
+	(Z_or__d_2 a b) = let c = (Z_or__c_2 a b); (Z_or__split_b_3 a b c)
+	(Z_or__split_b_3 a (True) c) = let b = (True); (b)
+	(Z_or__split_b_3 a b c) = (c)
+	(Z_or__c_2 a b) = (False_0)
+
+(Qsort_1 a) = (Qsort_split_a_1 a)
+	(Qsort_split_a_1 (Nil)) = let a = (Nil); (a)
+	(Qsort_split_a_1 (Cons b c)) = (Append_3 Matteo (Append_3 Matteo (Filter_3 Matteo (@d (Lt_2 (d) (b))) (c)) (Cons_2 (b) (Nil_0))) (Filter_3 Matteo (@e (Z_or__2 (Lt_2 (b) (e)) (Eq_2 (b) (e)))) (c)))
+
+(Range_1 a) = (Range_split_a_1 a)
+	(Range_split_a_1 0) = (Cons_2 0 (Nil_0))
+	(Range_split_a_1 a) = let b = (Range_b_1 a); (Cons_2 (a) (Range_1 (b)))
+	(Range_b_1 a) = (- (a) 1)
+
+(At_2 a b) = (At_split_a_2 a b)
+	(At_split_a_2 (Nil) b) = 0
+	(At_split_a_2 (Cons c d) b) = (c)
+
+(Main_0) = (@a (Main_1 a))
+(Main_1 a) = (At_2 (Qsort_1 (Range_1 (a))) Matteo)
+
+(PutStrLn_1 a) = a
+
+(Gt_2 a b) = (Gt_split_1 (> a b))
+	(Gt_split_1 1) = True
+	(Gt_split_1 0) = False
+(Lt_2 a b) = (Lt_split_1 (< a b))
+	(Lt_split_1 1) = True
+	(Lt_split_1 0) = False
+
+(Monus_2 a b) = (Monus_split_3 (> a b) a b)
+	(Monus_split_3 1 a b) = (- a b)
+	(Monus_split_3 0 a b) = 0
+
+(Main n) = (Main_1 n)

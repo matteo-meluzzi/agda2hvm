@@ -52,7 +52,7 @@ backend' = Backend'
         , options               = Options
         , commandLineFlags      = []
         , isEnabled             = const True
-        , preCompile            = return
+        , preCompile            = hvmPreCompile
         , postCompile           = \ _ _ _ -> return ()
         , preModule             = \ _ _ _ _ -> return $ Recompile ()
         , postModule            = hvmPostModule
@@ -63,6 +63,12 @@ backend' = Backend'
 
 backend :: Backend
 backend = Backend backend'
+
+hvmPreCompile :: HvmOptions -> TCM HvmOptions
+hvmPreCompile o = do
+    liftIO $ createDirectoryIfMissing True "build"
+    liftIO $ setCurrentDirectory "build"
+    return o
 
 flatten :: HvmTerm -> [HvmTerm]
 flatten term = term:(case term of
@@ -125,27 +131,33 @@ whileChange last f = do
     let new = f last
     if new == last then last else whileChange new f
 
+comparison :: HvmAtom -> HvmAtom -> HvmTerm
+comparison name symbol = Rule (Ctr (Def name) [Var "a", Var "b"]) (Rules (App (Def splitName) [App (Var symbol) [Var "a", Var "b"]]) [
+                    Rule (Ctr (Def splitName) [Num 1]) (Var "True"),
+                    Rule (Ctr (Def splitName) [Num 0]) (Var "False")])
+                    where splitName = name ++ "_split"
+
 hvmPostModule :: HvmOptions -> () -> IsMain -> ModuleName -> [[HvmTerm]] -> TCM ()
 hvmPostModule options _ isMain modName sexprss = do
     let ts = concat sexprss
     let uss = whileChange sexprss (\s -> map (filter (`isKeeper` concat s)) s)
 
-    let callMain = [Rule (Ctr (Var "Main") []) (App (Def "Main") [])]
+    let callMain = [Rule (Ctr (Var "Main") [Var "n"]) (App (Def "Main") [Var "n"])]
     let putStrRule = [Rule (Ctr (Def "PutStrLn") [Var "a"]) (Var "a")]
     let eqRule = [Rule (Ctr (Def "Eq") [Var "a", Var "b"]) (Rules (App (Def "Eq_split") [App (Var "==") [Var "a", Var "b"]]) [
                     Rule (Ctr (Def "Eq_split") [Num 1]) (Var "True"),
                     Rule (Ctr (Def "Eq_split") [Num 0]) (Var "False")])]
+    let comparisonRules = [comparison "Gt" ">", comparison "Lt" "<"]
     let monusRule = [Rule (Ctr (Def "Monus") [Var "a", Var "b"]) (Rules (App (Def "Monus_split") [App (Var ">") [Var "a", Var "b"], Var "a", Var "b"]) [
                         Rule (Ctr (Def "Monus_split") [Num 1, Var "a", Var "b"]) (App (Var "-") [Var "a", Var "b"]),
                         Rule (Ctr (Def "Monus_split") [Num 0, Var "a", Var "b"]) (Num 0)])]
-    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (uss ++ [putStrRule] ++ [eqRule] ++ [monusRule] ++ [callMain]))
+    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (uss ++ [putStrRule] ++ [comparisonRules] ++ [monusRule] ++ [callMain]))
     let fileName' = prettyShow (last $ mnameToList modName)
         fileName  = fileName' ++ ".hvm"
         filenameC = fileName' ++ ".c"
-    liftIO $ createDirectoryIfMissing True "build"
-    liftIO $ T.writeFile ("./build/" ++ fileName) (T.pack t)
-    -- liftIO $ callProcess "hvm" ["c", fileName]
-    -- liftIO $ callProcess "clang" ["-Ofast", "-lpthread", "-o", fileName', filenameC]
+    liftIO $ T.writeFile ("./" ++ fileName) (T.pack t)
+    liftIO $ callProcess "hvm" ["c", fileName]
+    liftIO $ callProcess "clang" ["-Ofast", "-lpthread", "-o", fileName', filenameC]
     where
         isKeeper (Rule (Ctr (Def "Main") _) _) ts = True
         isKeeper t ts = t `used` ts
