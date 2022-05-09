@@ -109,12 +109,14 @@ typedef u64 Lnk;
 #define NEQ (0xF)
 
 //GENERATED_CONSTRUCTOR_IDS_START//
-#define _PUTSTRLN__1_ (8)
-#define _MONUS__SPLIT__3_ (0)
+#define _LT__SPLIT__1_ (3)
+#define _GT__2_ (6)
+#define _MONUS__SPLIT__3_ (2)
 #define _MONUS__2_ (1)
-#define _MAIN_ (4)
-#define _EQ__SPLIT__1_ (3)
-#define _EQ__2_ (2)
+#define _MAIN_ (8)
+#define _LT__2_ (10)
+#define _PUTSTRLN__1_ (0)
+#define _GT__SPLIT__1_ (7)
 
 //GENERATED_CONSTRUCTOR_IDS_END//
 
@@ -521,8 +523,15 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
           switch (fun)
           //GENERATED_REWRITE_RULES_STEP_0_START//
           {
-            case _PUTSTRLN__1_: {
+            case _LT__SPLIT__1_: {
               if (get_ari(term) == 1) {
+                stk_push(&stack, host);
+                host = get_loc(term, 0);
+                continue;
+              }
+            };
+            case _GT__2_: {
+              if (get_ari(term) == 2) {
                 init = 0;
                 continue;
               }
@@ -546,16 +555,22 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
                 continue;
               }
             };
-            case _EQ__SPLIT__1_: {
-              if (get_ari(term) == 1) {
-                stk_push(&stack, host);
-                host = get_loc(term, 0);
+            case _LT__2_: {
+              if (get_ari(term) == 2) {
+                init = 0;
                 continue;
               }
             };
-            case _EQ__2_: {
-              if (get_ari(term) == 2) {
+            case _PUTSTRLN__1_: {
+              if (get_ari(term) == 1) {
                 init = 0;
+                continue;
+              }
+            };
+            case _GT__SPLIT__1_: {
+              if (get_ari(term) == 1) {
+                stk_push(&stack, host);
+                host = get_loc(term, 0);
                 continue;
               }
             };
@@ -861,12 +876,49 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
           switch (fun)
           //GENERATED_REWRITE_RULES_STEP_1_START//
           {
-            case _PUTSTRLN__1_: {
-              if (1) {
+            case _LT__SPLIT__1_: {
+              if (get_tag(ask_arg(mem,term,0)) == PAR) {
+                cal_par(mem, host, term, ask_arg(mem, term, 0), 0);
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 0)) == U32 && get_val(ask_arg(mem, term, 0)) == 1u)) {
                 inc_cost(mem);
-                u64 done = ask_arg(mem, term, 0);
+                u64 ctr_0 = alloc(mem, 0);
+                u64 done = Ctr(0, 4, ctr_0);
                 link(mem, host, done);
                 clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              if ((get_tag(ask_arg(mem, term, 0)) == U32 && get_val(ask_arg(mem, term, 0)) == 0u)) {
+                inc_cost(mem);
+                u64 ctr_0 = alloc(mem, 0);
+                u64 done = Ctr(0, 5, ctr_0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _GT__2_: {
+              if (1) {
+                inc_cost(mem);
+                u64 ret_0;
+                if (get_tag(ask_arg(mem, term, 0)) == U32 && get_tag(ask_arg(mem, term, 1)) == U32) {
+                  ret_0 = U_32(get_val(ask_arg(mem, term, 0)) >  get_val(ask_arg(mem, term, 1)) ? 1 : 0);
+                  inc_cost(mem);
+                } else {
+                  u64 op2_1 = alloc(mem, 2);
+                  link(mem, op2_1 + 0, ask_arg(mem, term, 0));
+                  link(mem, op2_1 + 1, ask_arg(mem, term, 1));
+                  ret_0 = Op2(GTN, op2_1);
+                }
+                u64 cal_2 = alloc(mem, 1);
+                link(mem, cal_2 + 0, ret_0);
+                u64 done = Cal(1, 7, cal_2);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 2);
                 init = 1;
                 continue;
               }
@@ -952,7 +1004,7 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
                 link(mem, cal_12 + 0, ret_10);
                 link(mem, cal_12 + 1, dp1_7);
                 link(mem, cal_12 + 2, dp1_2);
-                u64 done = Cal(3, 0, cal_12);
+                u64 done = Cal(3, 2, cal_12);
                 link(mem, host, done);
                 clear(mem, get_loc(term, 0), 2);
                 init = 1;
@@ -965,7 +1017,7 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
                 inc_cost(mem);
                 u64 ctr_0 = alloc(mem, 1);
                 link(mem, ctr_0 + 0, ask_arg(mem, term, 0));
-                u64 done = Ctr(1, 5, ctr_0);
+                u64 done = Ctr(1, 9, ctr_0);
                 link(mem, host, done);
                 clear(mem, get_loc(term, 0), 1);
                 init = 1;
@@ -973,7 +1025,41 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
               }
               break;
             };
-            case _EQ__SPLIT__1_: {
+            case _LT__2_: {
+              if (1) {
+                inc_cost(mem);
+                u64 ret_0;
+                if (get_tag(ask_arg(mem, term, 0)) == U32 && get_tag(ask_arg(mem, term, 1)) == U32) {
+                  ret_0 = U_32(get_val(ask_arg(mem, term, 0)) <  get_val(ask_arg(mem, term, 1)) ? 1 : 0);
+                  inc_cost(mem);
+                } else {
+                  u64 op2_1 = alloc(mem, 2);
+                  link(mem, op2_1 + 0, ask_arg(mem, term, 0));
+                  link(mem, op2_1 + 1, ask_arg(mem, term, 1));
+                  ret_0 = Op2(LTN, op2_1);
+                }
+                u64 cal_2 = alloc(mem, 1);
+                link(mem, cal_2 + 0, ret_0);
+                u64 done = Cal(1, 3, cal_2);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 2);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _PUTSTRLN__1_: {
+              if (1) {
+                inc_cost(mem);
+                u64 done = ask_arg(mem, term, 0);
+                link(mem, host, done);
+                clear(mem, get_loc(term, 0), 1);
+                init = 1;
+                continue;
+              }
+              break;
+            };
+            case _GT__SPLIT__1_: {
               if (get_tag(ask_arg(mem,term,0)) == PAR) {
                 cal_par(mem, host, term, ask_arg(mem, term, 0), 0);
                 continue;
@@ -981,7 +1067,7 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
               if ((get_tag(ask_arg(mem, term, 0)) == U32 && get_val(ask_arg(mem, term, 0)) == 1u)) {
                 inc_cost(mem);
                 u64 ctr_0 = alloc(mem, 0);
-                u64 done = Ctr(0, 6, ctr_0);
+                u64 done = Ctr(0, 4, ctr_0);
                 link(mem, host, done);
                 clear(mem, get_loc(term, 0), 1);
                 init = 1;
@@ -990,32 +1076,9 @@ Lnk reduce(Worker* mem, u64 root, u64 slen) {
               if ((get_tag(ask_arg(mem, term, 0)) == U32 && get_val(ask_arg(mem, term, 0)) == 0u)) {
                 inc_cost(mem);
                 u64 ctr_0 = alloc(mem, 0);
-                u64 done = Ctr(0, 7, ctr_0);
+                u64 done = Ctr(0, 5, ctr_0);
                 link(mem, host, done);
                 clear(mem, get_loc(term, 0), 1);
-                init = 1;
-                continue;
-              }
-              break;
-            };
-            case _EQ__2_: {
-              if (1) {
-                inc_cost(mem);
-                u64 ret_0;
-                if (get_tag(ask_arg(mem, term, 0)) == U32 && get_tag(ask_arg(mem, term, 1)) == U32) {
-                  ret_0 = U_32(get_val(ask_arg(mem, term, 0)) == get_val(ask_arg(mem, term, 1)) ? 1 : 0);
-                  inc_cost(mem);
-                } else {
-                  u64 op2_1 = alloc(mem, 2);
-                  link(mem, op2_1 + 0, ask_arg(mem, term, 0));
-                  link(mem, op2_1 + 1, ask_arg(mem, term, 1));
-                  ret_0 = Op2(EQL, op2_1);
-                }
-                u64 cal_2 = alloc(mem, 1);
-                link(mem, cal_2 + 0, ret_0);
-                u64 done = Cal(1, 3, cal_2);
-                link(mem, host, done);
-                clear(mem, get_loc(term, 0), 2);
                 init = 1;
                 continue;
               }
@@ -1582,17 +1645,19 @@ int main(int argc, char* argv[]) {
   struct timeval stop, start;
 
   // Id-to-Name map
-  const u64 id_to_name_size = 9;
+  const u64 id_to_name_size = 11;
   char* id_to_name_data[id_to_name_size];
-  id_to_name_data[6] = "True";
-  id_to_name_data[5] = "Main_1";
-  id_to_name_data[0] = "Monus_split_3";
+  id_to_name_data[6] = "Gt_2";
   id_to_name_data[1] = "Monus_2";
-  id_to_name_data[8] = "PutStrLn_1";
-  id_to_name_data[4] = "Main";
-  id_to_name_data[2] = "Eq_2";
-  id_to_name_data[3] = "Eq_split_1";
-  id_to_name_data[7] = "False";
+  id_to_name_data[3] = "Lt_split_1";
+  id_to_name_data[4] = "True";
+  id_to_name_data[0] = "PutStrLn_1";
+  id_to_name_data[7] = "Gt_split_1";
+  id_to_name_data[9] = "Main_1";
+  id_to_name_data[10] = "Lt_2";
+  id_to_name_data[8] = "Main";
+  id_to_name_data[5] = "False";
+  id_to_name_data[2] = "Monus_split_3";
 ;
 
   // Builds main term

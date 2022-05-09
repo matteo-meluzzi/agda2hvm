@@ -44,7 +44,9 @@ import System.Directory
 
 import Utils
 
-backend' :: Backend' HvmOptions HvmOptions () () [HvmTerm]
+type HvmModule = [[HvmTerm]]
+
+backend' :: Backend' HvmOptions HvmOptions () HvmModule [HvmTerm]
 backend' = Backend'
     {
         backendName             = "agda2HVM"
@@ -53,7 +55,7 @@ backend' = Backend'
         , commandLineFlags      = []
         , isEnabled             = const True
         , preCompile            = hvmPreCompile
-        , postCompile           = \ _ _ _ -> return ()
+        , postCompile           = hvmPostCompile
         , preModule             = \ _ _ _ _ -> return $ Recompile ()
         , postModule            = hvmPostModule
         , compileDef            = hvmCompile
@@ -69,6 +71,32 @@ hvmPreCompile o = do
     liftIO $ createDirectoryIfMissing True "build"
     liftIO $ setCurrentDirectory "build"
     return o
+
+comparison :: HvmAtom -> HvmAtom -> HvmTerm
+comparison name symbol = Rule (Ctr (Def name) [Var "a", Var "b"]) (Rules (App (Def splitName) [App (Var symbol) [Var "a", Var "b"]]) [
+                    Rule (Ctr (Def splitName) [Num 1]) (Var "True"),
+                    Rule (Ctr (Def splitName) [Num 0]) (Var "False")])
+                    where splitName = name ++ "_split"
+
+hvmPostCompile :: HvmOptions -> IsMain -> Map ModuleName HvmModule -> TCM ()
+hvmPostCompile opts isMain modulesDict = do
+    let ms = Map.elems modulesDict
+    let m  = concat ms
+    
+    -- let callMain = [Rule (Ctr (Var "Main") [Var "n"]) (App (Def "Main") [Var "n"])]
+    let callMain = [Rule (Ctr (Var "Main") []) (App (Def "Main") [])]
+    let comparisonRules = [comparison "Eq" "==", comparison "Gt" ">", comparison "Lt" "<"]
+    let monusRule = [Rule (Ctr (Def "Monus") [Var "a", Var "b"]) (Rules (App (Def "Monus_split") [App (Var ">") [Var "a", Var "b"], Var "a", Var "b"]) [
+                        Rule (Ctr (Def "Monus_split") [Num 1, Var "a", Var "b"]) (App (Var "-") [Var "a", Var "b"]),
+                        Rule (Ctr (Def "Monus_split") [Num 0, Var "a", Var "b"]) (Num 0)])]
+    let ifRule = [Rule (Ctr (Def "If") [Var "True", Var "t", Var "e"]) (Var "t"), Rule (Ctr (Def "If") [Var "False", Var "t", Var "e"]) (Var "e")]
+    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (m  ++ [comparisonRules] ++ [ifRule] ++ [monusRule] ++ [callMain]))
+    let fileName' = "main" -- How do I know the name of the original file?
+        fileName  = fileName' ++ ".hvm"
+        filenameC = fileName' ++ ".c"
+    liftIO $ T.writeFile ("./" ++ fileName) (T.pack t)
+    liftIO $ callProcess "hvm" ["c", fileName]
+    liftIO $ callProcess "clang" ["-Ofast", "-lpthread", "-o", fileName', filenameC]
 
 flatten :: HvmTerm -> [HvmTerm]
 flatten term = term:(case term of
@@ -131,58 +159,15 @@ whileChange last f = do
     let new = f last
     if new == last then last else whileChange new f
 
-comparison :: HvmAtom -> HvmAtom -> HvmTerm
-comparison name symbol = Rule (Ctr (Def name) [Var "a", Var "b"]) (Rules (App (Def splitName) [App (Var symbol) [Var "a", Var "b"]]) [
-                    Rule (Ctr (Def splitName) [Num 1]) (Var "True"),
-                    Rule (Ctr (Def splitName) [Num 0]) (Var "False")])
-                    where splitName = name ++ "_split"
-
-hvmPostModule :: HvmOptions -> () -> IsMain -> ModuleName -> [[HvmTerm]] -> TCM ()
+hvmPostModule :: HvmOptions -> () -> IsMain -> ModuleName -> [[HvmTerm]] -> TCM HvmModule
 hvmPostModule options _ isMain modName sexprss = do
     let ts = concat sexprss
     let uss = whileChange sexprss (\s -> map (filter (`isKeeper` concat s)) s)
 
-    let callMain = [Rule (Ctr (Var "Main") [Var "n"]) (App (Def "Main") [Var "n"])]
-    let putStrRule = [Rule (Ctr (Def "PutStrLn") [Var "a"]) (Var "a")]
-    let eqRule = [Rule (Ctr (Def "Eq") [Var "a", Var "b"]) (Rules (App (Def "Eq_split") [App (Var "==") [Var "a", Var "b"]]) [
-                    Rule (Ctr (Def "Eq_split") [Num 1]) (Var "True"),
-                    Rule (Ctr (Def "Eq_split") [Num 0]) (Var "False")])]
-    let comparisonRules = [comparison "Gt" ">", comparison "Lt" "<"]
-    let monusRule = [Rule (Ctr (Def "Monus") [Var "a", Var "b"]) (Rules (App (Def "Monus_split") [App (Var ">") [Var "a", Var "b"], Var "a", Var "b"]) [
-                        Rule (Ctr (Def "Monus_split") [Num 1, Var "a", Var "b"]) (App (Var "-") [Var "a", Var "b"]),
-                        Rule (Ctr (Def "Monus_split") [Num 0, Var "a", Var "b"]) (Num 0)])]
-    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (uss ++ [putStrRule] ++ [comparisonRules] ++ [monusRule] ++ [callMain]))
-    let fileName' = prettyShow (last $ mnameToList modName)
-        fileName  = fileName' ++ ".hvm"
-        filenameC = fileName' ++ ".c"
-    liftIO $ T.writeFile ("./" ++ fileName) (T.pack t)
-    liftIO $ callProcess "hvm" ["c", fileName]
-    liftIO $ callProcess "clang" ["-Ofast", "-lpthread", "-o", fileName', filenameC]
+    return uss
     where
         isKeeper (Rule (Ctr (Def "Main") _) _) ts = True
         isKeeper t ts = t `used` ts
 
 main :: IO ()
 main = runAgda [backend]
-
--- data List a = Nil | Cons a (List a)
-
--- -- Folds over a list
--- fold :: List t1 -> (t1 -> t2 -> t2) -> t2 -> t2
--- fold Nil         c n = n
--- fold (Cons x xs) c n = c x (fold xs c n)
-
--- -- A list from 0 to n
--- range :: (Eq a, Num a) => a -> List a -> List a
--- range 0 xs = xs
--- range n xs =
---   let m = n - 1
---   in range m (Cons m xs)
-
--- -- Sums a big list with fold
--- main :: IO ()
--- main = do
---   n <- read.head <$> getArgs :: IO Int
---   let size = 1000000 * n
---   let list = range size Nil
---   print $ fold list (+) 0

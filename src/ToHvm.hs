@@ -7,6 +7,7 @@ import Prelude hiding ( null , empty )
 
 import Agda.Compiler.Common
 import Agda.Compiler.ToTreeless
+import Agda.Compiler.Treeless.EliminateLiteralPatterns
 import Agda.Compiler.Treeless.GuardsToPrims
 
 import Agda.Syntax.Abstract.Name
@@ -46,7 +47,6 @@ import GHC.Generics ( Generic )
 
 import Syntax
 import Utils (safeTail, safeInit, safeHead)
-import Erase ( runE , erasable , getFunInfo )
 
 data HvmOptions = Options deriving (Generic, NFData)
 
@@ -161,7 +161,7 @@ isValidHvmChar x
 
 fixHvmName :: QName -> [Char]
 fixHvmName n = fixName $ prettyShow $ qnameName n
-  where 
+  where
     fixName "_-_" = "Monus"
     fixName s = do
       let s'  = concatMap fixChar s
@@ -223,7 +223,7 @@ curryRule cparams f lparams = Rule (Ctr (Def f) $ map Var cparams) (makeLamFromP
     cparamsLen = length cparams
     lparamsLen = length lparams
     paramsLen = cparamsLen + lparamsLen
-    
+
 makeRule :: String -> [HvmAtom] -> HvmTerm -> ToHvmM [HvmTerm]
 makeRule name params body = do
   let dn = Rule (Ctr (Def name) (map Var params)) body
@@ -277,7 +277,7 @@ instance ToHvm Definition [HvmTerm] where
 
 instance ToHvm TTerm HvmTerm where
     toHvm v' = do
-      v <- liftTCM $ eliminateLiteralPatterns (convertGuards v')
+      let v = convertGuards v'
       case v of
         TVar i  -> do
           name <- getVarName i
@@ -334,39 +334,50 @@ instance ToHvm TTerm HvmTerm where
         TSort -> undefined
         TErased    -> return $ Var "Erased"
         TCoerce u  -> undefined
-        TError err -> return $ Var "error\n"  
+        TError err -> return $ Var "error\n"
+
+hvmOp2 :: TPrim -> HvmTerm -> HvmTerm -> HvmTerm
+hvmOp2 p o1 o2 = case p of
+  PAdd -> Op2 Add o1 o2
+  PSub -> Op2 Sub o1 o2
+  PMul -> Op2 Mul o1 o2
+  PQuot -> Op2 Div o1 o2
+  PRem -> Op2 Mod o1 o2
+  PEqI -> Op2 Eq o1 o2
+  PLt -> Op2 Lt o1 o2
+  PGeq -> Op2 GtEq o1 o2
+
+  PAdd64 -> undefined
+  PSub64 -> undefined
+  PMul64 -> undefined
+  PQuot64 -> undefined
+  PRem64 -> undefined
+  PLt64 -> undefined
+  PEq64 -> undefined
+  PEqF -> undefined
+  PEqS -> undefined
+  PEqC -> undefined
+  PEqQ -> undefined
+  PITo64 -> undefined
+  P64ToI -> undefined
+
+  _ -> __IMPOSSIBLE__
+
+
+hvmOp3 :: TPrim -> HvmTerm -> HvmTerm -> HvmTerm -> HvmTerm
+hvmOp3 p o1 o2 o3 = case p of
+  PIf -> App (Def "If") [o1, o2, o3]
+  PSeq -> Var $ "PSeq " ++ show [o1, o2, o3]
+
+  _ -> __IMPOSSIBLE__
 
 instance ToHvm (TPrim, [TTerm]) HvmTerm where
   toHvm (p, args) = do
     args' <- traverse toHvm args
-    unless (length args' >= 2) $ fail $ "primitive operation " <> show p <> " called with " <> show (length args) <> " arguments!"
-    let o1 = head args'
-    let o2 = head $ tail args'
-    case p of
-      PAdd -> return $ Op2 Add o1 o2
-      PSub -> return $ Op2 Sub o1 o2
-      PMul -> return $ Op2 Mul o1 o2
-      PQuot -> return $ Op2 Div o1 o2
-      PRem -> return $ Op2 Mod o1 o2
-      PEqI -> return $ Op2 Eq o1 o2
-      PLt -> return $ Op2 Lt o1 o2
-      PGeq -> return $ Op2 GtEq o1 o2
-
-      PAdd64 -> undefined
-      PSub64 -> undefined
-      PMul64 -> undefined
-      PQuot64 -> undefined
-      PRem64 -> undefined
-      PLt64 -> undefined
-      PEq64 -> undefined
-      PEqF -> undefined
-      PEqS -> undefined
-      PEqC -> undefined
-      PEqQ -> undefined
-      PIf -> undefined
-      PSeq -> return $ Var $ "PSeq " ++ show args'
-      PITo64 -> undefined
-      P64ToI -> undefined
+    case length args' of
+      2 -> return $ hvmOp2 p (head args') (args' !! 1)
+      3 -> return $ hvmOp3 p (head args') (args' !! 1) (args' !! 2)
+      _ -> fail $ "primitive operation " <> show p <> " called with " <> show (length args) <> " arguments!"
 
 instance ToHvm Literal HvmTerm where
   toHvm lit = case lit of
