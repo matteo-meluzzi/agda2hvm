@@ -82,7 +82,8 @@ hvmPostCompile :: HvmOptions -> IsMain -> Map ModuleName HvmModule -> TCM ()
 hvmPostCompile opts isMain modulesDict = do
     let ms = Map.elems modulesDict
     let m  = concat ms
-    
+    let uss = whileChange m (\s -> map (filter (`isKeeper` concat s)) s)
+
     -- let callMain = [Rule (Ctr (Var "Main") [Var "n"]) (App (Def "Main") [Var "n"])]
     let callMain = [Rule (Ctr (Var "Main") []) (App (Def "Main") [])]
     let comparisonRules = [comparison "Eq" "==", comparison "Gt" ">", comparison "Lt" "<"]
@@ -90,13 +91,17 @@ hvmPostCompile opts isMain modulesDict = do
                         Rule (Ctr (Def "Monus_split") [Num 1, Var "a", Var "b"]) (App (Var "-") [Var "a", Var "b"]),
                         Rule (Ctr (Def "Monus_split") [Num 0, Var "a", Var "b"]) (Num 0)])]
     let ifRule = [Rule (Ctr (Def "If") [Var "True", Var "t", Var "e"]) (Var "t"), Rule (Ctr (Def "If") [Var "False", Var "t", Var "e"]) (Var "e")]
-    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (m  ++ [comparisonRules] ++ [ifRule] ++ [monusRule] ++ [callMain]))
+    let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (uss  ++ [comparisonRules] ++ [ifRule] ++ [monusRule] ++ [callMain]))
     let fileName' = "main" -- How do I know the name of the original file?
         fileName  = fileName' ++ ".hvm"
         filenameC = fileName' ++ ".c"
     liftIO $ T.writeFile ("./" ++ fileName) (T.pack t)
     liftIO $ callProcess "hvm" ["c", fileName]
     liftIO $ callProcess "clang" ["-Ofast", "-lpthread", "-o", fileName', filenameC]
+    where
+        -- isKeeper t ts = True
+        isKeeper (Rule (Ctr (Def "Main") _) _) ts = True
+        isKeeper t ts = t `used` ts
 
 flatten :: HvmTerm -> [HvmTerm]
 flatten term = term:(case term of
@@ -161,13 +166,8 @@ whileChange last f = do
 
 hvmPostModule :: HvmOptions -> () -> IsMain -> ModuleName -> [[HvmTerm]] -> TCM HvmModule
 hvmPostModule options _ isMain modName sexprss = do
-    let ts = concat sexprss
-    let uss = whileChange sexprss (\s -> map (filter (`isKeeper` concat s)) s)
 
-    return uss
-    where
-        isKeeper (Rule (Ctr (Def "Main") _) _) ts = True
-        isKeeper t ts = t `used` ts
+    return sexprss
 
 main :: IO ()
 main = runAgda [backend]

@@ -3,14 +3,7 @@ open import Agda.Builtin.Unit
 open import Agda.Builtin.String
 open import Agda.Builtin.Bool
 open import Agda.Builtin.Nat
--- open import Data.Nat.Show
-
-postulate
-  putStrLn : String → IO ⊤
-
-{-# FOREIGN GHC import qualified Data.Text.IO as Text #-}
-{-# COMPILE GHC putStrLn = Text.putStrLn #-}
-
+open import Bench
 
 variable A B : Set
 
@@ -61,4 +54,4 @@ sumall (Cons (triple x y z) xs) = x + y + z + sumall xs
 
 test1 = sumall (triples 20) -- evaluates to 33638
 
-main = test1
+main = sun (gen 10)

@@ -1,6 +1,7 @@
 
 open import Agda.Builtin.Bool
 open import Agda.Builtin.Nat
+open import Bench
 
 variable A B : Set
 
@@ -51,4 +52,4 @@ sumall (Cons (triple x y z) xs) = x + y + z + sumall xs
 
 test1 = sumall (triples 20) -- evaluates to 33638
 
-main = test1
+main = sun (gen 10)

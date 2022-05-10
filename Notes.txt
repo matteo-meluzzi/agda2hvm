@@ -1,3 +1,6 @@
+-- TUESDAY 10 MAY --
+Now the output is only one HVM file. TODO: add module prefix to name of definitions to distinguish them and make them unique.
+
 -- WEDNESDAY 4 MAY --
 I ran into an issue when compiling Triples.agda:
 ```
