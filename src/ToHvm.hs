@@ -346,6 +346,7 @@ hvmOp2 p o1 o2 = case p of
   PEqI -> Op2 Eq o1 o2
   PLt -> Op2 Lt o1 o2
   PGeq -> Op2 GtEq o1 o2
+  PSeq -> Var "SEQ"
 
   PAdd64 -> undefined
   PSub64 -> undefined
@@ -367,7 +368,6 @@ hvmOp2 p o1 o2 = case p of
 hvmOp3 :: TPrim -> HvmTerm -> HvmTerm -> HvmTerm -> HvmTerm
 hvmOp3 p o1 o2 o3 = case p of
   PIf -> App (Def "If") [o1, o2, o3]
-  PSeq -> Var $ "PSeq " ++ show [o1, o2, o3]
 
   _ -> __IMPOSSIBLE__
 
