@@ -44,7 +44,8 @@ import System.Directory
 
 import Utils
 
-type HvmModule = [[HvmTerm]]
+-- type HvmModule = [[HvmTerm]]
+data HvmModule = HvmModule { isMain :: IsMain, defs :: [[HvmTerm]], name :: ModuleName }
 
 backend' :: Backend' HvmOptions HvmOptions () HvmModule [HvmTerm]
 backend' = Backend'
@@ -79,10 +80,15 @@ comparison name symbol = Rule (Ctr (Def name) [Var "a", Var "b"]) (Rules (App (D
                     where splitName = name ++ "_split"
 
 hvmPostCompile :: HvmOptions -> IsMain -> Map ModuleName HvmModule -> TCM ()
-hvmPostCompile opts isMain modulesDict = do
-    let ms = Map.elems modulesDict
-    let m  = concat ms
-    let uss = whileChange m (\s -> map (filter (`isKeeper` concat s)) s)
+hvmPostCompile opts main modulesDict = do
+    let modules = Map.elems modulesDict
+    let mainModuleName = case find (\m -> IsMain == isMain m) modules of
+            Just m  -> prettyShow $ name m
+            Nothing -> "out"
+    
+    let defss = map defs modules
+    let defs = concat defss
+    let uss = whileChange defs (\s -> map (filter (`isKeeper` concat s)) s)
 
     -- let callMain = [Rule (Ctr (Var "Main") [Var "n"]) (App (Def "Main") [Var "n"])]
     let callMain = [Rule (Ctr (Var "Main") []) (App (Def "Main") [])]
@@ -92,12 +98,12 @@ hvmPostCompile opts isMain modulesDict = do
                         Rule (Ctr (Def "Monus_split") [Num 0, Var "a", Var "b"]) (Num 0)])]
     let ifRule = [Rule (Ctr (Def "If") [Var "True", Var "t", Var "e"]) (Var "t"), Rule (Ctr (Def "If") [Var "False", Var "t", Var "e"]) (Var "e")]
     let t = intercalate "\n\n" $ map (intercalate "\n" . map show) (filter (not . Data.List.null) (uss  ++ [comparisonRules] ++ [ifRule] ++ [monusRule] ++ [callMain]))
-    let fileName' = "main" -- How do I know the name of the original file?
-        fileName  = fileName' ++ ".hvm"
-        filenameC = fileName' ++ ".c"
-    liftIO $ T.writeFile ("./" ++ fileName) (T.pack t)
-    liftIO $ callProcess "hvm" ["c", fileName]
-    liftIO $ callProcess "clang" ["-Ofast", "-lpthread", "-o", fileName', filenameC]
+    let fileName = mainModuleName -- How do I know the name of the original file?
+        fileNameHVM  = fileName ++ ".hvm"
+        filenameC = fileName ++ ".c"
+    liftIO $ T.writeFile ("./" ++ fileNameHVM) (T.pack t)
+    liftIO $ callProcess "hvm" ["c", fileNameHVM]
+    liftIO $ callProcess "clang" ["-Ofast", "-lpthread", "-o", fileName, filenameC]
     where
         -- isKeeper t ts = True
         isKeeper (Rule (Ctr (Def "Main") _) _) ts = True
@@ -167,7 +173,7 @@ whileChange last f = do
 hvmPostModule :: HvmOptions -> () -> IsMain -> ModuleName -> [[HvmTerm]] -> TCM HvmModule
 hvmPostModule options _ isMain modName sexprss = do
 
-    return sexprss
+    return $ HvmModule { isMain = isMain, defs = sexprss, name = modName }
 
 main :: IO ()
 main = runAgda [backend]
