@@ -58,8 +58,8 @@ comparison name symbol = Rule (Ctr (Def name) [Var "a", Var "b"]) (Rules (App (D
 
 hvmPreamble :: [[HvmTerm]]
 hvmPreamble = do
-      -- let callMain = [Rule (Ctr (Var "Main") [Var "n"]) (App (Def "Main") [Var "n"])]
-  let callMain = [Rule (Ctr (Var "Main") []) (App (Def "Main") [])]
+  let callMain = [Rule (Ctr (Var "Main") [Var "n"]) (App (Def "Main") [Var "n"])]
+  -- let callMain = [Rule (Ctr (Var "Main") []) (App (Def "Main") [])]
   let comparisonRules = [comparison "Eq" "==", comparison "Gt" ">", comparison "Lt" "<"]
   let monusRule = [Rule (Ctr (Def "Monus") [Var "a", Var "b"]) (Rules (App (Def "Monus_split") [App (Var ">") [Var "a", Var "b"], Var "a", Var "b"]) [
                       Rule (Ctr (Def "Monus_split") [Num 1, Var "a", Var "b"]) (App (Var "-") [Var "a", Var "b"]),
