@@ -272,6 +272,6 @@ testFlatten = flatten testInsert
 sort : {{TDO A}} → List A → List A
 sort xs = flatten (fromList xs)
 
-test1 = sort (5 ∷ 3 ∷ 9 ∷ 1 ∷ 2 ∷ 10 ∷ 7 ∷ 4 ∷ 8 ∷ 6 ∷ [])
+test1 = sort (5 ∷ 4 ∷ [])
 
 main = test1

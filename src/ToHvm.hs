@@ -50,6 +50,23 @@ import Utils (safeTail, safeInit, safeHead)
 
 data HvmOptions = Options deriving (Generic, NFData)
 
+comparison :: HvmAtom -> HvmAtom -> HvmTerm
+comparison name symbol = Rule (Ctr (Def name) [Var "a", Var "b"]) (Rules (App (Def splitName) [App (Var symbol) [Var "a", Var "b"]]) [
+                    Rule (Ctr (Def splitName) [Num 1]) (Var "True"),
+                    Rule (Ctr (Def splitName) [Num 0]) (Var "False")])
+                    where splitName = name ++ "_split"
+
+hvmPreamble :: [[HvmTerm]]
+hvmPreamble = do
+      -- let callMain = [Rule (Ctr (Var "Main") [Var "n"]) (App (Def "Main") [Var "n"])]
+  let callMain = [Rule (Ctr (Var "Main") []) (App (Def "Main") [])]
+  let comparisonRules = [comparison "Eq" "==", comparison "Gt" ">", comparison "Lt" "<"]
+  let monusRule = [Rule (Ctr (Def "Monus") [Var "a", Var "b"]) (Rules (App (Def "Monus_split") [App (Var ">") [Var "a", Var "b"], Var "a", Var "b"]) [
+                      Rule (Ctr (Def "Monus_split") [Num 1, Var "a", Var "b"]) (App (Var "-") [Var "a", Var "b"]),
+                      Rule (Ctr (Def "Monus_split") [Num 0, Var "a", Var "b"]) (Num 0)])]
+  let ifRule = [Rule (Ctr (Def "If") [Var "True", Var "t", Var "e"]) (Var "t"), Rule (Ctr (Def "If") [Var "False", Var "t", Var "e"]) (Var "e")]
+  [callMain, comparisonRules, monusRule, ifRule]
+
 data ToHvmEnv = ToHvmEnv
   { toHvmOptions :: HvmOptions
   , toHvmVars    :: [HvmAtom]
