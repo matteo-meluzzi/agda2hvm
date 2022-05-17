@@ -1,10 +1,10 @@
 
 open import Agda.Builtin.Nat
 
-comp : {A : Set } -> Nat -> (A -> A) -> A -> A
-comp 0 f x = f x
-comp (suc n) f x = comp n (\x -> f (f x)) x
+infixr 5 _::_
+data Vector (A : Set) : Nat → Set where
+    [] : Vector A zero
+    _::_ : {n : Nat} → A → Vector A n → Vector A (suc n)
 
--- Performs 2^n additions
-main : Nat -> Nat
-main n = comp n (\x -> x) 0
+head : {A : Set}{n : Nat} -> Vector A (suc n) -> A
+head (x :: xs) = x
