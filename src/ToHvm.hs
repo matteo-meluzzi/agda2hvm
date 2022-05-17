@@ -46,7 +46,7 @@ import qualified Data.Text as T
 import GHC.Generics ( Generic )
 
 import Syntax
-import Utils (safeTail, safeInit, safeHead)
+import Utils (safeTail, safeInit, safeHead, first, second, third)
 
 data HvmOptions = Options deriving (Generic, NFData)
 
@@ -227,15 +227,15 @@ traverseLams :: TTerm -> TTerm
 traverseLams (TLam v) = traverseLams v
 traverseLams t = t
 
-makeLamFromParams :: [HvmAtom] -> HvmTerm -> HvmTerm
-makeLamFromParams xs body = foldr Lam body xs
+hvmCurry :: [HvmAtom] -> HvmTerm -> HvmTerm
+hvmCurry xs body = foldr Lam body xs
 
 {-
   (Id_0) = @a @b @c (Id_3 a b c)
   (Id_3 a b c)= c
 -}
 curryRule :: [HvmAtom] -> HvmAtom -> [HvmAtom] -> HvmTerm
-curryRule cparams f lparams = Rule (Ctr (Def f) $ map Var cparams) (makeLamFromParams lparams (App (Def f) (map Var cparams ++ map Var lparams)))
+curryRule cparams f lparams = Rule (Ctr (Def f) $ map Var cparams) (hvmCurry lparams (App (Def f) (map Var cparams ++ map Var lparams)))
   where
     cparamsLen = length cparams
     lparamsLen = length lparams
@@ -388,13 +388,53 @@ hvmOp3 p o1 o2 o3 = case p of
 
   _ -> __IMPOSSIBLE__
 
+hvmOp :: TPrim -> [HvmTerm] -> [HvmAtom] -> HvmTerm
+hvmOp p args params = case p of
+  PAdd -> hvmCurry params $ Op2 Add o1 o2
+  PSub -> hvmCurry params $ Op2 Sub o1 o2
+  PMul -> hvmCurry params $ Op2 Mul o1 o2
+  PQuot -> hvmCurry params $ Op2 Div o1 o2
+  PRem -> hvmCurry params $ Op2 Mod o1 o2
+  PEqI -> hvmCurry params $ Op2 Eq o1 o2
+  PLt -> hvmCurry params $ Op2 Lt o1 o2
+  PGeq -> hvmCurry params $ Op2 GtEq o1 o2
+  PSeq -> undefined -- hvmCurry params $ Var "SEQ"
+
+  PIf  -> hvmCurry params (App (Def "If") [o1, o2, o3]) 
+  _ -> undefined
+  where
+    o1 = first args
+    o2 = second args
+    o3 = third args
+
+opArity :: TPrim -> Int
+opArity p = case p of
+  PAdd -> 2
+  PSub -> 2
+  PMul -> 2
+  PQuot -> 2
+  PRem -> 2
+  PEqI -> 2
+  PLt -> 2
+  PGeq -> 2
+  PSeq -> undefined
+  PIf -> 3
+  _ -> undefined
+
+{-
+  (+)     -> @a@b (+ a b)
+  (+ 1)   -> @a(+ 1 a)
+  (+ 1 2) -> (+ 1 2)
+-}
 instance ToHvm (TPrim, [TTerm]) HvmTerm where
   toHvm (p, args) = do
-    args' <- traverse toHvm args
-    case length args' of
-      2 -> return $ hvmOp2 p (head args') (args' !! 1)
-      3 -> return $ hvmOp3 p (head args') (args' !! 1) (args' !! 2)
-      _ -> fail $ "primitive operation " <> show p <> " called with " <> show (length args) <> " arguments!"
+    args <- traverse toHvm args
+    let argsLen = length args
+    unless (opArity p >= argsLen) $ fail $ "op arity " <> show (opArity p) <> " less than args len:" <> show argsLen <> " " <> show args
+    withFreshVars (opArity p - argsLen) $ \vars -> do
+      let vars' = map Var vars
+      let args' = args ++ vars'
+      return $ hvmOp p args' vars 
 
 instance ToHvm Literal HvmTerm where
   toHvm lit = case lit of

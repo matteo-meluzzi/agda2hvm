@@ -1,3 +1,13 @@
+-- TUESDAY 17 MAY --
+
+For example, this term is **not** allowed:
+`let g = λf(λx(f (f x)))
+(g g)`
+That's because `g` is a function that clones its argument (since `f` is used twice). It is then cloned, so each `g` on the second line is a clone. Then the first clone attempts to clone the second clone. That is considered undefined behavior, and a typed language that compiles to HVM must check that this kind of situation won't happen.
+I can't find a program that breaks it..
+
+Primitive operations should be curried too!!
+
 -- TUESDAY 10 MAY --
 Now the output is only one HVM file. TODO: add module prefix to name of definitions to distinguish them and make them unique.
 
