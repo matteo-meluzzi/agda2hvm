@@ -60,7 +60,8 @@ hvmPreamble :: [[HvmTerm]]
 hvmPreamble = do
   let callMain = [Rule (Ctr (Var "Main") [Var "n"]) (App (Def "Main") [Var "n"])]
   -- let callMain = [Rule (Ctr (Var "Main") []) (App (Def "Main") [])]
-  let comparisonRules = [comparison "Eq" "==", comparison "Gt" ">", comparison "Lt" "<"]
+  let comparisonRules = [comparison "Eq" "==", comparison "Gt" ">", comparison "Lt" "<", comparison "GtEq" ">=", comparison "LtEq" "<=", comparison "NEq" "!="]
+  let seqRule = [Rule (Ctr (Def "Seq") [Var "a", Var "b"]) (Var "b")]
   let monusRule = [Rule (Ctr (Def "Monus") [Var "a", Var "b"]) (Rules (App (Def "Monus_split") [App (Var ">") [Var "a", Var "b"], Var "a", Var "b"]) [
                       Rule (Ctr (Def "Monus_split") [Num 1, Var "a", Var "b"]) (App (Var "-") [Var "a", Var "b"]),
                       Rule (Ctr (Def "Monus_split") [Num 0, Var "a", Var "b"]) (Num 0)])]
@@ -353,41 +354,6 @@ instance ToHvm TTerm HvmTerm where
         TCoerce u  -> undefined
         TError err -> return $ Var "error\n"
 
-hvmOp2 :: TPrim -> HvmTerm -> HvmTerm -> HvmTerm
-hvmOp2 p o1 o2 = case p of
-  PAdd -> Op2 Add o1 o2
-  PSub -> Op2 Sub o1 o2
-  PMul -> Op2 Mul o1 o2
-  PQuot -> Op2 Div o1 o2
-  PRem -> Op2 Mod o1 o2
-  PEqI -> Op2 Eq o1 o2
-  PLt -> Op2 Lt o1 o2
-  PGeq -> Op2 GtEq o1 o2
-  PSeq -> Var "SEQ"
-
-  PAdd64 -> undefined
-  PSub64 -> undefined
-  PMul64 -> undefined
-  PQuot64 -> undefined
-  PRem64 -> undefined
-  PLt64 -> undefined
-  PEq64 -> undefined
-  PEqF -> undefined
-  PEqS -> undefined
-  PEqC -> undefined
-  PEqQ -> undefined
-  PITo64 -> undefined
-  P64ToI -> undefined
-
-  _ -> __IMPOSSIBLE__
-
-
-hvmOp3 :: TPrim -> HvmTerm -> HvmTerm -> HvmTerm -> HvmTerm
-hvmOp3 p o1 o2 o3 = case p of
-  PIf -> App (Def "If") [o1, o2, o3]
-
-  _ -> __IMPOSSIBLE__
-
 hvmOp :: TPrim -> [HvmTerm] -> [HvmAtom] -> HvmTerm
 hvmOp p args params = case p of
   PAdd -> hvmCurry params $ Op2 Add o1 o2
@@ -398,7 +364,7 @@ hvmOp p args params = case p of
   PEqI -> hvmCurry params $ Op2 Eq o1 o2
   PLt -> hvmCurry params $ Op2 Lt o1 o2
   PGeq -> hvmCurry params $ Op2 GtEq o1 o2
-  PSeq -> undefined -- hvmCurry params $ Var "SEQ"
+  PSeq -> hvmCurry params $ Op2 Seq o1 o2
 
   PIf  -> hvmCurry params (App (Def "If") [o1, o2, o3]) 
   _ -> undefined
@@ -417,7 +383,7 @@ opArity p = case p of
   PEqI -> 2
   PLt -> 2
   PGeq -> 2
-  PSeq -> undefined
+  PSeq -> 2
   PIf -> 3
   _ -> undefined
 

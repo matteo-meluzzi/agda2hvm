@@ -16,9 +16,10 @@ data HvmOp2 = Add |
               Lt  |
               LtEq |
               Eq |
-              GtEq |
               Gt |
-              NEq
+              GtEq |
+              NEq |
+              Seq
             deriving Eq
 instance Show HvmOp2 where
     show Add = "+"
@@ -28,10 +29,16 @@ instance Show HvmOp2 where
     show Mod = "%"
     show And = "&"
     show Or = "|"
+    show Not = "^"
+    show ShR = ">>"
+    show ShL = "<<"
+    show Lt = "Lt_2"
+    show LtEq = "LtEq_2"
     show Eq = "Eq_2"
     show Gt = "Gt_2"
-    show Lt = "Lt_2"
-    show _ = undefined
+    show GtEq = "GtEq_2"
+    show NEq = "NEq_2"
+    show Seq = "Seq_2"
 
 data HvmTerm =  Lam HvmAtom HvmTerm |
                 App HvmTerm [HvmTerm] |

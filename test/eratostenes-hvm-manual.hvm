@@ -1,0 +1,15 @@
+(If 1 t e) = t
+(If 0 t e) = e 
+
+(In (Cons y ys) x) = (If (== x y) 1 (In ys x))
+(In Nil x) = 0
+
+(ListDiff (Cons x xs) ys) = (If (In ys x) (ListDiff xs ys) (Cons x (ListDiff xs ys)))
+(ListDiff Nil ys) = Nil
+
+(Range bot top step) = (If (< bot top) (Cons bot (Range (+ bot step) top step)) Nil)
+
+(Sieve m (Cons x xs)) = (Cons x (Sieve m (ListDiff xs (Range x m x))))
+(Sieve m Nil) = Nil
+
+(Main n) = (Sieve n (Range 2 n 1))
