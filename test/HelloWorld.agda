@@ -1,14 +1,12 @@
+{-# OPTIONS --guardedness #-}
+
 module HelloWorld where
 
-open import Agda.Builtin.IO
 open import Agda.Builtin.Unit
 open import Agda.Builtin.String
 
-postulate
-  putStrLn : String → IO ⊤
+open import IO
+open import Function.Base using (_$_)
 
-{-# FOREIGN GHC import qualified Data.Text.IO as Text #-}
-{-# COMPILE GHC putStrLn = Text.putStrLn #-}
-
-main : IO ⊤
-main = putStrLn "Hello, World!"
+main : Main
+main = run $ putStrLn "Hello, World!"
