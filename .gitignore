@@ -5,3 +5,7 @@
 *.ss
 
 test/build
+
+**/.DS_Store
+
+test/MAlonzo

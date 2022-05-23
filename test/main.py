@@ -13,7 +13,7 @@ import numpy as np
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     if len(sys.argv) != 5:
-        print("Usage: python3.9 benchmark.py exec1 exec2 top step")
+        print("Usage: python3.9 main.py exec1 exec2 top step")
         exit(1)
     filename = sys.argv[1]
     filename2 = sys.argv[2]
@@ -21,10 +21,12 @@ if __name__ == '__main__':
     step = int(sys.argv[4])
 
     times1 = []
+    res1 = []
     xs = np.arange(top, step=step)
     for i in xs:
         ns0 = time.time_ns()
-        os.system("./" + filename + " " + str(i))
+        res = os.popen("./" + filename + " " + str(i)).read()
+        res1.append(res)
         ns1 = time.time_ns()
         ns = ((ns1 - ns0) // 1000) / 1000000
         times1.append(ns)
@@ -34,13 +36,16 @@ if __name__ == '__main__':
     json.dump(times1, f)
 
     times2 = []
+    res2 = []
     for i in xs:
         ns0 = time.time_ns()
-        os.system("./" + filename2 + " " + str(i))
+        res = os.popen("./" + filename2 + " " + str(i)).read()
+        res2.append(res)
         ns1 = time.time_ns()
         ns = ((ns1 - ns0) // 1000) / 1000000
         times2.append(ns)
         print(i, ":", ns)
+    assert res1 == res2
     print(times2, "s")
     f = open("results2.json", 'w')
     json.dump(times2, f)
