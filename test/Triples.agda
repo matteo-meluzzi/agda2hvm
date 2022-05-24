@@ -49,19 +49,7 @@ sumall : List Triple → Nat
 sumall Nil = 0
 sumall (Cons (triple x y z) xs) = x + y + z + sumall xs
 
-postulate 
-  String : Set
-  pippo : String
-  command-line : List String
-  string->number : String -> Nat
-
-second : List String -> String
-second (Cons x _) = x 
-second _ = pippo
-
 test1 = sumall (triples 20) -- evaluates to 33638
-
--- (string->number (car (command-line-arguments)))
 
 main : Nat -> Nat
 main n = sumall (triples n)

@@ -89,7 +89,7 @@ hvmPostCompile opts main modulesDict = do
         fileNameHVM  = fileName ++ ".hvm"
         filenameC = fileName ++ ".c"
     liftIO $ T.writeFile ("./" ++ fileNameHVM) (T.pack t)
-    liftIO $ callProcess "hvm" ["c", fileNameHVM]
+    liftIO $ callProcess "hvm" ["c", fileNameHVM, "--single-thread"] -- we compile with --single-thread because HVM seems to be more stable when run with one thread only
     liftIO $ callProcess "clang" ["-Ofast", "-lpthread", "-o", fileName, filenameC]
 
 hvmCompile :: HvmOptions -> () -> IsMain -> Definition -> TCM [HvmTerm]
