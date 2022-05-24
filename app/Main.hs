@@ -35,7 +35,6 @@ import qualified Data.Text.IO as T
 
 import GHC.Generics ( Generic )
 
-import ToHvm
 import Syntax
 
 import System.Process
@@ -44,6 +43,8 @@ import System.Directory
 
 import Utils
 import Optimize
+import ToHvm
+import ToHvm (HvmOptions(singleThread))
 
 -- type HvmModule = [[HvmTerm]]
 data HvmModule = HvmModule { isMain :: IsMain, defs :: [[HvmTerm]], name :: ModuleName }
@@ -53,8 +54,8 @@ backend' = Backend'
     {
         backendName             = "agda2HVM"
         , backendVersion        = Nothing
-        , options               = Options
-        , commandLineFlags      = []
+        , options               = HvmOptions False
+        , commandLineFlags      = hvmFlags
         , isEnabled             = const True
         , preCompile            = hvmPreCompile
         , postCompile           = hvmPostCompile
@@ -67,6 +68,16 @@ backend' = Backend'
 
 backend :: Backend
 backend = Backend backend'
+
+hvmFlags :: [OptDescr (Flag HvmOptions)]
+hvmFlags =
+    [
+        Option [] ["single-thread"] (NoArg $ singleThreadFlag True) "run code on one thread only",
+        Option [] ["multi-thread"] (NoArg $ singleThreadFlag False) "run code on many threads"
+    ]
+    where
+        singleThreadFlag :: Bool -> Flag HvmOptions
+        singleThreadFlag s o = return $ o { singleThread = s }
 
 hvmPreCompile :: HvmOptions -> TCM HvmOptions
 hvmPreCompile o = do
@@ -89,8 +100,9 @@ hvmPostCompile opts main modulesDict = do
         fileNameHVM  = fileName ++ ".hvm"
         filenameC = fileName ++ ".c"
     liftIO $ T.writeFile ("./" ++ fileNameHVM) (T.pack t)
-    liftIO $ callProcess "hvm" ["c", fileNameHVM, "--single-thread"] -- we compile with --single-thread because HVM seems to be more stable when run with one thread only
+    liftIO $ callProcess "hvm" $ if singleThread opts then ["c", fileNameHVM,  "--single-thread"] else ["c", fileNameHVM] -- we compile with --single-thread because HVM seems to be more stable when run with one thread only
     liftIO $ callProcess "clang" ["-Ofast", "-lpthread", "-o", fileName, filenameC]
+    liftIO $ copyFile fileName ("../" ++ fileName)
 
 hvmCompile :: HvmOptions -> () -> IsMain -> Definition -> TCM [HvmTerm]
 hvmCompile opts _ isMain def = do

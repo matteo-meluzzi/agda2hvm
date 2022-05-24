@@ -48,7 +48,11 @@ import GHC.Generics ( Generic )
 import Syntax
 import Utils (safeTail, safeInit, safeHead, first, second, third)
 
-data HvmOptions = Options deriving (Generic, NFData)
+newtype HvmOptions = HvmOptions 
+  {
+    singleThread :: Bool
+  } 
+  deriving (Generic, NFData)
 
 comparison :: HvmAtom -> HvmAtom -> HvmTerm
 comparison name symbol = Rule (Ctr (Def name) [Var "a", Var "b"]) (Rules (App (Def splitName) [App (Var symbol) [Var "a", Var "b"]]) [
