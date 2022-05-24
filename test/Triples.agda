@@ -1,7 +1,6 @@
 
 open import Agda.Builtin.Bool
 open import Agda.Builtin.Nat
-open import Bench
 
 variable A B : Set
 
@@ -50,6 +49,19 @@ sumall : List Triple → Nat
 sumall Nil = 0
 sumall (Cons (triple x y z) xs) = x + y + z + sumall xs
 
+postulate 
+  String : Set
+  pippo : String
+  command-line : List String
+  string->number : String -> Nat
+
+second : List String -> String
+second (Cons x _) = x 
+second _ = pippo
+
 test1 = sumall (triples 20) -- evaluates to 33638
 
-main = sun (gen 10)
+-- (string->number (car (command-line-arguments)))
+
+main : Nat -> Nat
+main n = sumall (triples n)

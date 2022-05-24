@@ -1,0 +1,4 @@
+agda2scheme --lazy Triples.agda
+echo '(display (main (delay (string->number (car (command-line-arguments)))))) (display "\\n")' >> Triples.ss
+echo '(compile-file "Triples.ss")' | chez -q
+time chez --script Triples.so 30
