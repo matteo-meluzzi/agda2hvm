@@ -22,7 +22,7 @@ contains term p = any p $ flatten term
 
 optimize :: HvmTerm -> HvmTerm
 optimize t = case t of
-    -- App (App (Def n) []) args -> App (Def n) (map optimize args)
+    App (App (Def n) []) args -> App (Def n) (map optimize args)
     Let n t1 t2 | not $ t2 `contains` (== Var n) -> optimize t2
 
     Lam n t -> Lam n (optimize t)
