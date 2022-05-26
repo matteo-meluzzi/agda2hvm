@@ -1,41 +1,52 @@
 import json
+import subprocess
 import sys
-import time
 import matplotlib.pyplot as plt
 import numpy as np
-from subprocess import Popen, PIPE, DEVNULL
+from subprocess import PIPE, DEVNULL, TimeoutExpired
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    if len(sys.argv) < 4:
-        print("Usage: python3.9 main.py top step name1:exec1 name2:exec2 name3:exec3...")
+    if len(sys.argv) < 5:
+        print("Usage: python3.9 main.py <plot title> top step name1:exec1 name2:exec2 name3:exec3...")
         exit(1)
-    top = int(sys.argv[1])
-    step = int(sys.argv[2])
+    title = sys.argv[1]
+    top = int(sys.argv[2])
+    step = int(sys.argv[3])
 
     mems = []
     ress = []
     labels = []
-    for x in sys.argv[3:]:
+    for x in sys.argv[4:]:
         label,filename = x.split(":")
         labels.append(label)
+        print("\n", label)
 
         mems1 = []
         res1 = []
         xs = np.arange(top, step=step)
         for i in xs:
-            ns0 = time.time_ns()
-            cmd = 'gtime -o /dev/stdout -f "%M" ./' + filename + ' ' + str(i)
-            pipe = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=DEVNULL, close_fds=True)
-            res = pipe.stdout.readline().decode("utf-8").strip()
-            memstr = pipe.stdout.readline().decode("utf-8").strip()
-            mem = float(memstr)/1000 # MB
-            print(i, "mem:", mem, "MB")
+            cmd = 'gtime -o /dev/stdout -f "%M" ' + filename + ' ' + str(i)
 
-            res1.append(res)
-            mems1.append(mem)
+            try:
+                pipe = subprocess.run(cmd, shell=True, stdout=PIPE, stderr=DEVNULL, timeout=10)
+                if pipe.returncode == 0:
+                    lines = pipe.stdout.decode('utf-8').splitlines()
+                    res = lines[0]
+                    memstr = lines[1]
+                    mem = float(memstr) / 1000000  # GB
+                    print(i, "mem:", mem, "GB")
+                    print(str(i) + ":", res)
+                    mems1.append(mem)
+                    res1.append(res)
+                else:
+                    print(label, "crashed, skipping the rest of the benchmarks. Error:", pipe.stdout)
+                    break
 
-        print(mems1, "MB")
+            except TimeoutExpired:
+                print(str(i) + ": timeout")
+                break
+
+
         f = open(filename + "-mems.json", 'w')
         json.dump(mems1, f)
 
@@ -44,15 +55,15 @@ if __name__ == '__main__':
 
     for res1 in ress:
         for res2 in ress:
-            assert res1 == res2
+            for x,y in zip(res1, res2):
+                assert x == y
 
     f.close()
-    plt.figure(figsize=(4.66, 7.11))
-
+    plt.figure(figsize=(6, 8))
+    plt.title(title)
     for label1,mems1 in zip(labels, mems):
         plt.plot(mems1, label=label1)
-
     plt.legend()
     plt.xlabel("n")
-    plt.ylabel("Memory usage (MB)")
+    plt.ylabel("Memory usage (GB)")
     plt.show()

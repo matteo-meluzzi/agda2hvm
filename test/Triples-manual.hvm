@@ -1,0 +1,29 @@
+
+(If 1 t e) = t
+(If 0 t e) = e
+
+(Filter p Nil) = Nil
+(Filter p (Cons x xs)) = (If (p x) (Cons x (Filter p xs)) (Filter p xs))
+
+(Append Nil ys) = ys
+(Append (Cons x xs) ys) = (Cons x (Append xs ys))
+
+(Bind Nil f) = Nil
+(Bind (Cons x xs) f) = (Append (f x) (Bind xs f))
+
+(Range a b) = (Go (- (+ 1 b) a) a)
+
+(Go 0 b) = Nil
+(Go a b) = (Cons b (Go (- a 1) (+ 1 b)))
+
+(Alltriples top) = (Bind (Range 1 top) (@z (Bind (Range 1 z) (@y (Bind (Range 1 y) (@x (Cons (Triple x y z) Nil)))))))
+
+(Cartesian (Triple x y z)) = (== (+ (* x x) (* y y)) (* z z))
+
+(Triples top) = (Filter (@x (Cartesian x)) (Alltriples top))
+
+(Sumall Nil) = 0
+(Sumall (Cons x xs)) = (Sumall.Go x xs)
+    (Sumall.Go (Triple x y z) xs) = (+ (+ (+ x y) z) (Sumall xs))
+
+(Main n) = (Sumall (Triples n))

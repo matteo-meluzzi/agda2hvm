@@ -41,16 +41,16 @@ range : Nat -> List Nat
 range 0 = 0 ∷ []
 range top@(suc n) = top ∷ (range n)
 
-at : List Nat -> Nat -> Nat
-at (x ∷ xs) zero    = x
-at (x ∷ xs) (suc n) = at xs n
-at []       m       = 0
+last : List Nat -> Nat
+last (x ∷ []]) = x
+last (x ∷ xs) = last xs
+last [] = 0 
 
 main : Main
 main = run $ do
   args <- getArgs
   let nstr = fromMaybe "10000" (head args)
   let n = fromMaybe 10000 (readMaybe 10 nstr)
-  let res = at (qsort (range n)) n
+  let res = last (qsort (range n))
   putStrLn (show res)
  

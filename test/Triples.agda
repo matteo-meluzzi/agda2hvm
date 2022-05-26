@@ -49,7 +49,7 @@ sumall : List Triple → Nat
 sumall Nil = 0
 sumall (Cons (triple x y z) xs) = x + y + z + sumall xs
 
-test1 = sumall (triples 20) -- evaluates to 33638
+test1 = sumall (triples 20) 
 
 main : Nat -> Nat
 main n = sumall (triples n)

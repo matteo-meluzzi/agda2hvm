@@ -1,0 +1,74 @@
+
+{listIt}
+def listIt = rec lIt = \f.\l.\e.
+		if isnil(l) then e else (f head(l) (lIt f tail(l) e));;
+
+{itList}
+def itList = rec itL = \f.\e.\l.
+		if isnil(l) then e else  (itL f (f e head(l)) tail(l));;
+
+
+{partition takes a boolean test function t, a list of elements l, 
+ and split it into two sub-lists, according to the the test}
+def partition = \t.\l.
+                let switch = \e.\l2.
+                    if (t e) then [head(l2),cons(e,head(tail(l2)))]
+                             else [cons(e,head(l2)),head(tail(l2))]
+		in (listIt switch l [nil,nil]);; 
+
+def filter = \t.\l.head(tail((partition t l)));;
+
+def append = rec a = \l1.\l2. if isnil(l1) 
+                 then l2 
+                 else cons(head(l1),(a tail(l1) l2));;
+
+def bind = rec b =
+    \xs.\f. 
+        if isnil(xs) then 
+            nil
+        else
+            let x = head(xs) in
+                (append (f x) (b tail(xs) f));;
+
+def go = rec go =
+    \a.\b.
+        if (a==0) then
+            nil
+        else
+            cons(b, (go (a-1) (b+1)));;
+
+def range =
+    \a.\b.
+        (go ((b+1)-a) a);;
+
+def Triple = \x.\y.\z.\w.(w x y z);;
+def Fst = \x.\y.\z.x;;
+def Snd = \x.\y.\z.y;;
+def Trd = \x.\y.\z.z;;
+
+def alltriples =
+    \top.
+        (bind (range 1 top) (\z. (bind (range 1 z) (\y. (bind (range 1 y) (\x. (cons((Triple x y z), nil))))))));;
+
+def cartesian =
+    \triple.
+        let x = (triple Fst) in
+        let y = (triple Snd) in
+        let z = (triple Trd) in
+            x * x + y * y == z * z;;
+
+def triples =
+    \top.
+        (filter cartesian (alltriples top));;
+
+def sumall = rec sumall =
+    \xs.
+        if isnil(xs) then
+            0
+        else
+            let hd = head(xs) in
+            let tl = tail(xs) in
+            let x = (hd Fst) in
+            let y = (hd Snd) in
+            let z = (hd Trd) in
+                x + y + z + (sumall tl);;

@@ -41,5 +41,10 @@ at (Cons x xs) Zero    = x
 at (Cons x xs) (suc n) = at xs n
 at Nil         m       = 0
 
+last : List Nat -> Nat
+last (Cons x Nil) = x
+last (Cons x xs) = last xs
+last Nil = 0 
+
 main : Nat -> Nat
 main n = at (qsort (range n)) n
